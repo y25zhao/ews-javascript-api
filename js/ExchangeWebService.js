@@ -3,11 +3,42 @@
  * BootStrap code. to initializes some class to avoid circular reference.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+/** polyfill */
+if (typeof Object.assign != 'function') {
+    // Must be writable: true, enumerable: false, configurable: true
+    Object.defineProperty(Object, "assign", {
+        value: function assign(target, varArgs) {
+            'use strict';
+            if (target == null) { // TypeError if undefined or null
+                throw new TypeError('Cannot convert undefined or null to object');
+            }
+            var to = Object(target);
+            for (var index = 1; index < arguments.length; index++) {
+                var nextSource = arguments[index];
+                if (nextSource != null) { // Skip over if undefined or null
+                    for (var nextKey in nextSource) {
+                        // Avoid bugs when hasOwnProperty is shadowed
+                        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                            to[nextKey] = nextSource[nextKey];
+                        }
+                    }
+                }
+            }
+            return to;
+        },
+        writable: true,
+        configurable: true
+    });
+}
 /** Promise type setup */
 var Promise_1 = require("./Promise");
 exports.Promise = Promise_1.Promise;
 var ConfigurationApi_1 = require("./ConfigurationApi");
 exports.ConfigurationApi = ConfigurationApi_1.ConfigurationApi;
+var XHRFactory_1 = require("./XHRFactory");
+exports.XHRFactory = XHRFactory_1.XHRFactory;
+var XHRDefault_1 = require("./XHRDefault");
+exports.XHRDefault = XHRDefault_1.XHRDefault;
 /**Schema Bootstrapping */
 var Schemas_1 = require("./Core/ServiceObjects/Schemas/Schemas");
 var ServiceObjectSchema_1 = require("./Core/ServiceObjects/Schemas/ServiceObjectSchema");
@@ -69,28 +100,6 @@ Schemas_1.Schemas.CancelMeetingMessageSchema = CancelMeetingMessageSchema_1.Canc
 var CalendarResponseObjectSchema_1 = require("./Core/ServiceObjects/Schemas/CalendarResponseObjectSchema"); // [ServiceObjectSchema] ItemSchema, EmailMessageSchema, ResponseObjectSchema
 exports.CalendarResponseObjectSchema = CalendarResponseObjectSchema_1.CalendarResponseObjectSchema;
 Schemas_1.Schemas.CalendarResponseObjectSchema = CalendarResponseObjectSchema_1.CalendarResponseObjectSchema;
-var TimeZoneTransition_1 = require("./ComplexProperties/TimeZones/TimeZoneTransition");
-exports.TimeZoneTransition = TimeZoneTransition_1.TimeZoneTransition;
-var AbsoluteDateTransition_1 = require("./ComplexProperties/TimeZones/AbsoluteDateTransition");
-exports.AbsoluteDateTransition = AbsoluteDateTransition_1.AbsoluteDateTransition;
-var AbsoluteDayOfMonthTransition_1 = require("./ComplexProperties/TimeZones/AbsoluteDayOfMonthTransition");
-exports.AbsoluteDayOfMonthTransition = AbsoluteDayOfMonthTransition_1.AbsoluteDayOfMonthTransition;
-//import {AbsoluteMonthTransition} from "./ComplexProperties/TimeZones/AbsoluteMonthTransition";
-var RelativeDayOfMonthTransition_1 = require("./ComplexProperties/TimeZones/RelativeDayOfMonthTransition");
-exports.RelativeDayOfMonthTransition = RelativeDayOfMonthTransition_1.RelativeDayOfMonthTransition;
-var TimeZoneDefinition_1 = require("./ComplexProperties/TimeZones/TimeZoneDefinition");
-exports.TimeZoneDefinition = TimeZoneDefinition_1.TimeZoneDefinition;
-var TimeZonePeriod_1 = require("./ComplexProperties/TimeZones/TimeZonePeriod");
-exports.TimeZonePeriod = TimeZonePeriod_1.TimeZonePeriod;
-TimeZoneTransition_1.TimeZoneTransition.AbsoluteDateTransition = function (timeZoneDefinition) {
-    return new AbsoluteDateTransition_1.AbsoluteDateTransition(timeZoneDefinition);
-};
-TimeZoneTransition_1.TimeZoneTransition.AbsoluteDayOfMonthTransition = function (timeZoneDefinition, targetPeriod) {
-    return new AbsoluteDayOfMonthTransition_1.AbsoluteDayOfMonthTransition(timeZoneDefinition, targetPeriod);
-};
-TimeZoneTransition_1.TimeZoneTransition.RelativeDayOfMonthTransition = function (timeZoneDefinition, targetPeriod) {
-    return new RelativeDayOfMonthTransition_1.RelativeDayOfMonthTransition(timeZoneDefinition, targetPeriod);
-};
 /**
  * Bootstrap typecontainer
  */
@@ -144,6 +153,22 @@ TypeContainer_1.TypeContainer.ItemAttachmentOf = ItemAttachmentOf_1.ItemAttachme
 TypeContainer_1.TypeContainer.ExchangeService = ExchangeService_1.ExchangeService;
 TypeContainer_1.TypeContainer.IndexedPropertyDefinition = IndexedPropertyDefinition_1.IndexedPropertyDefinition;
 TypeContainer_1.TypeContainer.ExtendedPropertyDefinition = ExtendedPropertyDefinition_1.ExtendedPropertyDefinition;
+/** TimeZoneTransitions */
+var TimeZoneTransition_1 = require("./ComplexProperties/TimeZones/TimeZoneTransition");
+exports.TimeZoneTransition = TimeZoneTransition_1.TimeZoneTransition;
+var AbsoluteDateTransition_1 = require("./ComplexProperties/TimeZones/AbsoluteDateTransition");
+exports.AbsoluteDateTransition = AbsoluteDateTransition_1.AbsoluteDateTransition;
+var AbsoluteDayOfMonthTransition_1 = require("./ComplexProperties/TimeZones/AbsoluteDayOfMonthTransition");
+exports.AbsoluteDayOfMonthTransition = AbsoluteDayOfMonthTransition_1.AbsoluteDayOfMonthTransition;
+//import {AbsoluteMonthTransition} from "./ComplexProperties/TimeZones/AbsoluteMonthTransition";
+var RelativeDayOfMonthTransition_1 = require("./ComplexProperties/TimeZones/RelativeDayOfMonthTransition");
+exports.RelativeDayOfMonthTransition = RelativeDayOfMonthTransition_1.RelativeDayOfMonthTransition;
+//export { TimeZoneDefinition } from "./ComplexProperties/TimeZones/TimeZoneDefinition";
+var TimeZonePeriod_1 = require("./ComplexProperties/TimeZones/TimeZonePeriod");
+exports.TimeZonePeriod = TimeZonePeriod_1.TimeZonePeriod;
+TypeContainer_1.TypeContainer.AbsoluteDateTransition = AbsoluteDateTransition_1.AbsoluteDateTransition;
+TypeContainer_1.TypeContainer.AbsoluteDayOfMonthTransition = AbsoluteDayOfMonthTransition_1.AbsoluteDayOfMonthTransition;
+TypeContainer_1.TypeContainer.RelativeDayOfMonthTransition = RelativeDayOfMonthTransition_1.RelativeDayOfMonthTransition;
 var Recurrence_1 = require("./ComplexProperties/Recurrence/Patterns/Recurrence");
 exports.Recurrence = Recurrence_1.Recurrence;
 var Recurrence_DailyPattern_1 = require("./ComplexProperties/Recurrence/Patterns/Recurrence.DailyPattern");
@@ -444,9 +469,11 @@ var CreateUserConfigurationRequest_1 = require("./Core/Requests/CreateUserConfig
 exports.CreateUserConfigurationRequest = CreateUserConfigurationRequest_1.CreateUserConfigurationRequest;
 var DateTime_1 = require("./DateTime");
 exports.DateTime = DateTime_1.DateTime;
-exports.TimeSpan = DateTime_1.TimeSpan;
 exports.DateTimeKind = DateTime_1.DateTimeKind;
-exports.TimeZoneInfo = DateTime_1.TimeZoneInfo;
+var TimeSpan_1 = require("./TimeSpan");
+exports.TimeSpan = TimeSpan_1.TimeSpan;
+var TimeZoneInfo_1 = require("./TimeZoneInfo");
+exports.TimeZoneInfo = TimeZoneInfo_1.TimeZoneInfo;
 var DateTimePrecision_1 = require("./Enumerations/DateTimePrecision");
 exports.DateTimePrecision = DateTimePrecision_1.DateTimePrecision;
 var DateTimePropertyDefinition_1 = require("./PropertyDefinitions/DateTimePropertyDefinition");

@@ -10,11 +10,13 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var DayOfTheWeek_1 = require("../../Enumerations/DayOfTheWeek");
 var DateTime_1 = require("../../DateTime");
-var XmlNamespace_1 = require("../../Enumerations/XmlNamespace");
-var XmlElementNames_1 = require("../../Core/XmlElementNames");
+var DayOfTheWeek_1 = require("../../Enumerations/DayOfTheWeek");
 var EwsUtilities_1 = require("../../Core/EwsUtilities");
+var TimeSpan_1 = require("../../TimeSpan");
+var TimeZoneInfo_1 = require("../../TimeZoneInfo");
+var XmlElementNames_1 = require("../../Core/XmlElementNames");
+var XmlNamespace_1 = require("../../Enumerations/XmlNamespace");
 var ComplexProperty_1 = require("../../ComplexProperties/ComplexProperty");
 var LegacyAvailabilityTimeZoneTime = /** @class */ (function (_super) {
     __extends(LegacyAvailabilityTimeZoneTime, _super);
@@ -26,8 +28,8 @@ var LegacyAvailabilityTimeZoneTime = /** @class */ (function (_super) {
     // private timeOfDay: TimeSpan /*System.TimeSpan*/;
     function LegacyAvailabilityTimeZoneTime() {
         var _this = _super.call(this) || this;
-        _this.Delta = DateTime_1.TimeSpan.Zero /*System.TimeSpan*/;
-        _this.TimeOfDay = DateTime_1.TimeSpan.Zero /*System.TimeSpan*/;
+        _this.Delta = TimeSpan_1.TimeSpan.Zero /*System.TimeSpan*/;
+        _this.TimeOfDay = TimeSpan_1.TimeSpan.Zero /*System.TimeSpan*/;
         _this.DayOrder = 0;
         _this.Month = 0;
         _this.DayOfTheWeek = DayOfTheWeek_1.DayOfTheWeek.Sunday;
@@ -39,18 +41,22 @@ var LegacyAvailabilityTimeZoneTime = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
-    LegacyAvailabilityTimeZoneTime.prototype.InternalToJson = function (service) { throw new Error("LegacyAvailabilityTimeZoneTime.ts - InternalToJson : Not implemented."); };
-    LegacyAvailabilityTimeZoneTime.prototype.LoadFromJson = function (jsonProperty, service) { throw new Error("LegacyAvailabilityTimeZoneTime.ts - LoadFromJson : Not implemented."); };
-    LegacyAvailabilityTimeZoneTime.prototype.ToTransitionTime = function () { throw new Error("LegacyAvailabilityTimeZoneTime.ts - ToTransitionTime : Not implemented."); };
-    LegacyAvailabilityTimeZoneTime.prototype.ReadElementsFromXmlJsObject = function (reader) { throw new Error("LegacyAvailabilityTimeZoneTime.ts - TryReadElementFromXmlJsObject : Not implemented."); };
+    LegacyAvailabilityTimeZoneTime.prototype.ToTransitionTime = function () {
+        if (this.Year == 0) {
+            return TimeZoneInfo_1.TimeZoneInfo.TransitionTime.CreateFloatingDateRule(new DateTime_1.DateTime(DateTime_1.DateTime.MinValue.Year, DateTime_1.DateTime.MinValue.Month, DateTime_1.DateTime.MinValue.Day, this.TimeOfDay.Hours, this.TimeOfDay.Minutes, this.TimeOfDay.Seconds), this.Month, this.DayOrder, EwsUtilities_1.EwsUtilities.EwsToSystemDayOfWeek(this.DayOfTheWeek));
+        }
+        else {
+            return TimeZoneInfo_1.TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime_1.DateTime(this.TimeOfDay.TotalMilliseconds), this.Month, this.DayOrder);
+        }
+    };
     LegacyAvailabilityTimeZoneTime.prototype.LoadFromXmlJsObject = function (jsonProperty, service) {
         for (var key in jsonProperty) {
             switch (key) {
                 case XmlElementNames_1.XmlElementNames.Bias:
-                    this.Delta = DateTime_1.TimeSpan.FromMinutes(Number(jsonProperty[key]));
+                    this.Delta = TimeSpan_1.TimeSpan.FromMinutes(Number(jsonProperty[key]));
                     break;
                 case XmlElementNames_1.XmlElementNames.Time:
-                    this.TimeOfDay = new DateTime_1.TimeSpan(jsonProperty[key]); // momentjs taks care of parsing TimeSpan.Parse(jsonProperty[key]);
+                    this.TimeOfDay = new TimeSpan_1.TimeSpan(jsonProperty[key]); // momentjs taks care of parsing TimeSpan.Parse(jsonProperty[key]);
                     break;
                 case XmlElementNames_1.XmlElementNames.DayOrder:
                     this.DayOrder = Number(jsonProperty[key]);

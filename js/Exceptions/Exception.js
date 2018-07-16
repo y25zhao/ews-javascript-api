@@ -7,7 +7,7 @@ var Exception = /** @class */ (function () {
         if (message === void 0) { message = ""; }
         if (innerException === void 0) { innerException = null; }
         /** @internal  */
-        this.message = null;
+        this.message = '';
         //todo: implement stacktrace and source if needed - stack trace implemented by calling Error.captureStack
         this.stack = null;
         this.InnerException = null;
@@ -31,7 +31,7 @@ var Exception = /** @class */ (function () {
     Object.defineProperty(Exception.prototype, "name", {
         /** @internal  needed for bluebird to work when rejected without inheriting from Error object. BlueBird checks for Error like object not Error subclass itself. */
         get: function () {
-            return '';
+            return 'Exception';
         },
         enumerable: true,
         configurable: true
@@ -40,7 +40,15 @@ var Exception = /** @class */ (function () {
      * @override user JSON.stringify for now, todo: impelemtn real Exception tostring
      */
     Exception.prototype.toString = function () {
-        return JSON.stringify(this);
+        var result = this.stack;
+        try {
+            result = result || JSON.stringify(this);
+        }
+        catch (e) { }
+        return result;
+    };
+    Exception.prototype.ToString = function () {
+        return this.toString();
     };
     return Exception;
 }());

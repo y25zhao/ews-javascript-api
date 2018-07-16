@@ -184,7 +184,7 @@ var FileAttachment = /** @class */ (function (_super) {
      * @param   {number}   attachmentIndex   Index of this attachment.
      */
     FileAttachment.prototype.Validate = function (attachmentIndex) {
-        if (ExtensionMethods_1.StringHelper.IsNullOrEmpty(this.fileName) && (this.base64Content == null)) {
+        if (ExtensionMethods_1.StringHelper.IsNullOrEmpty(this.Name) && (this.base64Content == null)) {
             throw new ServiceValidationException_1.ServiceValidationException(ExtensionMethods_1.StringHelper.Format(Strings_1.Strings.FileAttachmentContentIsNotSet, attachmentIndex));
         }
     };

@@ -60,7 +60,7 @@ var MultiResponseServiceRequest = /** @class */ (function (_super) {
                     successDelegate(serviceResponses);
                 }
             }, function (resperr) {
-                debugger;
+                //debugger;
                 if (errorDelegate) {
                     errorDelegate(resperr);
                 }

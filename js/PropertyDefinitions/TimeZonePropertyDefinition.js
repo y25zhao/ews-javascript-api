@@ -38,7 +38,7 @@ var TimeZonePropertyDefinition = /** @class */ (function (_super) {
      * @param   {PropertyBag}       propertyBag   The property bag.
      */
     TimeZonePropertyDefinition.prototype.LoadPropertyValueFromXmlJsObject = function (jsObject, service, propertyBag) {
-        EwsLogging_1.EwsLogging.Assert(false, "TimeZonePropertyDefinition.LoadPropertyValueFromXmlJsObject", "TimeZone info could be misleading, It should be used as UTC in all cases until fixed");
+        EwsLogging_1.EwsLogging.Assert(false, "TimeZonePropertyDefinition.LoadPropertyValueFromXmlJsObject", "TimeZone info has been updated, Please report any bugs to github");
         var timeZoneDefinition = new TimeZoneDefinition_1.TimeZoneDefinition();
         if (jsObject) {
             timeZoneDefinition.LoadFromXmlJsObject(jsObject, service);
@@ -53,7 +53,7 @@ var TimeZonePropertyDefinition = /** @class */ (function (_super) {
      * @param   {boolean}               isUpdateOperation   Indicates whether the context is an update operation.
      */
     TimeZonePropertyDefinition.prototype.WritePropertyValueToXml = function (writer, propertyBag, isUpdateOperation) {
-        EwsLogging_1.EwsLogging.Assert(false, "TimeZonePropertyDefinition.WritePropertyValueToXml", "TimeZone info could be misleading, It should be used as UTC in all cases until fixed");
+        EwsLogging_1.EwsLogging.Assert(false, "TimeZonePropertyDefinition.WritePropertyValueToXml", "[Info]:  TimeZone info has been updated, Please report any bugs to github", true);
         var value = propertyBag._getItem(this);
         if (value != null) {
             // We emit time zone properties only if we have not emitted the time zone SOAP header
@@ -61,7 +61,12 @@ var TimeZonePropertyDefinition = /** @class */ (function (_super) {
             // is being emitted.
             if (!writer.IsTimeZoneHeaderEmitted || value != writer.Service.TimeZone) {
                 var timeZoneDefinition = new TimeZoneDefinition_1.TimeZoneDefinition(value);
-                timeZoneDefinition.WriteToXml(writer, this.XmlElementName);
+                //Use the actual xmlElementName of this property definition, as it may have different names depending on the context
+                // e.g. StartTimeZone, EndTimeZone
+                writer.WriteStartElement(timeZoneDefinition.Namespace, this.XmlElementName);
+                timeZoneDefinition.WriteAttributesToXml(writer);
+                timeZoneDefinition.WriteElementsToXml(writer);
+                writer.WriteEndElement();
             }
         }
     };

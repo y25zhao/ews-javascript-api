@@ -73,6 +73,7 @@ var GetPasswordExpirationDateRequest_1 = require("./Requests/GetPasswordExpirati
 var GetRoomListsRequest_1 = require("./Requests/GetRoomListsRequest");
 var GetRoomsRequest_1 = require("./Requests/GetRoomsRequest");
 var GetSearchableMailboxesRequest_1 = require("./Requests/GetSearchableMailboxesRequest");
+var GetServerTimeZonesRequest_1 = require("./Requests/GetServerTimeZonesRequest");
 var GetUserAvailabilityRequest_1 = require("./Requests/GetUserAvailabilityRequest");
 var GetUserConfigurationRequest_1 = require("./Requests/GetUserConfigurationRequest");
 var GetUserOofSettingsRequest_1 = require("./Requests/GetUserOofSettingsRequest");
@@ -155,7 +156,7 @@ var ExchangeService = /** @class */ (function (_super) {
         _this.Exchange2007CompatibilityMode = false;
         _this.TraceEnablePrettyPrinting = true;
         return _this;
-        /* #endregion Utilities */
+        //#endregion
     }
     Object.defineProperty(ExchangeService.prototype, "TimeZone", {
         get: function () {
@@ -2288,6 +2289,7 @@ var ExchangeService = /** @class */ (function (_super) {
         var _this = this;
         var autodiscoverService = new AutodiscoverService_1.AutodiscoverService(null, null, requestedServerVersion);
         autodiscoverService.Credentials = this.Credentials;
+        autodiscoverService.XHRApi = this.XHRApi;
         autodiscoverService.RedirectionUrlValidationCallback = validateRedirectionUrlCallback,
             autodiscoverService.EnableScpLookup = this.EnableScpLookup;
         return autodiscoverService.GetUserSettings(emailAddress, UserSettingName_1.UserSettingName.InternalEwsUrl, UserSettingName_1.UserSettingName.ExternalEwsUrl)
@@ -2555,6 +2557,20 @@ var ExchangeService = /** @class */ (function (_super) {
         else {
             _super.prototype.SetContentType.call(this, request);
         }
+    };
+    /* #endregion Utilities */
+    //#region Additional Operations not in official EWS Managed Api in the commit
+    /**
+     * Get the TimeZoneInfo objects from server
+     *
+     * @returns {Promise<TimeZoneInfo[]>}
+     */
+    ExchangeService.prototype.GetServerTimeZones = function () {
+        var argsLength = arguments.length;
+        var request = new GetServerTimeZonesRequest_1.GetServerTimeZonesRequest(this);
+        return request.Execute().then(function (response) {
+            return response.Responses[0].TimeZones;
+        });
     };
     /* #region Constants */
     ExchangeService.TargetServerVersionHeaderName = "X-EWS-TargetVersion";

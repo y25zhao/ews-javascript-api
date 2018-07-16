@@ -15,6 +15,7 @@ var XmlElementNames_1 = require("../Core/XmlElementNames");
 var BodyType_1 = require("../Enumerations/BodyType");
 var ExtensionMethods_1 = require("../ExtensionMethods");
 var ComplexProperty_1 = require("./ComplexProperty");
+var EwsLogging_1 = require("../Core/EwsLogging");
 var MessageBody = /** @class */ (function (_super) {
     __extends(MessageBody, _super);
     function MessageBody(bodyTypeOrText, text) {
@@ -76,7 +77,8 @@ var MessageBody = /** @class */ (function (_super) {
                     //ref: IsTruncated not captured 
                     break;
                 default:
-                    debugger; //check exact name of body element
+                    //debugger;//check exact name of body element
+                    EwsLogging_1.EwsLogging.Log("MessageBody->LoadFromXmlJsObject : element " + key + " is skipped, open issue to fix this. ", true);
                     break;
             }
         }

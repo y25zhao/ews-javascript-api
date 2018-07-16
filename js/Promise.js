@@ -1,13 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var NotSupportedException_1 = require("./Exceptions/NotSupportedException");
-try {
-    var promise = require('bluebird');
-    exports.Promise = promise;
-}
-catch (e) {
-    exports.Promise = PromiseType;
-}
 var PromiseType = /** @class */ (function () {
     function PromiseType() {
         throw new NotSupportedException_1.NotSupportedException("Promise implementation missing.\nPlease use ConfigurePromise function to assign Promise Object\n" +
@@ -17,6 +10,13 @@ var PromiseType = /** @class */ (function () {
     }
     return PromiseType;
 }());
+try {
+    var promise = require('bluebird');
+    exports.Promise = promise;
+}
+catch (e) {
+    exports.Promise = PromiseType;
+}
 function ConfigurePromise(promise) {
     exports.Promise = promise;
 }

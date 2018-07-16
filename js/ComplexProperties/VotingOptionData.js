@@ -10,16 +10,64 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var SendPrompt_1 = require("../Enumerations/SendPrompt");
+var XmlElementNames_1 = require("../Core/XmlElementNames");
 var ComplexProperty_1 = require("./ComplexProperty");
+/**
+ * Represents voting option information.
+ * @sealed
+ */
 var VotingOptionData = /** @class */ (function (_super) {
     __extends(VotingOptionData, _super);
+    /**
+     * @internal Initializes a new instance of the **VotingOptionData** class.
+     */
     function VotingOptionData() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super.call(this) || this;
+        _this.displayName = null;
+        _this.sendPrompt = SendPrompt_1.SendPrompt.None;
+        return _this;
     }
-    VotingOptionData.prototype.LoadFromJson = function (jsonProperty, service) { throw new Error("VotingOptionData.ts - LoadFromJson : Not implemented."); };
-    /**@internal */
-    VotingOptionData.prototype.ReadElementsFromXmlJsObject = function (reader) { throw new Error("VotingOptionData.ts - TryReadElementFromXmlJsObject : Not implemented."); };
+    Object.defineProperty(VotingOptionData.prototype, "DisplayName", {
+        /**
+         * Gets the display name for the voting option.
+         */
+        get: function () {
+            return this.displayName;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(VotingOptionData.prototype, "SendPrompt", {
+        /**
+         * Gets the send prompt.
+         */
+        get: function () {
+            return this.sendPrompt;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @internal Loads service object from XML.
+     *
+     * @param   {any}				jsObject	Json Object converted from XML.
+     * @param   {ExchangeService}	service	The service.
+     */
+    VotingOptionData.prototype.LoadFromXmlJsObject = function (jsObject, service) {
+        for (var key in jsObject) {
+            switch (key) {
+                case XmlElementNames_1.XmlElementNames.VotingOptionDisplayName:
+                    this.displayName = jsObject[key];
+                    break;
+                case XmlElementNames_1.XmlElementNames.SendPrompt:
+                    this.sendPrompt = SendPrompt_1.SendPrompt[jsObject[key]];
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
     return VotingOptionData;
 }(ComplexProperty_1.ComplexProperty));
 exports.VotingOptionData = VotingOptionData;
-//}

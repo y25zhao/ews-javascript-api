@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var ArgumentException_1 = require("../../Exceptions/ArgumentException");
 var Strings_1 = require("../../Strings");
 var XmlElementNames_1 = require("../../Core/XmlElementNames");
 var XmlNamespace_1 = require("../../Enumerations/XmlNamespace");
-var ArgumentException_1 = require("../../Exceptions/ArgumentException");
 /**
  * Represents a time period.
  *

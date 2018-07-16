@@ -96,7 +96,7 @@ var ComplexPropertyDefinitionBase = /** @class */ (function (_super) {
      */
     ComplexPropertyDefinitionBase.prototype.WritePropertyValueToXml = function (writer, propertyBag, isUpdateOperation) {
         var complexProperty = propertyBag._getItem(this);
-        debugger;
+        //debugger;
         if (complexProperty) {
             complexProperty.WriteToXml(writer, this.XmlElementName);
         }

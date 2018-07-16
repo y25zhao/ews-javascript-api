@@ -23,7 +23,7 @@ var SimpleServiceRequestBase_1 = require("./SimpleServiceRequestBase");
 var InstallAppRequest = /** @class */ (function (_super) {
     __extends(InstallAppRequest, _super);
     /**
-     * Initializes a new instance of the  class.
+     * Initializes a new instance of the **InstallAppRequest** class.
      *
      * @param   {ExchangeService}   service          The service.
      * @param   {string}   			manifestStream   The manifest's plain text XML stream.

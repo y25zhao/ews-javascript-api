@@ -59,6 +59,8 @@ var AttendeeAvailability = /** @class */ (function (_super) {
                     break;
                 case XmlElementNames_1.XmlElementNames.CalendarEventArray:
                     var calendarEventArray = jsObject[key];
+                    if (!calendarEventArray)
+                        break;
                     var calendarEvents = calendarEventArray[XmlElementNames_1.XmlElementNames.CalendarEvent];
                     if (!Array.isArray(calendarEvents)) {
                         calendarEvents = [calendarEvents];

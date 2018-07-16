@@ -16,6 +16,7 @@ var XmlElementNames_1 = require("../../Core/XmlElementNames");
 var DateTime_1 = require("../../DateTime");
 var EwsServiceJsonReader_1 = require("../../Core/EwsServiceJsonReader");
 var ComplexProperty_1 = require("../ComplexProperty");
+var EwsLogging_1 = require("../../Core/EwsLogging");
 var Suggestion = /** @class */ (function (_super) {
     __extends(Suggestion, _super);
     function Suggestion() {
@@ -49,6 +50,8 @@ var Suggestion = /** @class */ (function (_super) {
     //LoadFromJson(jsonProperty: any, service: ExchangeService): any { throw new Error("Suggestion.ts - LoadFromJson : Not implemented."); }
     Suggestion.prototype.LoadFromXmlJsObject = function (jsonProperty, service) {
         this.date = DateTime_1.DateTime.Parse(jsonProperty[XmlElementNames_1.XmlElementNames.Date]);
+        EwsLogging_1.EwsLogging.Log("bug: Suggestion->LoadFromXml:    need to change to millisecond and with datetimekind", true);
+        //debugger;
         this.quality = SuggestionQuality_1.SuggestionQuality[jsonProperty[XmlElementNames_1.XmlElementNames.DayQuality]];
         var suggestionArrayObj = jsonProperty[XmlElementNames_1.XmlElementNames.SuggestionArray];
         var suggestions = EwsServiceJsonReader_1.EwsServiceJsonReader.ReadAsArray(suggestionArrayObj, XmlElementNames_1.XmlElementNames.Suggestion);

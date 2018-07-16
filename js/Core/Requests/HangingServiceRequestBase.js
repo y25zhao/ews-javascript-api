@@ -16,13 +16,16 @@ var EwsServiceXmlReader_1 = require("../EwsServiceXmlReader");
 var HangingRequestDisconnectEventArgs_1 = require("./HangingRequestDisconnectEventArgs");
 var HangingRequestDisconnectReason_1 = require("../../Enumerations/HangingRequestDisconnectReason");
 var Promise_1 = require("../../Promise");
-var XHRFactory_1 = require("../../XHRFactory");
 var ServiceRequestBase_1 = require("./ServiceRequestBase");
 /**
  * @internal Represents an abstract, hanging service request.
  */
 var HangingServiceRequestBase = /** @class */ (function (_super) {
     __extends(HangingServiceRequestBase, _super);
+    // /**
+    //  * ews-javascript-api:  FetchStream object
+    //  */
+    // private stream: FetchStream;
     /**
      * @internal Initializes a new instance of the **HangingServiceRequestBase** class.
      *
@@ -47,14 +50,13 @@ var HangingServiceRequestBase = /** @class */ (function (_super) {
         _this.chunk = '';
         _this.responseHandler = handler;
         _this.heartbeatFrequencyMilliseconds = heartbeatFrequency;
-        _this.xhrApi = XHRFactory_1.XHRFactory.XHRApi;
         return _this;
     }
     HangingServiceRequestBase.prototype.Disconnect = function (reason, exception) {
         if (reason === void 0) { reason = HangingRequestDisconnectReason_1.HangingRequestDisconnectReason.UserInitiated; }
         if (exception === void 0) { exception = null; }
         if (this.IsConnected) {
-            this.xhrApi.disconnect();
+            this.Service.XHRApi.disconnect();
             this.InternalOnDisconnect(reason, exception);
         }
     };
@@ -119,7 +121,7 @@ var HangingServiceRequestBase = /** @class */ (function (_super) {
                         //console.log(meta);
                         break;
                     case "end":
-                        _this.IsConnected = false;
+                        _this.InternalOnDisconnect(HangingRequestDisconnectReason_1.HangingRequestDisconnectReason.Clean, null);
                         break;
                     case "error":
                         _this.Disconnect(HangingRequestDisconnectReason_1.HangingRequestDisconnectReason.Exception, progress.error);
@@ -132,9 +134,14 @@ var HangingServiceRequestBase = /** @class */ (function (_super) {
                 }
             }).then(function (xhrResponse) {
                 //console.log(xhrResponse);
-                successDelegate(void 0);
+                //successDelegate(void 0);
             }, function (resperr) {
-                EwsLogging_1.EwsLogging.Log("Error in calling service, error code:" + resperr.status + "\r\n" + resperr.getAllResponseHeaders());
+                if (resperr.status && resperr.getAllResponseHeaders) {
+                    EwsLogging_1.EwsLogging.Log("Error in calling service, error code: " + resperr.status + "\r\n " + resperr.getAllResponseHeaders());
+                }
+                else {
+                    EwsLogging_1.EwsLogging.Log("Error in calling service, error code: " + (resperr.status || resperr.message));
+                }
                 if (errorDelegate)
                     errorDelegate(_this.ProcessWebException(resperr) || resperr);
             });
@@ -327,7 +334,7 @@ var HangingServiceRequestBase = /** @class */ (function (_super) {
         //var response = XHR(request);
         EwsLogging_1.EwsLogging.DebugLog("sending ews request");
         EwsLogging_1.EwsLogging.DebugLog(request, true);
-        return this.xhrApi.xhrStream(request, progressDelegate);
+        return this.Service.XHRApi.xhrStream(request, progressDelegate);
         // return new Promise((successDelegate, errorDelegate) => {
         //     this.stream = new FetchStream(this.Service.Url.ToString(), request);
         //     this.stream.on("data", (chunk) => {

@@ -774,7 +774,7 @@ var Item = /** @class */ (function (_super) {
         // Starting E14SP2, attachment will be sent along with CreateItem requests. 
         // if the attachment used to require the Timezone header, CreateItem request should do so too.
         //
-        debugger; //filtering of specific type needed.
+        //debugger;//todo: filtering of specific type needed.
         if (!isUpdateOperation &&
             (this.Service.RequestedServerVersion >= ExchangeVersion_1.ExchangeVersion.Exchange2010_SP2)) {
             for (var _i = 0, _a = ExtensionMethods_1.ArrayHelper.OfType(this.Attachments.Items, function (a) { return a instanceof TypeContainer_1.TypeContainer.ItemAttachment; }); _i < _a.length; _i++) {
@@ -860,20 +860,27 @@ var Item = /** @class */ (function (_super) {
         propertySet, ServiceErrorHandling_1.ServiceErrorHandling.ThrowOnError);
     };
     Item.prototype.InternalUpdate = function (parentFolderId, conflictResolutionMode, messageDisposition, sendInvitationsOrCancellationsMode, suppressReadReceipts) {
+        var _this = this;
         if (suppressReadReceipts === void 0) { suppressReadReceipts = false; }
         this.ThrowIfThisIsNew();
         this.ThrowIfThisIsAttachment();
+        var returnedPromise = null;
         var returnedItem = null;
-        // Regardless of whether item is dirty or not, if it has unprocessed
-        // attachment changes, validate them and process now.
-        if (this.HasUnprocessedAttachmentChanges()) {
-            this.Attachments.Validate();
-            this.Attachments.Save();
-        }
         if (this.IsDirty && this.PropertyBag.GetIsUpdateCallNecessary()) {
-            return this.Service.UpdateItem(this, parentFolderId, conflictResolutionMode, messageDisposition, sendInvitationsOrCancellationsMode !== null ? sendInvitationsOrCancellationsMode : this.DefaultSendInvitationsOrCancellationsMode, suppressReadReceipts);
+            returnedPromise = this.Service.UpdateItem(this, parentFolderId, conflictResolutionMode, messageDisposition, sendInvitationsOrCancellationsMode !== null ? sendInvitationsOrCancellationsMode : this.DefaultSendInvitationsOrCancellationsMode, suppressReadReceipts);
         }
-        return Promise_1.Promise.resolve(returnedItem);
+        return Promise_1.Promise.resolve(returnedPromise).then(function (item) {
+            // Regardless of whether item is dirty or not, if it has unprocessed
+            // attachment changes, validate them and process now.
+            if (_this.HasUnprocessedAttachmentChanges()) {
+                _this.Attachments.Validate();
+                return _this.Attachments.Save().then(function () {
+                    return item;
+                });
+            }
+            return item;
+        });
+        //return Promise.resolve(returnedItem);
     };
     Item.prototype.Move = function (destinationFolderIdOrName) {
         this.ThrowIfThisIsNew();

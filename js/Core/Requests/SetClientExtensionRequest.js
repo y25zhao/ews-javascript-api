@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var MultiResponseServiceRequest_1 = require("./MultiResponseServiceRequest");
 /**
- * ## @internal *Not Implemented*
+ * ## @internal *Not Implemented*   Server to server call - not needed
  */
 var SetClientExtensionRequest = /** @class */ (function (_super) {
     __extends(SetClientExtensionRequest, _super);

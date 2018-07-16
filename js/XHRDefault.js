@@ -2,18 +2,24 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var fetch_1 = require("fetch");
 var Promise_1 = require("./Promise");
-/** @internal */
-var XHRDefaults = /** @class */ (function () {
-    function XHRDefaults() {
+/**
+ * Default implementation of XHRApi using fetch
+ */
+var XHRDefault = /** @class */ (function () {
+    function XHRDefault(fetchOptions) {
+        if (fetchOptions === void 0) { fetchOptions = {}; }
+        this.fetchOptions = {};
+        this.fetchOptions = fetchOptions;
         try {
             var fetch_2 = require("fetch");
-            XHRDefaults.FetchStream = fetch_2.FetchStream;
-            XHRDefaults.fetchUrl = fetch_2.fetchUrl;
+            XHRDefault.FetchStream = fetch_2.FetchStream;
+            XHRDefault.fetchUrl = fetch_2.fetchUrl;
         }
         catch (e) { }
     }
-    XHRDefaults.prototype.xhr = function (xhroptions, progressDelegate) {
-        if (XHRDefaults.fetchUrl === null) {
+    XHRDefault.prototype.xhr = function (xhroptions, progressDelegate) {
+        var _this = this;
+        if (XHRDefault.fetchUrl === null) {
             throw new Error("xhrApi - stub method, must be bootstrapped");
         }
         //setup xhr for github.com/andris9/fetch options
@@ -28,31 +34,36 @@ var XHRDefaults = /** @class */ (function () {
         // xhroptions["method"] = xhroptions.type;
         // delete xhroptions["type"];
         return new Promise_1.Promise(function (resolve, reject) {
-            XHRDefaults.fetchUrl(xhroptions.url, options, function (error, meta, body) {
+            XHRDefault.fetchUrl(xhroptions.url, _this.getOptions(options), function (error, meta, body) {
                 if (error) {
-                    reject(error);
-                }
-                var xhrResponse = {
-                    response: body.toString(),
-                    status: meta.status,
-                    redirectCount: meta.redirectCount,
-                    headers: meta.responseHeaders,
-                    finalUrl: meta.finalUrl,
-                    responseType: '',
-                    statusText: undefined,
-                };
-                if (xhrResponse.status === 200) {
-                    resolve(setupXhrResponse(xhrResponse));
+                    if (typeof error.status === 'undefined') {
+                        error.status = 0;
+                    }
+                    reject(setupXhrResponse(error));
                 }
                 else {
-                    reject(setupXhrResponse(xhrResponse));
+                    var xhrResponse = {
+                        response: body.toString(),
+                        status: meta.status,
+                        redirectCount: meta.redirectCount,
+                        headers: meta.responseHeaders,
+                        finalUrl: meta.finalUrl,
+                        responseType: '',
+                        statusText: undefined,
+                    };
+                    if (xhrResponse.status === 200) {
+                        resolve(setupXhrResponse(xhrResponse));
+                    }
+                    else {
+                        reject(setupXhrResponse(xhrResponse));
+                    }
                 }
             });
         });
     };
-    XHRDefaults.prototype.xhrStream = function (xhroptions, progressDelegate) {
+    XHRDefault.prototype.xhrStream = function (xhroptions, progressDelegate) {
         var _this = this;
-        if (XHRDefaults.FetchStream === null) {
+        if (XHRDefault.FetchStream === null) {
             throw new Error("xhrApi - stub method, must be bootstrapped");
         }
         //setup xhr for github.com/andris9/fetch options
@@ -62,7 +73,7 @@ var XHRDefaults = /** @class */ (function () {
             method: xhroptions.type
         };
         return new Promise_1.Promise(function (resolve, reject) {
-            _this.stream = new XHRDefaults.FetchStream(xhroptions.url, options);
+            _this.stream = new XHRDefault.FetchStream(xhroptions.url, _this.getOptions(options));
             _this.stream.on("data", function (chunk) {
                 //console.log(chunk.toString());
                 progressDelegate({ type: "data", data: chunk.toString() });
@@ -81,7 +92,7 @@ var XHRDefaults = /** @class */ (function () {
             });
         });
     };
-    XHRDefaults.prototype.disconnect = function () {
+    XHRDefault.prototype.disconnect = function () {
         if (this.stream) {
             try {
                 this.stream.destroy();
@@ -89,18 +100,23 @@ var XHRDefaults = /** @class */ (function () {
             catch (e) { }
         }
     };
-    Object.defineProperty(XHRDefaults.prototype, "apiName", {
+    Object.defineProperty(XHRDefault.prototype, "apiName", {
         get: function () {
             return "default";
         },
         enumerable: true,
         configurable: true
     });
-    XHRDefaults.FetchStream = fetch_1.FetchStream;
-    XHRDefaults.fetchUrl = null;
-    return XHRDefaults;
+    XHRDefault.prototype.getOptions = function (opts) {
+        var headers = Object.assign({}, (XHRDefault.defaultOptions || {}).headers, (this.fetchOptions || {}).headers, (opts || {}).headers);
+        return Object.assign({}, XHRDefault.defaultOptions, this.fetchOptions, opts, { headers: headers });
+    };
+    XHRDefault.FetchStream = fetch_1.FetchStream;
+    XHRDefault.fetchUrl = null;
+    XHRDefault.defaultOptions = {};
+    return XHRDefault;
 }());
-exports.XHRDefaults = XHRDefaults;
+exports.XHRDefault = XHRDefault;
 /** @internal */
 function setupXhrResponse(xhrResponse) {
     xhrResponse["responseText"] = xhrResponse.response;
@@ -115,8 +131,15 @@ function setupXhrResponse(xhrResponse) {
         return header;
     };
     xhrResponse.getResponseHeader = function (header) {
-        if (xhrResponse.headers && xhrResponse.headers[header]) {
-            return xhrResponse.headers[header];
+        if (header) {
+            if (xhrResponse.headers) {
+                if (xhrResponse.headers[header]) {
+                    return xhrResponse.headers[header];
+                }
+                if (xhrResponse.headers[header.toLocaleLowerCase()]) {
+                    return xhrResponse.headers[header.toLocaleLowerCase()];
+                }
+            }
         }
         return null;
     };

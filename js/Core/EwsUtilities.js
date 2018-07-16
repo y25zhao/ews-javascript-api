@@ -12,8 +12,9 @@ var PhoneNumberKey_1 = require("../Enumerations/PhoneNumberKey");
 var PhysicalAddressKey_1 = require("../Enumerations/PhysicalAddressKey");
 var ServiceVersionException_1 = require("../Exceptions/ServiceVersionException");
 var Strings_1 = require("../Strings");
-var DateTime_2 = require("../DateTime");
+var TimeSpan_1 = require("../TimeSpan");
 var TimeZoneConversionException_1 = require("../Exceptions/TimeZoneConversionException");
+var TimeZoneInfo_1 = require("../TimeZoneInfo");
 var TypeContainer_1 = require("../TypeContainer");
 var TypeGuards_1 = require("../Interfaces/TypeGuards");
 var XmlNamespace_1 = require("../Enumerations/XmlNamespace");
@@ -182,7 +183,7 @@ var EwsUtilities = /** @class */ (function () {
     // }
     EwsUtilities.ConvertTime = function (dateTime, sourceTimeZone, destinationTimeZone) {
         try {
-            return DateTime_1.TimeZoneInfo.ConvertTime(dateTime, sourceTimeZone, destinationTimeZone);
+            return TimeZoneInfo_1.TimeZoneInfo.ConvertTime(dateTime, sourceTimeZone, destinationTimeZone);
         }
         catch (ex) //ArgumentException
          {
@@ -375,21 +376,24 @@ var EwsUtilities = /** @class */ (function () {
         //             }
     };
     //static GetSimplifiedTypeName(typeName: string): string{ throw new Error("EwsUtilities.ts - static GetSimplifiedTypeName : Not implemented.");}
-    EwsUtilities.IsLocalTimeZone = function (timeZone) { return DateTime_1.TimeZoneInfo.IsLocalTimeZone(timeZone); };
+    EwsUtilities.IsLocalTimeZone = function (timeZone) {
+        return (TimeZoneInfo_1.TimeZoneInfo.Local == timeZone) || (TimeZoneInfo_1.TimeZoneInfo.Local.Id == timeZone.Id && TimeZoneInfo_1.TimeZoneInfo.Local.HasSameRules(timeZone));
+    };
     //static Parse(value: string): any{ throw new Error("EwsUtilities.ts - static Parse : Not implemented.");}
     EwsUtilities.ParseEnum = function (value, ewsenum) { throw new Error("EwsUtilities.ts - static Parse : Not implemented."); };
     EwsUtilities.ParseAsUnbiasedDatetimescopedToServicetimeZone = function (dateString, service) {
         // Convert the element's value to a DateTime with no adjustment.
-        var tempDate = DateTime_1.DateTime.Parse(dateString + "Z");
+        //var tempDate: DateTime = DateTime.Parse(dateString + "Z");
         // Set the kind according to the service's time zone
-        if (service.TimeZone == DateTime_1.TimeZoneInfo.Utc) {
-            return new DateTime_1.DateTime(tempDate.TotalMilliSeconds, DateTime_1.DateTimeKind.Utc);
+        if (service.TimeZone == TimeZoneInfo_1.TimeZoneInfo.Utc) {
+            return DateTime_1.DateTime.Parse(dateString, DateTime_1.DateTimeKind.Utc);
         }
         else if (EwsUtilities.IsLocalTimeZone(service.TimeZone)) {
-            return new DateTime_1.DateTime(tempDate.TotalMilliSeconds, DateTime_1.DateTimeKind.Local);
+            return DateTime_1.DateTime.Parse(dateString, DateTime_1.DateTimeKind.Local);
         }
         else {
-            return new DateTime_1.DateTime(tempDate.TotalMilliSeconds, DateTime_1.DateTimeKind.Unspecified);
+            return DateTime_1.DateTime.DateimeStringToTimeZone(dateString, service.TimeZone.IanaId);
+            //return DateTime.Parse(dateString, DateTimeKind.Unspecified);
         }
     };
     EwsUtilities.ParseEnumValueList = function (list, value, separators, enumType) {
@@ -415,7 +419,7 @@ var EwsUtilities = /** @class */ (function () {
         // The TimeSpan structure does not have a Year or Month 
         // property, therefore we wouldn't be able to return an xs:duration
         // string from a TimeSpan that included the nY or nM components.
-        return ExtensionMethods_1.StringHelper.Format("{0}P{1}DT{2}H{3}M{4}S", offsetStr, Math.abs(timeSpan.days()), Math.abs(timeSpan.hours()), Math.abs(timeSpan.minutes()), Math.abs(timeSpan.seconds()) + "." + Math.abs(timeSpan.milliseconds()));
+        return ExtensionMethods_1.StringHelper.Format("{0}P{1}DT{2}H{3}M{4}S", offsetStr, Math.abs(timeSpan.Days), Math.abs(timeSpan.Hours), Math.abs(timeSpan.Minutes), Math.abs(timeSpan.Seconds) + "." + Math.abs(timeSpan.Milliseconds));
     };
     EwsUtilities.numPad = function (num, length) {
         var str = num.toString();
@@ -424,14 +428,14 @@ var EwsUtilities = /** @class */ (function () {
         return str;
     };
     EwsUtilities.TimeSpanToXSTime = function (timeSpan) {
-        return ExtensionMethods_1.StringHelper.Format("{0}:{1}:{2}", this.numPad(timeSpan.hours(), 2), this.numPad(timeSpan.minutes(), 2), this.numPad(timeSpan.seconds(), 2));
+        return ExtensionMethods_1.StringHelper.Format("{0}:{1}:{2}", this.numPad(timeSpan.Hours, 2), this.numPad(timeSpan.Minutes, 2), this.numPad(timeSpan.Seconds, 2));
     };
     EwsUtilities.XSDurationToTimeSpan = function (xsDuration) {
         var regex = /(-)?P(([0-9]+)Y)?(([0-9]+)M)?(([0-9]+)D)?(T(([0-9]+)H)?(([0-9]+)M)?(([0-9]+)(\.([0-9]+))?S)?)?/; //ref: info: not using \\, may be a bug in EWS managed api. does not match "-P2Y6M5DT12H35M30.4S" with \\ //old /(-)?P([0-9]+)Y?([0-9]+)M?([0-9]+)D?T([0-9]+)H?([0-9]+)M?([0-9]+\.[0-9]+)?S?/;
         if (xsDuration.match(regex) === null) {
             throw new ArgumentException_1.ArgumentException(Strings_1.Strings.XsDurationCouldNotBeParsed);
         }
-        return new DateTime_2.TimeSpan(xsDuration); //using moment, it recognize the format.
+        return new TimeSpan_1.TimeSpan(xsDuration); //using moment, it recognize the format.
     };
     //static TrueForAll(collection: System.Collections.Generic.IEnumerable<T>, predicate: any): boolean{ throw new Error("EwsUtilities.ts - static TrueForAll : Not implemented.");}
     EwsUtilities.ValidateClassVersion = function (service, minimumServerVersion, className) {

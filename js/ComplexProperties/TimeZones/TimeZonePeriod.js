@@ -10,19 +10,27 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var EwsUtilities_1 = require("../../Core/EwsUtilities");
 var XmlAttributeNames_1 = require("../../Core/XmlAttributeNames");
 var XmlElementNames_1 = require("../../Core/XmlElementNames");
-var EwsUtilities_1 = require("../../Core/EwsUtilities");
 var ComplexProperty_1 = require("../ComplexProperty");
+/**
+ * @internal Represents a time zone period as defined in the EWS schema.
+ */
 var TimeZonePeriod = /** @class */ (function (_super) {
     __extends(TimeZonePeriod, _super);
-    // private bias: TimeSpan; backing property not needed 
-    // private name: string;
-    // private id: string;
+    /**
+     * @internal Initializes a new instance of the **TimeZonePeriod** class.
+     */
     function TimeZonePeriod() {
         return _super.call(this) || this;
     }
     Object.defineProperty(TimeZonePeriod.prototype, "IsStandardPeriod", {
+        /**
+         * Gets a value indicating whether this period represents the Standard period.
+         *
+         * @value   <c>true</c> if this instance is standard period; otherwise, <c>false</c>.
+         */
         get: function () {
             return this.Name.toUpperCase() === TimeZonePeriod.StandardPeriodName.toUpperCase();
             // return string.Compare(
@@ -33,21 +41,50 @@ var TimeZonePeriod = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
-    //InternalToJson(service: ExchangeService): any { throw new Error("TimeZonePeriod.ts - InternalToJson : Not implemented."); }
-    //LoadFromJson(jsonProperty: any, service: ExchangeService): any { throw new Error("TimeZonePeriod.ts - LoadFromJson : Not implemented."); }
-    TimeZonePeriod.prototype.LoadFromXmlJsObject = function (reader) { throw new Error("TimeZonePeriod.ts - LoadFromXmlJsObject : Not implemented."); };
-    //ReadAttributesFromXmlJsObject(reader: any): any { throw new Error("TimeZonePeriod.ts - ReadAttributesFromXml : Not implemented."); }
-    /**@internal */
+    /**
+     * @internal Loads service object from XML.
+     *
+     * @param   {any}				jsObject	Json Object converted from XML.
+     * @param   {ExchangeService}	service	The service.
+     */
+    TimeZonePeriod.prototype.LoadFromXmlJsObject = function (jsObject, service) {
+        for (var key in jsObject) {
+            switch (key) {
+                case XmlAttributeNames_1.XmlAttributeNames.Id:
+                    this.Id = jsObject[key];
+                    break;
+                case XmlAttributeNames_1.XmlAttributeNames.Name:
+                    this.Name = jsObject[key];
+                    break;
+                case XmlAttributeNames_1.XmlAttributeNames.Bias:
+                    this.Bias = EwsUtilities_1.EwsUtilities.XSDurationToTimeSpan(jsObject[key]);
+                    break;
+            }
+        }
+    };
+    /**
+     * @internal Writes the attributes to XML.
+     *
+     * @param   {EwsServiceXmlWriter}   writer   The writer.
+     */
     TimeZonePeriod.prototype.WriteAttributesToXml = function (writer) {
         writer.WriteAttributeValue(XmlAttributeNames_1.XmlAttributeNames.Bias, EwsUtilities_1.EwsUtilities.TimeSpanToXSDuration(this.Bias));
         writer.WriteAttributeValue(XmlAttributeNames_1.XmlAttributeNames.Name, this.Name);
         writer.WriteAttributeValue(XmlAttributeNames_1.XmlAttributeNames.Id, this.Id);
     };
-    /**@internal */
+    /**
+     * @internal Writes to XML.
+     *
+     * @param   {EwsServiceXmlWriter}   writer   The writer.
+     */
     TimeZonePeriod.prototype.WriteToXml = function (writer) { _super.prototype.WriteToXml.call(this, writer, XmlElementNames_1.XmlElementNames.Period); };
+    /** @internal */
     TimeZonePeriod.StandardPeriodId = "Std";
+    /** @internal */
     TimeZonePeriod.StandardPeriodName = "Standard";
+    /** @internal */
     TimeZonePeriod.DaylightPeriodId = "Dlt";
+    /** @internal */
     TimeZonePeriod.DaylightPeriodName = "Daylight";
     return TimeZonePeriod;
 }(ComplexProperty_1.ComplexProperty));

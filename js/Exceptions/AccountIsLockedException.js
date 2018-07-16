@@ -17,7 +17,7 @@ var ServiceRemoteException_1 = require("./ServiceRemoteException");
 var AccountIsLockedException = /** @class */ (function (_super) {
     __extends(AccountIsLockedException, _super);
     /**
-     * Initializes a new instance of the  class.
+     * Initializes a new instance of the **AccountIsLockedException** class.
      *
      * @param   {string}        message            Error message text.
      * @param   {Uri}           accountUnlockUrl   URL for client to visit to unlock account.

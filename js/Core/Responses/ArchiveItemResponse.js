@@ -24,7 +24,7 @@ var ArchiveItemResponse = /** @class */ (function (_super) {
     };
     ArchiveItemResponse.prototype.ReadElementsFromJson = function (responseObject, service) { throw new Error("ArchiveItemResponse.ts - ReadElementsFromJson : Not implemented."); };
     ArchiveItemResponse.prototype.ReadElementsFromXmlJsObject = function (responseObject, service) {
-        debugger;
+        //debugger;
         var items = EwsServiceJsonReader_1.EwsServiceJsonReader.ReadServiceObjectsCollectionFromJson(responseObject, service, XmlElementNames_1.XmlElementNames.Folders, this.GetObjectInstance.bind(this), false, /* clearPropertyBag */ null, /* requestedPropertySet */ false); /* summaryPropertiesOnly */
         if (items.length > 0) {
             this.item = items[0];

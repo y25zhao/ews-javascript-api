@@ -14,6 +14,11 @@ var ServiceResponseException_1 = require("../Exceptions/ServiceResponseException
 var ServiceResult_1 = require("../Enumerations/ServiceResult");
 var Strings_1 = require("../Strings");
 var SubscriptionErrorEventArgs_1 = require("./SubscriptionErrorEventArgs");
+/**
+ * Represents a connection to an ongoing stream of events.
+ *
+ * @sealed
+ */
 var StreamingSubscriptionConnection = /** @class */ (function () {
     function StreamingSubscriptionConnection(service, lifetimeOrSubscriptions, lifetime) {
         var _this = this;
@@ -53,6 +58,10 @@ var StreamingSubscriptionConnection = /** @class */ (function () {
          * Occurs when a streaming subscription connection is disconnected from the server.
          */
         this.OnDisconnect = [];
+        /**
+         * Occurs when a streaming subscription connection gets headers from the server.
+         */
+        this.OnResponseHeader = [];
         EwsUtilities_1.EwsUtilities.ValidateParam(service, "service");
         EwsUtilities_1.EwsUtilities.ValidateClassVersion(service, ExchangeVersion_1.ExchangeVersion.Exchange2010_SP1, "StreamingSubscriptionConnection");
         var argsLength = arguments.length;
@@ -205,6 +214,19 @@ var StreamingSubscriptionConnection = /** @class */ (function () {
         }
     };
     /**
+     * Internal helper method called when the request receives headers.
+     *
+     * @param   {any}   headers   The headerf from server.
+     */
+    StreamingSubscriptionConnection.prototype.InternalOnResponseHeader = function (headers) {
+        if (this.OnResponseHeader && ExtensionMethods_1.ArrayHelper.isArray(this.OnResponseHeader)) {
+            try {
+                this.OnResponseHeader.forEach(function (onHeader) { onHeader(headers); });
+            }
+            catch (e) { }
+        }
+    };
+    /**
      * Issues the general failure.
      *
      * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
@@ -319,7 +341,8 @@ var StreamingSubscriptionConnection = /** @class */ (function () {
         }
         this.currentHangingRequest = new GetStreamingEventsRequest_1.GetStreamingEventsRequest(this.session, this.HandleServiceResponseObject.bind(this), this.subscriptions.Keys, this.connectionTimeout);
         this.currentHangingRequest.OnDisconnect.push(this.OnRequestDisconnect.bind(this)); //todo: fix if needed multiple instance new HangingServiceRequestBase.HangingRequestDisconnectHandler(this.OnRequestDisconnect)
-        this.currentHangingRequest.InternalExecute();
+        this.currentHangingRequest.OnResponseHeader = this.InternalOnResponseHeader.bind(this); //todo: fix if needed multiple instance new HangingServiceRequestBase.HangingRequestDisconnectHandler(this.OnRequestDisconnect)
+        return this.currentHangingRequest.InternalExecute();
         //}
     };
     /**

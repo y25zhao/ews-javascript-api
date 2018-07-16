@@ -245,7 +245,7 @@ var AutodiscoverService = /** @class */ (function (_super) {
             type: "GET",
             url: url,
         };
-        return this.GetXHRApi.xhr(xhrOptions)
+        return this.XHRApi.xhr(xhrOptions)
             .then(function (response) {
             if (response != null) {
                 _this.TraceMessage(TraceFlags_1.TraceFlags.All, "***hard checking for office 365 with node.js http request and presence of header x-federationtrusttokenissueruri= urn:federation:MicrosoftOnline");
@@ -388,9 +388,9 @@ var AutodiscoverService = /** @class */ (function (_super) {
         return this.TryGetAutodiscoverEndpointUrl(host, autodiscoverUrlOut)
             .then(function (value) {
             if (value) {
+                // If we got this far, the response was successful, set Url.
+                _this.Url = autodiscoverUrlOut.outValue;
                 return getSettingsMethod(identities, settings, requestedVersion, autodiscoverUrlRef, _this).then(function (response) {
-                    // If we got this far, the response was successful, set Url.
-                    _this.Url = autodiscoverUrlRef.getValue();
                     // Not external if Autodiscover endpoint found via SCP returned the settings.
                     //if (isScpHost) {
                     //    this.IsExternal = false;
@@ -666,7 +666,7 @@ var AutodiscoverService = /** @class */ (function (_super) {
             url: autoDiscoverUrl,
         };
         //todo - optimize code, need to apply logic in failed errors as 401 go to onerror of xhr;
-        return this.GetXHRApi.xhr(xhrOptions)
+        return this.XHRApi.xhr(xhrOptions)
             .then(function (response) {
             if (response != null) {
                 var redirectUrl = null;

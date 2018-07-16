@@ -351,7 +351,7 @@ var EmailMessage = /** @class */ (function (_super) {
         else {
             // Regardless of whether item is dirty or not, if it has unprocessed
             // attachment changes, process them now.
-            debugger; //todo: check - check for attachment save() promise. 
+            //debugger; //todo: check - check for attachment save() promise. 
             return Promise_1.Promise.resolve(
             // Validate and save attachments before sending.
             this.HasUnprocessedAttachmentChanges() ? this.Attachments.ValidateAndSave() : void 0)

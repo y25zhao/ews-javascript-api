@@ -28,7 +28,7 @@ var UpdateFolderResponse = /** @class */ (function (_super) {
         }
     };
     UpdateFolderResponse.prototype.ReadElementsFromXmlJsObject = function (responseObject, service) {
-        debugger; //todo: check if this is needed. 
+        //debugger;//todo: check if this is needed. 
         //throw new Error("UpdateFolderResponse.ts - ReadElementsFromXmlJsObject : Not implemented."); 
     };
     return UpdateFolderResponse;

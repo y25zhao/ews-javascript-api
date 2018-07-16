@@ -23,7 +23,7 @@ var SimpleServiceRequestBase_1 = require("./SimpleServiceRequestBase");
 var UninstallAppRequest = /** @class */ (function (_super) {
     __extends(UninstallAppRequest, _super);
     /**
-     * @internal Initializes a new instance of the  class.
+     * @internal Initializes a new instance of the **UninstallAppRequest** class.
      *
      * @param   {ExchangeService}   service   The service.
      * @param   {string}   			id        Extension ID

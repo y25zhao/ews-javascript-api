@@ -51,7 +51,7 @@ var BoolPropertyDefinition = /** @class */ (function (_super) {
      * @return  {string}    String representation of Boolean property.
      */
     BoolPropertyDefinition.prototype.ToString = function (value) {
-        if (value)
+        if (typeof value !== 'undefined')
             return EwsUtilities_1.EwsUtilities.BoolToXSBool(value);
         throw new Error("BoolPropertyDefinition: incorrect call of ToString(value): value is undefined");
     };

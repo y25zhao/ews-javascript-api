@@ -10,18 +10,56 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var XmlAttributeNames_1 = require("../XmlAttributeNames");
+var XmlElementNames_1 = require("../XmlElementNames");
 var ServiceResponse_1 = require("./ServiceResponse");
+var EwsLogging_1 = require("../EwsLogging");
+var ExtensionMethods_1 = require("../../ExtensionMethods");
 /**
- * ## *Not Implemented*
+ * Represents the response to an individual attachment deletion operation.
+ * @sealed
  */
 var DeleteAttachmentResponse = /** @class */ (function (_super) {
     __extends(DeleteAttachmentResponse, _super);
-    function DeleteAttachmentResponse() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    /**
+     * Initializes a new instance of the **DeleteAttachmentResponse** class.
+     *
+     * @param   {Attachment}   attachment   The attachment.
+     */
+    function DeleteAttachmentResponse(attachment) {
+        var _this = _super.call(this) || this;
+        _this.attachment = null;
+        EwsLogging_1.EwsLogging.Assert(attachment != null, "CreateAttachmentResponse.ctor", "attachment is null");
+        _this.attachment = attachment;
+        return _this;
     }
-    DeleteAttachmentResponse.prototype.ReadElementsFromJson = function (responseObject, service) { throw new Error("DeleteAttachmentResponse.ts - ReadElementsFromJson : Not implemented."); };
-    /**@internal */
-    DeleteAttachmentResponse.prototype.ReadElementsFromXmlJsObject = function (reader) { throw new Error("DeleteAttachmentResponse.ts - ReadElementsFromXmlJsObject : Not implemented."); };
+    Object.defineProperty(DeleteAttachmentResponse.prototype, "Attachment", {
+        /**
+         * Gets the attachment that was deleted.
+         */
+        get: function () {
+            return this.attachment;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+      * @internal Reads response elements from Xml JsObject.
+      *
+      * @param   {any}               jsObject   The response object.
+      * @param   {ExchangeService}   service    The service.
+      */
+    DeleteAttachmentResponse.prototype.ReadElementsFromXmlJsObject = function (responseObject, service) {
+        if (responseObject[XmlElementNames_1.XmlElementNames.RootItemId]) {
+            var jsRootItemId = responseObject[XmlElementNames_1.XmlElementNames.RootItemId];
+            var changeKey = void 0;
+            if (jsRootItemId[XmlAttributeNames_1.XmlAttributeNames.RootItemChangeKey] &&
+                !ExtensionMethods_1.StringHelper.IsNullOrEmpty(changeKey = jsRootItemId[XmlAttributeNames_1.XmlAttributeNames.RootItemChangeKey]) &&
+                this.attachment.Owner != null) {
+                this.attachment.Owner.RootItemId.ChangeKey = changeKey;
+            }
+        }
+    };
     return DeleteAttachmentResponse;
 }(ServiceResponse_1.ServiceResponse));
 exports.DeleteAttachmentResponse = DeleteAttachmentResponse;

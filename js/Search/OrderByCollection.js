@@ -63,7 +63,7 @@ var OrderByCollection = /** @class */ (function () {
      */
     OrderByCollection.prototype.Contains = function (propertyDefinition) {
         this.propDefSortOrderPairList.forEach(function (pair, index) {
-            debugger; // check if equality works or need to use any property
+            //debugger;// check if equality works or need to use any property
             if (pair.key === propertyDefinition)
                 return true;
         });

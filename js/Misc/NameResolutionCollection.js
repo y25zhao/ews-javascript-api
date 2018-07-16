@@ -15,7 +15,7 @@ var XmlElementNames_1 = require("../Core/XmlElementNames");
  */
 var NameResolutionCollection = /** @class */ (function () {
     /**
-     * @internal Initializes a new instance of the  class.
+     * @internal Initializes a new instance of the **NameResolutionCollection** class.
      *
      * @param   {ExchangeService}   service   The service.
      */

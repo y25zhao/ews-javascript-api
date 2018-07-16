@@ -82,8 +82,8 @@ var AutodiscoverRequest = /** @class */ (function () {
         var _this = this;
         var writer = new EwsServiceXmlWriter_1.EwsServiceXmlWriter(this.service);
         this.WriteSoapRequest(this.url, writer);
-        if (!this.service || !this.Service.Credentials && (!this.Service.Credentials.UserName || this.service.Credentials.Password))
-            throw new Error("missing credential");
+        if (!this.service)
+            throw new Error("Missing Service");
         //var cred = "Basic " + btoa(this.Service.Credentials.UserName + ":" + this.Service.Credentials.Password);
         var cc = writer.GetXML();
         var xhrOptions = {
@@ -94,11 +94,13 @@ var AutodiscoverRequest = /** @class */ (function () {
             //headers: { "Content-Type": "text/xml", "Authorization": cred },
             headers: { "Content-Type": "text/xml" },
         };
-        this.service.Credentials.PrepareWebRequest(xhrOptions);
+        //If not set, credentials might come from custom XHRApi
+        if (this.service.Credentials)
+            this.service.Credentials.PrepareWebRequest(xhrOptions);
         return new Promise_1.Promise(function (successDelegate, errorDelegate) {
             EwsLogging_1.EwsLogging.DebugLog("sending ews request");
             EwsLogging_1.EwsLogging.DebugLog(xhrOptions, true);
-            _this.service.GetXHRApi.xhr(xhrOptions)
+            _this.service.XHRApi.xhr(xhrOptions)
                 .then(function (xhrResponse) {
                 var ewsXmlReader = new EwsXmlReader_1.EwsXmlReader(xhrResponse.responseText || xhrResponse.response);
                 //EwsLogging.log(util.inspect(xhrResponse.response, { showHidden: false, depth: null, colors: true }));

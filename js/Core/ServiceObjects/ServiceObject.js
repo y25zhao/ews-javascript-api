@@ -297,7 +297,7 @@ var ServiceObject = /** @class */ (function () {
             }
             else {
                 // Other subclasses of PropertyDefinitionBase are not supported.
-                var constructorName = "Chile of ServiceObject";
+                var constructorName = "Child of ServiceObject";
                 if (propertyDefinition.constructor.name) {
                     constructorName = propertyDefinition.constructor.name;
                 }

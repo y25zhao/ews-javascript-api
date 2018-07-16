@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var SimpleServiceRequestBase_1 = require("./SimpleServiceRequestBase");
 /**
- * ## @internal *Not Implemented*
+ * ## @internal *Not Implemented*   Server to server call - not needed
  */
 var SetEncryptionConfigurationRequest = /** @class */ (function (_super) {
     __extends(SetEncryptionConfigurationRequest, _super);

@@ -51,8 +51,8 @@ var EmailAddressCollection = /** @class */ (function (_super) {
         for (var _i = 0, emailOrSmtpAddresses_1 = emailOrSmtpAddresses; _i < emailOrSmtpAddresses_1.length; _i++) {
             var address = emailOrSmtpAddresses_1[_i];
             var emailAddress = address;
-            if (typeof address === 'string') {
-                address = new EmailAddress_1.EmailAddress(address);
+            if (typeof emailAddress === 'string') {
+                emailAddress = new EmailAddress_1.EmailAddress(address);
             }
             this.InternalAdd(emailAddress);
         }

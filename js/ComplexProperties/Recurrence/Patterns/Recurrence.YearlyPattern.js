@@ -86,10 +86,10 @@ var YearlyPattern = /** @class */ (function (_super) {
      */
     YearlyPattern.prototype.InternalValidate = function () {
         _super.prototype.InternalValidate.call(this);
-        if (!this.month) {
+        if (this.month === null) {
             throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.MonthMustBeSpecifiedForRecurrencePattern);
         }
-        if (!this.dayOfMonth) {
+        if (this.dayOfMonth === null) {
             throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.DayOfMonthMustBeSpecifiedForRecurrencePattern);
         }
     };
@@ -101,7 +101,7 @@ var YearlyPattern = /** @class */ (function (_super) {
     YearlyPattern.prototype.InternalWritePropertiesToXml = function (writer) {
         _super.prototype.InternalWritePropertiesToXml.call(this, writer);
         writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.DayOfMonth, this.DayOfMonth);
-        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.Month, this.Month);
+        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.Month, Month_1.Month[this.Month]);
     };
     /**
      * @internal Loads service object from XML.

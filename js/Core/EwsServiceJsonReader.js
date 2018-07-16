@@ -48,8 +48,8 @@ var EwsServiceJsonReader = /** @class */ (function () {
                         serviceObject.LoadFromXmlJsObject(jsonServiceObject, service, clearPropertyBag, requestedPropertySet, summaryPropertiesOnly);
                         serviceObjects.push(serviceObject);
                     }
-                    else
-                        debugger;
+                    // else
+                    //     debugger;
                 }
             }
         }

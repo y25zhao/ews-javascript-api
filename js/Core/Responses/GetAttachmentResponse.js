@@ -20,7 +20,7 @@ var ServiceResponse_1 = require("./ServiceResponse");
 var GetAttachmentResponse = /** @class */ (function (_super) {
     __extends(GetAttachmentResponse, _super);
     /**
-     * @internal Initializes a new instance of the  class.
+     * @internal Initializes a new instance of the **GetAttachmentResponse** class.
      *
      * @param   {Attachment}   attachment   The attachment.
      */

@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var ItemIdWrapperList_1 = require("../../Misc/ItemIdWrapperList");
+var AffectedTaskOccurrence_1 = require("../../Enumerations/AffectedTaskOccurrence");
 var SendCancellationsMode_1 = require("../../Enumerations/SendCancellationsMode");
 var XmlAttributeNames_1 = require("../XmlAttributeNames");
 var XmlElementNames_1 = require("../XmlElementNames");
@@ -77,7 +78,7 @@ var DeleteItemRequest = /** @class */ (function (_super) {
     DeleteItemRequest.prototype.WriteAttributesToXml = function (writer) {
         _super.prototype.WriteAttributesToXml.call(this, writer);
         if (this.AffectedTaskOccurrences !== null) {
-            writer.WriteAttributeValue(XmlAttributeNames_1.XmlAttributeNames.AffectedTaskOccurrences, this.AffectedTaskOccurrences);
+            writer.WriteAttributeValue(XmlAttributeNames_1.XmlAttributeNames.AffectedTaskOccurrences, AffectedTaskOccurrence_1.AffectedTaskOccurrence[this.AffectedTaskOccurrences]);
         }
         if (this.SendCancellationsMode !== null) {
             writer.WriteAttributeValue(XmlAttributeNames_1.XmlAttributeNames.SendMeetingCancellations, SendCancellationsMode_1.SendCancellationsMode[this.SendCancellationsMode]);

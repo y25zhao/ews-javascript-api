@@ -13,6 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ExtensionMethods_1 = require("../ExtensionMethods");
 var ExtendedProperty_1 = require("./ExtendedProperty");
 var XmlElementNames_1 = require("../Core/XmlElementNames");
+var XmlNamespace_1 = require("../Enumerations/XmlNamespace");
 var ComplexPropertyCollection_1 = require("./ComplexPropertyCollection");
 var ExtendedPropertyCollection = /** @class */ (function (_super) {
     __extends(ExtendedPropertyCollection, _super);
@@ -73,6 +74,54 @@ var ExtendedPropertyCollection = /** @class */ (function (_super) {
             propertyValue.outValue = null; // default(T);
             return false;
         }
+    };
+    /**
+     * @internal Writes the deletion update to XML.
+     * ICustomUpdateSerializer.WriteDeleteUpdateToXml
+     *
+     * @param   {EwsServiceXmlWriter}   writer      The writer.
+     * @param   {ServiceObject}         ewsObject   The ews object.
+     * @return  {boolean}               True if property generated serialization.
+     */
+    ExtendedPropertyCollection.prototype.WriteDeleteUpdateToXml = function (writer, ewsObject) {
+        // Use the default XML serializer.
+        for (var _i = 0, _a = this.Items; _i < _a.length; _i++) {
+            var extendedProperty = _a[_i];
+            writer.WriteStartElement(XmlNamespace_1.XmlNamespace.Types, ewsObject.GetDeleteFieldXmlElementName());
+            extendedProperty.PropertyDefinition.WriteToXml(writer);
+            writer.WriteEndElement();
+        }
+        return true;
+    };
+    /**
+     * @internal Writes the update to XML.
+     * ICustomUpdateSerializer.WriteSetUpdateToXml
+     *
+     * @param   {EwsServiceXmlWriter}   writer               The writer.
+     * @param   {ServiceObject}         ewsObject            The ews object.
+     * @param   {PropertyDefinition}    propertyDefinition   Property definition.
+     * @return  {boolean}               True if property generated serialization.
+     */
+    ExtendedPropertyCollection.prototype.WriteSetUpdateToXml = function (writer, ewsObject, propertyDefinition) {
+        var propertiesToSet = [];
+        ExtensionMethods_1.ArrayHelper.AddRange(propertiesToSet, this.AddedItems);
+        ExtensionMethods_1.ArrayHelper.AddRange(propertiesToSet, this.ModifiedItems);
+        for (var _i = 0, propertiesToSet_1 = propertiesToSet; _i < propertiesToSet_1.length; _i++) {
+            var extendedProperty = propertiesToSet_1[_i];
+            writer.WriteStartElement(XmlNamespace_1.XmlNamespace.Types, ewsObject.GetSetFieldXmlElementName());
+            extendedProperty.PropertyDefinition.WriteToXml(writer);
+            writer.WriteStartElement(XmlNamespace_1.XmlNamespace.Types, ewsObject.GetXmlElementName());
+            extendedProperty.WriteToXml(writer, XmlElementNames_1.XmlElementNames.ExtendedProperty);
+            writer.WriteEndElement();
+            writer.WriteEndElement();
+        }
+        for (var _a = 0, _b = this.RemovedItems; _a < _b.length; _a++) {
+            var extendedProperty = _b[_a];
+            writer.WriteStartElement(XmlNamespace_1.XmlNamespace.Types, ewsObject.GetDeleteFieldXmlElementName());
+            extendedProperty.PropertyDefinition.WriteToXml(writer);
+            writer.WriteEndElement();
+        }
+        return true;
     };
     /**@internal */
     ExtendedPropertyCollection.prototype.WriteToXml = function (writer, xmlElementName) {

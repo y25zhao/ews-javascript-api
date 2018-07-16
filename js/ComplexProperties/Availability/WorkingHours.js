@@ -10,9 +10,9 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var XmlElementNames_1 = require("../../Core/XmlElementNames");
 var LegacyAvailabilityTimeZone_1 = require("../../Misc/Availability/LegacyAvailabilityTimeZone");
 var WorkingPeriod_1 = require("./WorkingPeriod");
+var XmlElementNames_1 = require("../../Core/XmlElementNames");
 var ComplexProperty_1 = require("../ComplexProperty");
 var WorkingHours = /** @class */ (function (_super) {
     __extends(WorkingHours, _super);
@@ -24,8 +24,9 @@ var WorkingHours = /** @class */ (function (_super) {
         //ReadElementsFromXmlJsObject(reader: any): boolean { throw new Error("WorkingHours.ts - TryReadElementFromXmlJsObject : Not implemented."); }
     }
     Object.defineProperty(WorkingHours.prototype, "TimeZone", {
-        get: function () { return this.timeZone; } //System.TimeZoneInfo;
-        ,
+        get: function () {
+            return this.timeZone;
+        },
         enumerable: true,
         configurable: true
     });

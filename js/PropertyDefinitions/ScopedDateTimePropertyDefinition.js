@@ -10,13 +10,14 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var ExchangeVersion_1 = require("../Enumerations/ExchangeVersion");
+var DateTime_1 = require("../DateTime");
 var EwsLogging_1 = require("../Core/EwsLogging");
 var EwsUtilities_1 = require("../Core/EwsUtilities");
-var DateTime_1 = require("../DateTime");
+var ExchangeVersion_1 = require("../Enumerations/ExchangeVersion");
+var PropertyException_1 = require("../Exceptions/PropertyException");
 var ExtensionMethods_1 = require("../ExtensionMethods");
 var Strings_1 = require("../Strings");
-var PropertyException_1 = require("../Exceptions/PropertyException");
+var TimeZoneInfo_1 = require("../TimeZoneInfo");
 var DateTimePropertyDefinition_1 = require("./DateTimePropertyDefinition");
 /**
  * @internal Represents a property definition for DateTime values scoped to a specific time zone property.
@@ -60,7 +61,7 @@ var ScopedDateTimePropertyDefinition = /** @class */ (function (_super) {
      * @return  {DateTime}              The converted DateTime.
      */
     ScopedDateTimePropertyDefinition.prototype.ScopeToTimeZone = function (service, dateTime, propertyBag, isUpdateOperation) {
-        EwsLogging_1.EwsLogging.Assert(false, "ScopedDateTimePropertyDefinition.ScopeToTimeZone", "TimeZone info could be misleading, It should be used as UTC in all cases until fixed");
+        EwsLogging_1.EwsLogging.Assert(false, "ScopedDateTimePropertyDefinition.ScopeToTimeZone", "[Info]:  TimeZone info has been updated, Please report any bugs to github", true);
         if (!propertyBag.Owner.GetIsCustomDateTimeScopingRequired()) {
             // Most item types do not require a custom scoping mechanism. For those item types,
             // use the default scoping mechanism.
@@ -76,9 +77,9 @@ var ScopedDateTimePropertyDefinition = /** @class */ (function (_super) {
                 // If we have the associated time zone property handy and if it has been updated locally,
                 // then we scope the date time to that time zone.
                 try {
-                    var convertedDateTime = EwsUtilities_1.EwsUtilities.ConvertTime(dateTime, timeZonePropertyValue.outValue, DateTime_1.TimeZoneInfo.Utc);
+                    var convertedDateTime = EwsUtilities_1.EwsUtilities.ConvertTime(dateTime, timeZonePropertyValue.outValue, TimeZoneInfo_1.TimeZoneInfo.Utc);
                     // This is necessary to stamp the date/time with the Local kind.
-                    return new DateTime_1.DateTime(convertedDateTime, DateTime_1.DateTimeKind.Utc);
+                    return new DateTime_1.DateTime(convertedDateTime.TotalMilliSeconds, DateTime_1.DateTimeKind.Utc);
                 }
                 catch (e) {
                     throw new PropertyException_1.PropertyException(ExtensionMethods_1.StringHelper.Format(Strings_1.Strings.InvalidDateTime, dateTime), this.Name, e);

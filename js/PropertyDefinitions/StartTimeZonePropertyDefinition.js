@@ -69,7 +69,7 @@ var StartTimeZonePropertyDefinition = /** @class */ (function (_super) {
             if (writer.Service.RequestedServerVersion == ExchangeVersion_1.ExchangeVersion.Exchange2007_SP1) {
                 var service = writer.Service;
                 if (service != null && service.Exchange2007CompatibilityMode == false) {
-                    var meetingTimeZone = new MeetingTimeZone_1.MeetingTimeZone( /*<TimeZoneInfo>value*/);
+                    var meetingTimeZone = new MeetingTimeZone_1.MeetingTimeZone(value);
                     meetingTimeZone.WriteToXml(writer, XmlElementNames_1.XmlElementNames.MeetingTimeZone);
                 }
             }

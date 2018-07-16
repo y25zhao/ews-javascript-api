@@ -10,13 +10,14 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var PropertyException_1 = require("../Exceptions/PropertyException");
-var Strings_1 = require("../Strings");
-var XmlNamespace_1 = require("../Enumerations/XmlNamespace");
-var EwsUtilities_1 = require("../Core/EwsUtilities");
 var DateTime_1 = require("../DateTime");
-var ExtensionMethods_1 = require("../ExtensionMethods");
 var EwsLogging_1 = require("../Core/EwsLogging");
+var EwsUtilities_1 = require("../Core/EwsUtilities");
+var PropertyException_1 = require("../Exceptions/PropertyException");
+var ExtensionMethods_1 = require("../ExtensionMethods");
+var Strings_1 = require("../Strings");
+var TimeZoneInfo_1 = require("../TimeZoneInfo");
+var XmlNamespace_1 = require("../Enumerations/XmlNamespace");
 var PropertyDefinition_1 = require("./PropertyDefinition");
 /**
  * @internal Represents DateTime property definition.
@@ -97,8 +98,8 @@ var DateTimePropertyDefinition = /** @class */ (function (_super) {
     DateTimePropertyDefinition.prototype.ScopeToTimeZone = function (service, dateTime, propertyBag, isUpdateOperation) {
         EwsLogging_1.EwsLogging.Assert(false, "DateTimePropertyDefinition.ScopeToTimeZone", "TimeZone info could be misleading, It should be used as UTC in all cases until fixed");
         try {
-            var convertedDateTime = EwsUtilities_1.EwsUtilities.ConvertTime(dateTime, service.TimeZone, DateTime_1.TimeZoneInfo.Utc);
-            return new DateTime_1.DateTime(convertedDateTime, DateTime_1.DateTimeKind.Utc);
+            var convertedDateTime = EwsUtilities_1.EwsUtilities.ConvertTime(dateTime, service.TimeZone, TimeZoneInfo_1.TimeZoneInfo.Utc);
+            return new DateTime_1.DateTime(convertedDateTime.TotalMilliSeconds, DateTime_1.DateTimeKind.Utc);
         }
         catch (e) //TimeZoneConversionException
          {

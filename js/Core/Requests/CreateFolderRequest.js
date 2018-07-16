@@ -34,7 +34,7 @@ var CreateFolderRequest = /** @class */ (function (_super) {
     });
     CreateFolderRequest.prototype.CreateServiceResponse = function (service, responseIndex) {
         //return new CreateFolderResponse(<Folder>EwsUtilities.GetEnumeratedObjectAt(this.Folders, responseIndex));
-        if (this.Folders.length >= responseIndex) {
+        if (this.Folders.length <= responseIndex) {
             throw new Error(Strings_1.Strings.IEnumerableDoesNotContainThatManyObject);
         }
         return new CreateFolderResponse_1.CreateFolderResponse(this.Folders[responseIndex]);

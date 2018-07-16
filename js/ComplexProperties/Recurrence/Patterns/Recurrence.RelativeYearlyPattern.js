@@ -99,13 +99,13 @@ var RelativeYearlyPattern = /** @class */ (function (_super) {
      */
     RelativeYearlyPattern.prototype.InternalValidate = function () {
         _super.prototype.InternalValidate.call(this);
-        if (!this.dayOfTheWeekIndex) {
+        if (this.dayOfTheWeekIndex === null) {
             throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.DayOfWeekIndexMustBeSpecifiedForRecurrencePattern);
         }
-        if (!this.dayOfTheWeek) {
+        if (this.dayOfTheWeek === null) {
             throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.DayOfTheWeekMustBeSpecifiedForRecurrencePattern);
         }
-        if (!this.month) {
+        if (this.month === null) {
             throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.MonthMustBeSpecifiedForRecurrencePattern);
         }
     };
@@ -116,9 +116,9 @@ var RelativeYearlyPattern = /** @class */ (function (_super) {
      */
     RelativeYearlyPattern.prototype.InternalWritePropertiesToXml = function (writer) {
         _super.prototype.InternalWritePropertiesToXml.call(this, writer);
-        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.DaysOfWeek, this.DayOfTheWeek);
-        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.DayOfWeekIndex, this.DayOfTheWeekIndex);
-        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.Month, this.Month);
+        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.DaysOfWeek, DayOfTheWeek_1.DayOfTheWeek[this.DayOfTheWeek]);
+        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.DayOfWeekIndex, DayOfTheWeekIndex_1.DayOfTheWeekIndex[this.DayOfTheWeekIndex]);
+        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.Month, Month_1.Month[this.Month]);
     };
     /**
      * @internal Loads service object from XML.

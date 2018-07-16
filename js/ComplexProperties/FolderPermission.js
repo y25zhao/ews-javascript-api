@@ -10,18 +10,23 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var ServiceLocalException_1 = require("../Exceptions/ServiceLocalException");
-var Strings_1 = require("../Strings");
-var ServiceValidationException_1 = require("../Exceptions/ServiceValidationException");
-var XmlElementNames_1 = require("../Core/XmlElementNames");
-var UserId_1 = require("./UserId");
-var PermissionScope_1 = require("../Enumerations/PermissionScope");
-var FolderPermissionReadAccess_1 = require("../Enumerations/FolderPermissionReadAccess");
-var FolderPermissionLevel_1 = require("../Enumerations/FolderPermissionLevel");
-var LazyMember_1 = require("../Core/LazyMember");
 var ExtensionMethods_1 = require("../ExtensionMethods");
+var FolderPermissionLevel_1 = require("../Enumerations/FolderPermissionLevel");
+var FolderPermissionReadAccess_1 = require("../Enumerations/FolderPermissionReadAccess");
+var LazyMember_1 = require("../Core/LazyMember");
+var PermissionScope_1 = require("../Enumerations/PermissionScope");
+var ServiceLocalException_1 = require("../Exceptions/ServiceLocalException");
+var ServiceValidationException_1 = require("../Exceptions/ServiceValidationException");
+var Strings_1 = require("../Strings");
+var UserId_1 = require("./UserId");
+var XmlElementNames_1 = require("../Core/XmlElementNames");
 var XmlNamespace_1 = require("../Enumerations/XmlNamespace");
 var ComplexProperty_1 = require("./ComplexProperty");
+/**
+ * Represents a permission on a folder.
+ *
+ * @sealed
+ */
 var FolderPermission = /** @class */ (function (_super) {
     __extends(FolderPermission, _super);
     function FolderPermission(userIdOrStandardUserOrSmtpAddress, permissionLevel) {
@@ -43,7 +48,12 @@ var FolderPermission = /** @class */ (function (_super) {
         return _this;
     }
     Object.defineProperty(FolderPermission.prototype, "UserId", {
-        get: function () { return this.userId; },
+        /**
+         * Gets the Id of the user the permission applies to.
+         */
+        get: function () {
+            return this.userId;
+        },
         set: function (value) {
             var _this = this;
             if (this.userId != null) {
@@ -58,7 +68,12 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "CanCreateItems", {
-        get: function () { return this.canCreateItems; },
+        /**
+         * Gets or sets a value indicating whether the user can create new items.
+         */
+        get: function () {
+            return this.canCreateItems;
+        },
         set: function (value) {
             var _this = this;
             this.SetFieldValue({ getValue: function () { return _this.canCreateItems; }, setValue: function (data) { return _this.canCreateItems = data; } }, value);
@@ -68,7 +83,12 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "CanCreateSubFolders", {
-        get: function () { return this.canCreateSubFolders; },
+        /**
+         * Gets or sets a value indicating whether the user can create sub-folders.
+         */
+        get: function () {
+            return this.canCreateSubFolders;
+        },
         set: function (value) {
             var _this = this;
             this.SetFieldValue({ getValue: function () { return _this.canCreateSubFolders; }, setValue: function (data) { return _this.canCreateSubFolders = data; } }, value);
@@ -78,7 +98,12 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "IsFolderOwner", {
-        get: function () { return this.isFolderOwner; },
+        /**
+         * Gets or sets a value indicating whether the user owns the folder.
+         */
+        get: function () {
+            return this.isFolderOwner;
+        },
         set: function (value) {
             var _this = this;
             this.SetFieldValue({ getValue: function () { return _this.isFolderOwner; }, setValue: function (data) { return _this.isFolderOwner = data; } }, value);
@@ -88,7 +113,12 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "IsFolderVisible", {
-        get: function () { return this.isFolderVisible; },
+        /**
+         * Gets or sets a value indicating whether the folder is visible to the user.
+         */
+        get: function () {
+            return this.isFolderVisible;
+        },
         set: function (value) {
             var _this = this;
             this.SetFieldValue({ getValue: function () { return _this.isFolderVisible; }, setValue: function (data) { return _this.isFolderVisible = data; } }, value);
@@ -98,7 +128,12 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "IsFolderContact", {
-        get: function () { return this.isFolderContact; },
+        /**
+         * Gets or sets a value indicating whether the user is a contact for the folder.
+         */
+        get: function () {
+            return this.isFolderContact;
+        },
         set: function (value) {
             var _this = this;
             this.SetFieldValue({ getValue: function () { return _this.isFolderContact; }, setValue: function (data) { return _this.isFolderContact = data; } }, value);
@@ -108,7 +143,12 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "EditItems", {
-        get: function () { return this.editItems; },
+        /**
+         * Gets or sets a value indicating if/how the user can edit existing items.
+         */
+        get: function () {
+            return this.editItems;
+        },
         set: function (value) {
             var _this = this;
             this.SetFieldValue({ getValue: function () { return _this.editItems; }, setValue: function (data) { return _this.editItems = data; } }, value);
@@ -118,7 +158,12 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "DeleteItems", {
-        get: function () { return this.deleteItems; },
+        /**
+         * Gets or sets a value indicating if/how the user can delete existing items.
+         */
+        get: function () {
+            return this.deleteItems;
+        },
         set: function (value) {
             var _this = this;
             this.SetFieldValue({ getValue: function () { return _this.deleteItems; }, setValue: function (data) { return _this.deleteItems = data; } }, value);
@@ -128,7 +173,12 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "ReadItems", {
-        get: function () { return this.readItems; },
+        /**
+         * Gets or sets the read items access permission.
+         */
+        get: function () {
+            return this.readItems;
+        },
         set: function (value) {
             var _this = this;
             this.SetFieldValue({ getValue: function () { return _this.readItems; }, setValue: function (data) { return _this.readItems = data; } }, value);
@@ -138,7 +188,12 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "PermissionLevel", {
-        get: function () { return this.permissionLevel; },
+        /**
+         * Gets or sets the permission level.
+         */
+        get: function () {
+            return this.permissionLevel;
+        },
         set: function (value) {
             var _this = this;
             if (this.permissionLevel != value) {
@@ -153,6 +208,9 @@ var FolderPermission = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(FolderPermission.prototype, "DisplayPermissionLevel", {
+        /**
+         * Gets the permission level that Outlook would display for this folder permission.
+         */
         get: function () {
             // If permission level is set to Custom, see if there's a variant
             // that Outlook would map to the same permission level.
@@ -169,6 +227,9 @@ var FolderPermission = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
+    /**
+     * Determines the permission level of this folder permission based on its individual settings, and sets the PermissionLevel property accordingly.
+     */
     FolderPermission.prototype.AdjustPermissionLevel = function () {
         for (var key in FolderPermission.defaultPermissions.Member) {
             var value = FolderPermission.defaultPermissions.Member[key];
@@ -179,6 +240,11 @@ var FolderPermission = /** @class */ (function (_super) {
         }
         this.permissionLevel = FolderPermissionLevel_1.FolderPermissionLevel.Custom;
     };
+    /**
+     * Copies the values of the individual permissions of the specified folder permission to this folder permissions.
+     *
+     * @param   {FolderPermission}   permission   The folder permission to copy the values from.
+     */
     FolderPermission.prototype.AssignIndividualPermissions = function (permission) {
         this.canCreateItems = permission.CanCreateItems;
         this.canCreateSubFolders = permission.CanCreateSubFolders;
@@ -189,6 +255,11 @@ var FolderPermission = /** @class */ (function (_super) {
         this.deleteItems = permission.DeleteItems;
         this.readItems = permission.ReadItems;
     };
+    /**
+     * Create a copy of this FolderPermission instance.
+     *
+     * @return  {FolderPermission}      Clone of this instance.
+     */
     FolderPermission.prototype.Clone = function () {
         var res = new FolderPermission();
         res.canCreateItems = this.canCreateItems;
@@ -203,10 +274,14 @@ var FolderPermission = /** @class */ (function (_super) {
         res.userId = this.userId;
         return res;
     };
-    FolderPermission.prototype.InternalToJson = function (service, isCalendarFolder) { throw new Error("FolderPermission.ts - InternalToJson : Not implemented."); };
+    /**
+     * Determines whether the specified folder permission is the same as this one. The comparison does not take UserId and PermissionLevel into consideration.
+     *
+     * @param   {FolderPermission}  permission   The folder permission to compare with this folder permission.
+     * @return  {boolean}           True is the specified folder permission is equal to this one, false otherwise.
+     */
     FolderPermission.prototype.IsEqualTo = function (permission) {
-        return;
-        this.CanCreateItems == permission.CanCreateItems &&
+        return this.CanCreateItems == permission.CanCreateItems &&
             this.CanCreateSubFolders == permission.CanCreateSubFolders &&
             this.IsFolderContact == permission.IsFolderContact &&
             this.IsFolderVisible == permission.IsFolderVisible &&
@@ -215,45 +290,50 @@ var FolderPermission = /** @class */ (function (_super) {
             this.DeleteItems == permission.DeleteItems &&
             this.ReadItems == permission.ReadItems;
     };
-    FolderPermission.prototype.LoadFromJson = function (jsonProperty /*JsonObject*/, service) { throw new Error("FolderPermission.ts - LoadFromJson : Not implemented."); };
-    FolderPermission.prototype.LoadFromXmlJsObject = function (jsonProperty /*JsonObject*/, service) {
-        for (var key in jsonProperty) {
+    /**
+     * @internal Loads service object from XML.
+     *
+     * @param   {any}				jsObject	Json Object converted from XML.
+     * @param   {ExchangeService}	service	The service.
+     */
+    FolderPermission.prototype.LoadFromXmlJsObject = function (jsObject /*JsonObject*/, service) {
+        for (var key in jsObject) {
             switch (key) {
                 case XmlElementNames_1.XmlElementNames.UserId:
                     this.UserId = new UserId_1.UserId();
-                    this.UserId.LoadFromXmlJsObject(jsonProperty[key], service);
+                    this.UserId.LoadFromXmlJsObject(jsObject[key], service);
                     break;
                 case XmlElementNames_1.XmlElementNames.CanCreateItems:
-                    this.canCreateItems = ExtensionMethods_1.Convert.toBool(jsonProperty[key]);
+                    this.canCreateItems = ExtensionMethods_1.Convert.toBool(jsObject[key]);
                     break;
                 case XmlElementNames_1.XmlElementNames.CanCreateSubFolders:
-                    this.canCreateSubFolders = ExtensionMethods_1.Convert.toBool(jsonProperty[key]);
+                    this.canCreateSubFolders = ExtensionMethods_1.Convert.toBool(jsObject[key]);
                     break;
                 case XmlElementNames_1.XmlElementNames.IsFolderOwner:
-                    this.isFolderOwner = ExtensionMethods_1.Convert.toBool(jsonProperty[key]);
+                    this.isFolderOwner = ExtensionMethods_1.Convert.toBool(jsObject[key]);
                     break;
                 case XmlElementNames_1.XmlElementNames.IsFolderVisible:
-                    this.isFolderVisible = ExtensionMethods_1.Convert.toBool(jsonProperty[key]);
+                    this.isFolderVisible = ExtensionMethods_1.Convert.toBool(jsObject[key]);
                     break;
                 case XmlElementNames_1.XmlElementNames.IsFolderContact:
-                    this.isFolderContact = ExtensionMethods_1.Convert.toBool(jsonProperty[key]);
+                    this.isFolderContact = ExtensionMethods_1.Convert.toBool(jsObject[key]);
                     break;
                 case XmlElementNames_1.XmlElementNames.EditItems:
                     //debugger;//check for assignable enumeration type
-                    this.editItems = PermissionScope_1.PermissionScope[jsonProperty[key]];
+                    this.editItems = PermissionScope_1.PermissionScope[jsObject[key]];
                     break;
                 case XmlElementNames_1.XmlElementNames.DeleteItems:
                     //debugger;//check for assignable enumeration type
-                    this.deleteItems = PermissionScope_1.PermissionScope[jsonProperty[key]];
+                    this.deleteItems = PermissionScope_1.PermissionScope[jsObject[key]];
                     break;
                 case XmlElementNames_1.XmlElementNames.ReadItems:
                     //debugger;//check for assignable enumeration type
-                    this.readItems = FolderPermissionReadAccess_1.FolderPermissionReadAccess[jsonProperty[key]];
+                    this.readItems = FolderPermissionReadAccess_1.FolderPermissionReadAccess[jsObject[key]];
                     break;
                 case XmlElementNames_1.XmlElementNames.PermissionLevel:
                 case XmlElementNames_1.XmlElementNames.CalendarPermissionLevel:
                     //debugger;//check for assignable enumeration type
-                    this.permissionLevel = FolderPermissionLevel_1.FolderPermissionLevel[jsonProperty[key]];
+                    this.permissionLevel = FolderPermissionLevel_1.FolderPermissionLevel[jsObject[key]];
                     break;
                 default:
                     break;
@@ -261,10 +341,22 @@ var FolderPermission = /** @class */ (function (_super) {
         }
         this.AdjustPermissionLevel();
     };
-    FolderPermission.prototype.PropertyChanged = function (complexProperty) { this.Changed(); };
-    /**@internal */
-    FolderPermission.prototype.ReadElementsFromXmlJsObject = function (reader) { throw new Error("FolderPermission.ts - TryReadElementFromXmlJsObject : Not implemented."); };
+    /**
+     * Property was changed.
+     *
+     * @param   {ComplexProperty}   complexProperty   The complex property.
+     */
+    FolderPermission.prototype.PropertyChanged = function (complexProperty) {
+        this.Changed();
+    };
     //Validate(isCalendarFolder: boolean, permissionIndex: number): void { throw new Error("FolderPermission.ts - Validate : Not implemented."); }
+    /**
+     * @internal Validates this instance.
+     * ## parameters not optional: Typescript inheritance issue if not set as optional in code.
+     *
+     * @param   {boolean}   isCalendarFolder   if set to true calendar permissions are allowed.
+     * @param   {number}    permissionIndex    Index of the permission.
+     */
     FolderPermission.prototype.Validate = function (isCalendarFolder, permissionIndex) {
         if (typeof isCalendarFolder === 'undefined' || typeof permissionIndex === 'undefined')
             throw new Error("FolderPermission - Validate: incorrect call to validate, without the isCalendar or permissionIndex pearameter. this signature makes it optional to comply with typescript inheritance system and to avoid compiletime error.");
@@ -280,11 +372,16 @@ var FolderPermission = /** @class */ (function (_super) {
             }
             if ((this.permissionLevel == FolderPermissionLevel_1.FolderPermissionLevel.FreeBusyTimeAndSubjectAndLocation) ||
                 (this.permissionLevel == FolderPermissionLevel_1.FolderPermissionLevel.FreeBusyTimeOnly)) {
-                throw new ServiceLocalException_1.ServiceLocalException(ExtensionMethods_1.StringHelper.Format(Strings_1.Strings.PermissionLevelInvalidForNonCalendarFolder, this.permissionLevel));
+                throw new ServiceLocalException_1.ServiceLocalException(ExtensionMethods_1.StringHelper.Format(Strings_1.Strings.PermissionLevelInvalidForNonCalendarFolder, FolderPermissionLevel_1.FolderPermissionLevel[this.permissionLevel]));
             }
         }
     };
-    /**@internal */
+    /**
+     * @internal Writes elements to XML.
+     *
+     * @param   {EwsServiceXmlWriter}   writer             The writer.
+     * @param   {boolean}               isCalendarFolder   If true, this permission is for a calendar folder.
+     */
     FolderPermission.prototype.WriteElementsToXml = function (writer, isCalendarFolder) {
         if (isCalendarFolder === void 0) { isCalendarFolder = false; }
         if (this.UserId != null) {
@@ -300,9 +397,16 @@ var FolderPermission = /** @class */ (function (_super) {
             writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.DeleteItems, this.DeleteItems);
             writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.ReadItems, this.ReadItems);
         }
-        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, isCalendarFolder ? XmlElementNames_1.XmlElementNames.CalendarPermissionLevel : XmlElementNames_1.XmlElementNames.PermissionLevel, this.PermissionLevel);
+        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, isCalendarFolder ? XmlElementNames_1.XmlElementNames.CalendarPermissionLevel : XmlElementNames_1.XmlElementNames.PermissionLevel, FolderPermissionLevel_1.FolderPermissionLevel[this.PermissionLevel]);
     };
-    /**@internal */
+    /**
+     * @internal Writes to XML.
+     *
+     * @param   {EwsServiceXmlWriter}   writer             The writer.
+     * @param   {string}                xmlElementName     Name of the XML element.
+     * @param   {XmlNamespace}          xmlNamespace
+     * @param   {isCalendarFolder}      isCalendarFolder   If true, this permission is for a calendar folder.
+     */
     FolderPermission.prototype.WriteToXml = function (writer, xmlElementName, xmlNamespace, isCalendarFolder) {
         if (isCalendarFolder === void 0) { isCalendarFolder = false; }
         writer.WriteStartElement(this.Namespace, xmlElementName);
@@ -424,6 +528,9 @@ var FolderPermission = /** @class */ (function (_super) {
         result[FolderPermissionLevel_1.FolderPermissionLevel.FreeBusyTimeAndSubjectAndLocation] = permission;
         return result;
     });
+    /**
+     * Variants of pre-defined permission levels that Outlook also displays with the same levels.
+     */
     FolderPermission.levelVariants = new LazyMember_1.LazyMember(function () {
         var results = []; // new List<FolderPermission>();
         var permissionNone = FolderPermission.defaultPermissions.Member[FolderPermissionLevel_1.FolderPermissionLevel.None];

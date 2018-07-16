@@ -11,9 +11,9 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var DayOfTheWeek_1 = require("../../Enumerations/DayOfTheWeek");
-var XmlElementNames_1 = require("../../Core/XmlElementNames");
 var EwsUtilities_1 = require("../../Core/EwsUtilities");
-var DateTime_1 = require("../../DateTime");
+var TimeSpan_1 = require("../../TimeSpan");
+var XmlElementNames_1 = require("../../Core/XmlElementNames");
 var ComplexProperty_1 = require("../ComplexProperty");
 var WorkingPeriod = /** @class */ (function (_super) {
     __extends(WorkingPeriod, _super);
@@ -48,10 +48,10 @@ var WorkingPeriod = /** @class */ (function (_super) {
                     EwsUtilities_1.EwsUtilities.ParseEnumValueList(this.daysOfWeek, jsonProperty[key], ' ', DayOfTheWeek_1.DayOfTheWeek);
                     break;
                 case XmlElementNames_1.XmlElementNames.StartTimeInMinutes:
-                    this.startTime = DateTime_1.TimeSpan.FromMinutes(Number(jsonProperty[key]));
+                    this.startTime = TimeSpan_1.TimeSpan.FromMinutes(Number(jsonProperty[key]));
                     break;
                 case XmlElementNames_1.XmlElementNames.EndTimeInMinutes:
-                    this.endTime = DateTime_1.TimeSpan.FromMinutes(Number(jsonProperty[key]));
+                    this.endTime = TimeSpan_1.TimeSpan.FromMinutes(Number(jsonProperty[key]));
                     break;
                 default:
                     break;

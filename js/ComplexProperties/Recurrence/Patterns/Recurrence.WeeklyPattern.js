@@ -104,7 +104,7 @@ var WeeklyPattern = /** @class */ (function (_super) {
             //  version.
             //
             EwsUtilities_1.EwsUtilities.ValidatePropertyVersion(writer.Service, ExchangeVersion_1.ExchangeVersion.Exchange2010_SP1, "FirstDayOfWeek");
-            writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.FirstDayOfWeek, this.firstDayOfWeek);
+            writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.FirstDayOfWeek, DayOfWeek_1.DayOfWeek[this.firstDayOfWeek]);
         }
     };
     /**

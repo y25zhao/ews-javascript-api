@@ -15,6 +15,7 @@ var DayOfTheWeek_1 = require("../../../Enumerations/DayOfTheWeek");
 var ServiceValidationException_1 = require("../../../Exceptions/ServiceValidationException");
 var Strings_1 = require("../../../Strings");
 var XmlElementNames_1 = require("../../../Core/XmlElementNames");
+var XmlNamespace_1 = require("../../../Enumerations/XmlNamespace");
 var Recurrence_IntervalPattern_1 = require("./Recurrence.IntervalPattern");
 /**
  * Represents a recurrence pattern where each occurrence happens on a relative day a specific number of months after the previous one.
@@ -81,10 +82,10 @@ var RelativeMonthlyPattern = /** @class */ (function (_super) {
      */
     RelativeMonthlyPattern.prototype.InternalValidate = function () {
         _super.prototype.InternalValidate.call(this);
-        if (!this.dayOfTheWeek) {
+        if (this.dayOfTheWeek === null) {
             throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.DayOfTheWeekMustBeSpecifiedForRecurrencePattern);
         }
-        if (!this.dayOfTheWeekIndex) {
+        if (this.dayOfTheWeekIndex === null) {
             throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.DayOfWeekIndexMustBeSpecifiedForRecurrencePattern);
         }
     };
@@ -94,13 +95,9 @@ var RelativeMonthlyPattern = /** @class */ (function (_super) {
      * @param   {EwsServiceXmlWriter}   writer   The writer.
      */
     RelativeMonthlyPattern.prototype.InternalWritePropertiesToXml = function (writer) {
-        _super.prototype.InternalValidate.call(this);
-        if (!this.dayOfTheWeek) {
-            throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.DayOfTheWeekMustBeSpecifiedForRecurrencePattern);
-        }
-        if (!this.dayOfTheWeekIndex) {
-            throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.DayOfWeekIndexMustBeSpecifiedForRecurrencePattern);
-        }
+        _super.prototype.InternalWritePropertiesToXml.call(this, writer);
+        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.DaysOfWeek, DayOfTheWeek_1.DayOfTheWeek[this.DayOfTheWeek]);
+        writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.DayOfWeekIndex, DayOfTheWeekIndex_1.DayOfTheWeekIndex[this.DayOfTheWeekIndex]);
     };
     /**
      * @internal Loads service object from XML.

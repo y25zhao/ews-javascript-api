@@ -68,7 +68,7 @@ var MonthlyPattern = /** @class */ (function (_super) {
      */
     MonthlyPattern.prototype.InternalValidate = function () {
         _super.prototype.InternalValidate.call(this);
-        if (!this.dayOfMonth) {
+        if (this.dayOfMonth === null) {
             throw new ServiceValidationException_1.ServiceValidationException(Strings_1.Strings.DayOfMonthMustBeBetween1And31);
         }
     };

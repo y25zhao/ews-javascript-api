@@ -21,7 +21,7 @@ var ServiceResponse_1 = require("./ServiceResponse");
 var GetConversationItemsResponse = /** @class */ (function (_super) {
     __extends(GetConversationItemsResponse, _super);
     /**
-     * @internal Initializes a new instance of the  class.
+     * @internal Initializes a new instance of the **GetConversationItemsResponse** class.
      *
      * @param   {PropertySet}   propertySet   The property set.
      */

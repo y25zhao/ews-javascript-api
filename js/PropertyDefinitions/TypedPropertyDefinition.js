@@ -68,12 +68,17 @@ var TypedPropertyDefinition = /** @class */ (function (_super) {
      * @return  {string}        String representation of property value.
      */
     TypedPropertyDefinition.prototype.ToString = function (value) {
-        if (value)
+        if (value !== null && typeof value !== 'undefined')
             return value.toString();
         throw new Error("TypedPropertydefinition: incorrect call of ToString(value): value is undefined");
     };
     TypedPropertyDefinition.prototype.toString = function (value) {
-        return this.ToString(value);
+        if (arguments.length > 0) {
+            return this.ToString(value);
+        }
+        else {
+            return this.ToString();
+        }
     };
     /**
      * @internal Writes to XML.
@@ -84,7 +89,7 @@ var TypedPropertyDefinition = /** @class */ (function (_super) {
      */
     TypedPropertyDefinition.prototype.WritePropertyValueToXml = function (writer, propertyBag, isUpdateOperation) {
         var value = propertyBag._getItem(this);
-        if (value) {
+        if (typeof value !== 'undefined') {
             writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, this.XmlElementName, this.Name, this.ToString(value));
         }
     };

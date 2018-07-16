@@ -81,7 +81,7 @@ var EffectiveRightsPropertyDefinition = /** @class */ (function (_super) {
                 }
             }
         }
-        propertyBag._setItem(this, jsObject);
+        propertyBag._setItem(this, effectiveRightsValue);
     };
     /**
      * @internal Writes the property value to XML.

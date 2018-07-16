@@ -10,22 +10,23 @@ var ServiceRequestUnauthorizedException_1 = require("../Exceptions/ServiceReques
 var ExtensionMethods_1 = require("../ExtensionMethods");
 var Strings_1 = require("../Strings");
 var TimeZoneDefinition_1 = require("../ComplexProperties/TimeZones/TimeZoneDefinition");
+var TimeZoneInfo_1 = require("../TimeZoneInfo");
 var Uri_1 = require("../Uri");
 var XHRFactory_1 = require("../XHRFactory");
 var ExchangeServiceBase = /** @class */ (function () {
     function ExchangeServiceBase(versionServiceorTZ, versionOrTZ) {
         this.requestedServerVersion = ExchangeVersion_1.ExchangeVersion.Exchange2013_SP1;
-        this.timeZone = DateTime_1.TimeZoneInfo.Utc; //System.TimeZoneInfo;//ref: switching to utc instead of local in c# version. 
-        this.XHRApi = null;
+        this.timeZone = TimeZoneInfo_1.TimeZoneInfo.Local;
+        this.xhrApi = null;
         var argsLength = arguments.length;
         if (argsLength > 2) {
             throw new Error("ExchangeServiceBase.ts - ctor with " + argsLength + " parameters, invalid number of arguments, check documentation and try again.");
         }
         var timeZone = null;
-        var requestedServerVersion = ExchangeVersion_1.ExchangeVersion.Exchange2007_SP1;
+        var requestedServerVersion = ExchangeVersion_1.ExchangeVersion.Exchange2013_SP1;
         var service = null;
         if (argsLength >= 1) {
-            if (versionServiceorTZ instanceof DateTime_1.TimeZoneInfo) {
+            if (versionServiceorTZ instanceof TimeZoneInfo_1.TimeZoneInfo) {
                 timeZone = versionServiceorTZ;
             }
             else if (versionServiceorTZ instanceof ExchangeServiceBase) {
@@ -36,7 +37,7 @@ var ExchangeServiceBase = /** @class */ (function () {
             }
         }
         if (argsLength == 2) {
-            if (versionOrTZ instanceof DateTime_1.TimeZoneInfo) {
+            if (versionOrTZ instanceof TimeZoneInfo_1.TimeZoneInfo) {
                 if (typeof versionServiceorTZ !== 'number') {
                     throw new Error("ExchangeServiceBase.ts - ctor with " + argsLength + " parameters - incorrect uses of parameter at 1st position, it must be ExchangeVersion when using TimeZoneInfo at 2nd place");
                 }
@@ -77,12 +78,14 @@ var ExchangeServiceBase = /** @class */ (function () {
         configurable: true
     });
     Object.defineProperty(ExchangeServiceBase.prototype, "TimeZone", {
-        get: function () { return this.timeZone; } //System.TimeZoneInfo;
-        ,
+        get: function () {
+            return this.timeZone;
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(ExchangeServiceBase.prototype, "TimeZoneDefinition", {
+        /**@internal */
         get: function () {
             if (this.timeZoneDefinition == null) {
                 this.timeZoneDefinition = new TimeZoneDefinition_1.TimeZoneDefinition(this.TimeZone);
@@ -92,8 +95,13 @@ var ExchangeServiceBase = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ExchangeServiceBase.prototype, "GetXHRApi", {
-        get: function () { return this.XHRApi || XHRFactory_1.XHRFactory.XHRApi; },
+    Object.defineProperty(ExchangeServiceBase.prototype, "XHRApi", {
+        get: function () {
+            return this.xhrApi || XHRFactory_1.XHRFactory.XHRApi;
+        },
+        set: function (xhrApi) {
+            this.xhrApi = xhrApi || XHRFactory_1.XHRFactory.XHRApi;
+        },
         enumerable: true,
         configurable: true
     });
@@ -101,10 +109,10 @@ var ExchangeServiceBase = /** @class */ (function () {
         var dateTime;
         switch (value.Kind) {
             case DateTime_1.DateTimeKind.Unspecified:
-                dateTime = EwsUtilities_1.EwsUtilities.ConvertTime(value, this.TimeZone, DateTime_1.TimeZoneInfo.Utc);
+                dateTime = EwsUtilities_1.EwsUtilities.ConvertTime(value, this.TimeZone, TimeZoneInfo_1.TimeZoneInfo.Utc);
                 break;
             case DateTime_1.DateTimeKind.Local:
-                dateTime = EwsUtilities_1.EwsUtilities.ConvertTime(value, DateTime_1.TimeZoneInfo.Local, DateTime_1.TimeZoneInfo.Utc);
+                dateTime = EwsUtilities_1.EwsUtilities.ConvertTime(value, TimeZoneInfo_1.TimeZoneInfo.Local, TimeZoneInfo_1.TimeZoneInfo.Utc);
                 break;
             default:
                 // The date is already in UTC, no need to convert it.
@@ -134,20 +142,21 @@ var ExchangeServiceBase = /** @class */ (function () {
         else {
             // Assume an unbiased date/time is in UTC. Convert to UTC otherwise.
             //ref: //fix: hard convert to UTC date as no request contains TZ information.
-            if (value.toLowerCase().indexOf("z") < 0)
+            if (value.toLowerCase().indexOf("z") < 0 && ["+", "-"].indexOf(value.substr(19, 1)) < 0) {
                 value += "Z";
+            }
             var dateTime = DateTime_1.DateTime.Parse(value);
             // CultureInfo.InvariantCulture,
             // DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
-            if (this.TimeZone == DateTime_1.TimeZoneInfo.Utc) {
+            if (this.TimeZone == TimeZoneInfo_1.TimeZoneInfo.Utc) {
                 // This returns a DateTime with Kind.Utc
                 return dateTime;
             }
             else {
-                var localTime = EwsUtilities_1.EwsUtilities.ConvertTime(dateTime, DateTime_1.TimeZoneInfo.Utc, this.TimeZone);
+                var localTime = EwsUtilities_1.EwsUtilities.ConvertTime(dateTime, TimeZoneInfo_1.TimeZoneInfo.Utc, this.TimeZone);
                 if (EwsUtilities_1.EwsUtilities.IsLocalTimeZone(this.TimeZone)) {
                     // This returns a DateTime with Kind.Local
-                    return new DateTime_1.DateTime(localTime, DateTime_1.DateTimeKind.Local);
+                    return new DateTime_1.DateTime(localTime.TotalMilliSeconds, DateTime_1.DateTimeKind.Local);
                 }
                 else {
                     // This returns a DateTime with Kind.Unspecified
@@ -196,6 +205,9 @@ var ExchangeServiceBase = /** @class */ (function () {
         if (exception) {
             if (soapFault !== null) {
                 soapFault.Exception = exception;
+                if (ExtensionMethods_1.StringHelper.IsNullOrEmpty(soapFault.message) && !ExtensionMethods_1.StringHelper.IsNullOrEmpty(exception.message)) {
+                    soapFault.message = exception.message;
+                }
             }
             else {
                 throw exception;
@@ -248,8 +260,8 @@ var ExchangeServiceBase = /** @class */ (function () {
             // Apply credentials to the request
             serviceCredentials.PrepareWebRequest(request);
         }
-        else
-            debugger;
+        // else
+        //     debugger;
         this.httpResponseHeaders = {};
         return request;
     };

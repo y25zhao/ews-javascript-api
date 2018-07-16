@@ -215,7 +215,7 @@ var GetUserSettingsResponse = /** @class */ (function (_super) {
                 value = AlternateMailboxCollection_1.AlternateMailboxCollection.LoadFromJson(obj[XmlElementNames_1.XmlElementNames.AlternateMailboxes]);
                 break;
             case XmlElementNames_1.XmlElementNames.DocumentSharingLocationCollectionSetting: //DocumentSharingLocations:
-                debugger;
+                //debugger;
                 EwsLogging_1.EwsLogging.Log("------------DocumentSharingLocationCollection needs test and fix ----------------", true);
                 EwsLogging_1.EwsLogging.Log(obj, true, true);
                 value = DocumentSharingLocationCollection_1.DocumentSharingLocationCollection.LoadFromJson(obj);

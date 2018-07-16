@@ -127,7 +127,7 @@ var ExtendedPropertyDefinition = /** @class */ (function (_super) {
      * @return  {string}                Formatted value.
      */
     ExtendedPropertyDefinition.prototype.FormatField = function (name, fieldValue) {
-        debugger;
+        //debugger;
         return (fieldValue != null)
             ? ExtensionMethods_1.StringHelper.Format(ExtendedPropertyDefinition.FieldFormat, name, fieldValue)
             : "";
@@ -176,7 +176,7 @@ var ExtendedPropertyDefinition = /** @class */ (function (_super) {
                 (extPropDef1.Tag === extPropDef2.Tag) &&
                 (extPropDef1.Name === extPropDef2.Name) &&
                 (extPropDef1.PropertySet === extPropDef2.PropertySet) &&
-                (extPropDef1.propertySetId === extPropDef2.propertySetId));
+                (String(extPropDef1.propertySetId) === String(extPropDef2.propertySetId)));
     };
     /**
      * @internal Loads from XMLJsObject.
@@ -187,11 +187,11 @@ var ExtendedPropertyDefinition = /** @class */ (function (_super) {
         for (var key in jsObject) {
             switch (key) {
                 case XmlAttributeNames_1.XmlAttributeNames.DistinguishedPropertySetId:
-                    debugger;
+                    //debugger;
                     this.propertySet = isNaN(jsObject[key]) ? DefaultExtendedPropertySet_1.DefaultExtendedPropertySet[jsObject[key]] : +(jsObject[key]); // jsObject.ReadEnumValue<DefaultExtendedPropertySet>(key);
                     break;
                 case XmlAttributeNames_1.XmlAttributeNames.PropertySetId:
-                    debugger;
+                    //debugger;
                     this.propertySetId = new Guid_1.Guid(jsObject[key]); // new Guid(jsObject.ReadAsString(key));
                     break;
                 case XmlAttributeNames_1.XmlAttributeNames.PropertyTag:

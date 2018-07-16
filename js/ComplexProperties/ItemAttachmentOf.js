@@ -17,7 +17,7 @@ var ItemAttachment_1 = require("./ItemAttachment");
 var ItemAttachmentOf = /** @class */ (function (_super) {
     __extends(ItemAttachmentOf, _super);
     /**
-     * @internal Initializes a new instance of the  class.
+     * @internal Initializes a new instance of the **ItemAttachmentOf** class.
      *
      * @param   {Item}   owner   The owner of the attachment.
      */

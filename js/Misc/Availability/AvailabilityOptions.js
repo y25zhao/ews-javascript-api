@@ -5,9 +5,9 @@ var SuggestionQuality_1 = require("../../Enumerations/SuggestionQuality");
 var XmlNamespace_1 = require("../../Enumerations/XmlNamespace");
 var XmlElementNames_1 = require("../../Core/XmlElementNames");
 var EwsUtilities_1 = require("../../Core/EwsUtilities");
-var DateTime_1 = require("../../DateTime");
 var Strings_1 = require("../../Strings");
 var ExtensionMethods_1 = require("../../ExtensionMethods");
+var TimeSpan_1 = require("../../TimeSpan");
 var AvailabilityOptions = /** @class */ (function () {
     function AvailabilityOptions() {
         this.mergedFreeBusyInterval = 30;
@@ -137,7 +137,7 @@ var AvailabilityOptions = /** @class */ (function () {
         configurable: true
     });
     AvailabilityOptions.prototype.Validate = function (timeWindow) {
-        if (DateTime_1.TimeSpan.FromMinutes(this.MergedFreeBusyInterval) > timeWindow) {
+        if (TimeSpan_1.TimeSpan.FromMinutes(this.MergedFreeBusyInterval) > timeWindow) {
             throw new Error(Strings_1.Strings.MergedFreeBusyIntervalMustBeSmallerThanTimeWindow); //, "MergedFreeBusyInterval");//ArgumentException
         }
         EwsUtilities_1.EwsUtilities.ValidateParamAllowNull(this.DetailedSuggestionsWindow, "DetailedSuggestionsWindow");

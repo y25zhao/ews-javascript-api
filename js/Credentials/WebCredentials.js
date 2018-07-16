@@ -16,7 +16,6 @@ var WebCredentials = /** @class */ (function (_super) {
     function WebCredentials() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    WebCredentials.prototype.AdjustUrl = function (url) { throw new Error("WebCredentials.ts - AdjustUrl : Not implemented."); };
     return WebCredentials;
 }(ExchangeCredentials_1.ExchangeCredentials));
 exports.WebCredentials = WebCredentials;

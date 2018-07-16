@@ -14,8 +14,9 @@ else {
 var EwsLogging = /** @class */ (function () {
     function EwsLogging() {
     }
-    EwsLogging.Assert = function (condition, caller, message) {
-        if (this.DebugLogEnabled && !condition)
+    EwsLogging.Assert = function (condition, caller, message, always) {
+        if (always === void 0) { always = false; }
+        if ((this.DebugLogEnabled || always) && !condition)
             console.log(ExtensionMethods_1.StringHelper.Format("[{0}] {1}", caller, message));
     };
     EwsLogging.Log = function (message, always, expandObject) {

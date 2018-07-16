@@ -26,7 +26,7 @@ var MultiResponseServiceRequest_1 = require("./MultiResponseServiceRequest");
 var ConvertIdRequest = /** @class */ (function (_super) {
     __extends(ConvertIdRequest, _super);
     /**
-     * @internal Initializes a new instance of the  class.
+     * @internal Initializes a new instance of the **ConvertIdRequest** class.
      *
      * @param   {ExchangeService}   service             The service.
      * @param   {ServiceErrorHandling}   errorHandlingMode   Indicates how errors should be handled.

@@ -14,6 +14,7 @@ var ExtensionMethods_1 = require("../ExtensionMethods");
 var AltDictionary_1 = require("../AltDictionary");
 var EwsLogging_1 = require("../Core/EwsLogging");
 var EwsServiceJsonReader_1 = require("../Core/EwsServiceJsonReader");
+var Exception_1 = require("../Exceptions/Exception");
 var ServiceError_1 = require("../Enumerations/ServiceError");
 var XmlAttributeNames_1 = require("../Core/XmlAttributeNames");
 var XmlElementNames_1 = require("../Core/XmlElementNames");
@@ -23,14 +24,12 @@ var XmlElementNames_1 = require("../Core/XmlElementNames");
  * /remarks/    ews-javascript-api -> removing internal modifier to, this class will be used to pass on to error delegate of promise instead of Exceptions.
  *
  * /remarks/    ews-javascript-api -> 0.9 - Extending from Error object to avoid BlueBird errors when promise is rejected without and Error object
+ * /remarks/    ews-javascript-api -> 0.9 - extending from Exception which looks like Error to BlueBird. can not extend from Error. Typescript 1.8+ can not extend builtin objects property, it swallows inheriting properties see  https://github.com/Microsoft/TypeScript/wiki/Breaking-Changes#extending-built-ins-like-error-array-and-map-may-no-longer-work
  */
 var SoapFaultDetails = /** @class */ (function (_super) {
     __extends(SoapFaultDetails, _super);
-    /**
-     * @private Initializes a new instance of the **SoapFaultDetails** class.
-     */
     function SoapFaultDetails() {
-        var _this = _super.call(this) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.faultCode = null;
         _this.faultString = null;
         _this.faultActor = null;
@@ -39,10 +38,6 @@ var SoapFaultDetails = /** @class */ (function (_super) {
          * Default to InternalServerError.
          */
         _this.responseCode = ServiceError_1.ServiceError.ErrorInternalServerError;
-        /**
-         * Message text of the error.
-         */
-        _this.message = null; //not private to comply with Error object
         /**
          * This is returned by Availability requests.
          */
@@ -219,6 +214,12 @@ var SoapFaultDetails = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
+    // /**
+    //  * @private Initializes a new instance of the **SoapFaultDetails** class.
+    //  */
+    // // constructor() {
+    // //     super();
+    // // }
     /**
      * @internal Parses the soap:Fault content.
      *
@@ -326,5 +327,5 @@ var SoapFaultDetails = /** @class */ (function (_super) {
         }
     };
     return SoapFaultDetails;
-}(Error));
+}(Exception_1.Exception));
 exports.SoapFaultDetails = SoapFaultDetails;

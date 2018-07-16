@@ -10,18 +10,58 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var EwsServiceJsonReader_1 = require("../EwsServiceJsonReader");
+var EwsLogging_1 = require("../EwsLogging");
 var ServiceResponse_1 = require("./ServiceResponse");
+var XmlElementNames_1 = require("../XmlElementNames");
 /**
- * ## *Not Implemented*
+ * Represents the response to an individual attachment creation operation.
+ * @sealed
  */
 var CreateAttachmentResponse = /** @class */ (function (_super) {
     __extends(CreateAttachmentResponse, _super);
-    function CreateAttachmentResponse() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    /**
+     * Initializes a new instance of the **CreateAttachmentResponse** class.
+     *
+     * @param   {Attachment}   attachment   The attachment.
+     */
+    function CreateAttachmentResponse(attachment) {
+        var _this = _super.call(this) || this;
+        _this.attachment = null;
+        EwsLogging_1.EwsLogging.Assert(attachment != null, "CreateAttachmentResponse.ctor", "attachment is null");
+        _this.attachment = attachment;
+        return _this;
     }
-    CreateAttachmentResponse.prototype.ReadElementsFromJson = function (responseObject, service) { throw new Error("CreateAttachmentResponse.ts - ReadElementsFromJson : Not implemented."); };
-    /**@internal */
-    CreateAttachmentResponse.prototype.ReadElementsFromXmlJsObject = function (reader) { throw new Error("CreateAttachmentResponse.ts - ReadElementsFromXmlJsObject : Not implemented."); };
+    Object.defineProperty(CreateAttachmentResponse.prototype, "Attachment", {
+        /**
+         * Gets the attachment that was created.
+         */
+        get: function () {
+            return this.attachment;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+      * @internal Reads response elements from Xml JsObject.
+      *
+      * @param   {any}               jsObject   The response object.
+      * @param   {ExchangeService}   service    The service.
+      */
+    CreateAttachmentResponse.prototype.ReadElementsFromXmlJsObject = function (responseObject, service) {
+        var attachmentArray = EwsServiceJsonReader_1.EwsServiceJsonReader.ReadAsArray(responseObject, XmlElementNames_1.XmlElementNames.Attachments);
+        if (attachmentArray != null && attachmentArray.length > 0) {
+            var attachmenTypetArray = EwsServiceJsonReader_1.EwsServiceJsonReader.ReadAsArray(attachmentArray[0], XmlElementNames_1.XmlElementNames.ItemAttachment);
+            if (attachmenTypetArray.length > 0) {
+                this.attachment.LoadFromXmlJsObject(attachmenTypetArray[0], service);
+                return;
+            }
+            attachmenTypetArray = EwsServiceJsonReader_1.EwsServiceJsonReader.ReadAsArray(attachmentArray[0], XmlElementNames_1.XmlElementNames.FileAttachment);
+            if (attachmenTypetArray.length > 0) {
+                this.attachment.LoadFromXmlJsObject(attachmenTypetArray[0], service);
+            }
+        }
+    };
     return CreateAttachmentResponse;
 }(ServiceResponse_1.ServiceResponse));
 exports.CreateAttachmentResponse = CreateAttachmentResponse;

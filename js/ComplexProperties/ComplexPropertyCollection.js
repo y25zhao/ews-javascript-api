@@ -26,7 +26,7 @@ var ComplexProperty_1 = require("./ComplexProperty");
 var ComplexPropertyCollection = /** @class */ (function (_super) {
     __extends(ComplexPropertyCollection, _super);
     /**
-     * @internal Initializes a new instance of the  class.
+     * @internal Initializes a new instance of the **ComplexPropertyCollection** class.
      *
      */
     function ComplexPropertyCollection() {

@@ -11,16 +11,49 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var ServiceResponse_1 = require("./ServiceResponse");
+var XmlElementNames_1 = require("../XmlElementNames");
+var EwsServiceJsonReader_1 = require("../EwsServiceJsonReader");
+var TimeZoneDefinition_1 = require("../../ComplexProperties/TimeZones/TimeZoneDefinition");
 /**
- * ## *Not Implemented*
+ * internal Represents the response to a GetServerTimeZones request.
  */
 var GetServerTimeZonesResponse = /** @class */ (function (_super) {
     __extends(GetServerTimeZonesResponse, _super);
+    /**
+     * @internal Initializes a new instance of the **GetServerTimeZonesResponse** class.
+     */
     function GetServerTimeZonesResponse() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super.call(this) || this;
+        _this.timeZones = [];
+        return _this;
     }
-    /**@internal */
-    GetServerTimeZonesResponse.prototype.ReadElementsFromXmlJsObject = function (reader) { throw new Error("GetServerTimeZonesResponse.ts - ReadElementsFromXmlJsObject : Not implemented."); };
+    Object.defineProperty(GetServerTimeZonesResponse.prototype, "TimeZones", {
+        /**
+         * Gets the time zones returned by the associated GetServerTimeZones request.
+         * @value   The time zones.
+         */
+        get: function () {
+            return this.timeZones;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @internal Reads response elements from Xml JsObject.
+     *
+     * @param   {any}               jsObject   The response object.
+     * @param   {ExchangeService}   service    The service.
+     */
+    GetServerTimeZonesResponse.prototype.ReadElementsFromXmlJsObject = function (responseObject, service) {
+        if (responseObject[XmlElementNames_1.XmlElementNames.TimeZoneDefinitions]) {
+            for (var _i = 0, _a = EwsServiceJsonReader_1.EwsServiceJsonReader.ReadAsArray(responseObject[XmlElementNames_1.XmlElementNames.TimeZoneDefinitions], XmlElementNames_1.XmlElementNames.TimeZoneDefinition); _i < _a.length; _i++) {
+                var tzObject = _a[_i];
+                var timeZoneDefinition = new TimeZoneDefinition_1.TimeZoneDefinition();
+                timeZoneDefinition.LoadFromXmlJsObject(tzObject, service);
+                this.timeZones.push(timeZoneDefinition.ToTimeZoneInfo(service, true));
+            }
+        }
+    };
     return GetServerTimeZonesResponse;
 }(ServiceResponse_1.ServiceResponse));
 exports.GetServerTimeZonesResponse = GetServerTimeZonesResponse;

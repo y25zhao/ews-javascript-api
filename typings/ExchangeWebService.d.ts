@@ -1,4 +1,5 @@
 declare module "ews-javascript-api" {
+import * as moment from 'moment-timezone';
 
 
 export interface IndexerWithStringKey<TValue> {
@@ -56,8 +57,10 @@ export interface IndexerWithEnumKey<TKey, TValue> {
     [index: number]: TValue;
 } class ConfigurationApi {
     static ConfigureXHR(xhrApi: IXHRApi): void;
+    static SetXHROptions(fetchOptions: FetchOptions): void;
     static ConfigurePromise(promise: PromiseConstructor): void;
-}import moment = require('moment-timezone');
+}
+ const msToEpoch: number;
  enum DateTimeKind {
     Unspecified = 0,
     Utc = 1,
@@ -67,70 +70,75 @@ export interface IndexerWithEnumKey<TKey, TValue> {
  * DateTime - basic date time based on moment.js
  */
  class DateTime {
-    readonly Kind: DateTimeKind;
     kind: DateTimeKind;
-    readonly Date: moment.Moment;
-    readonly currentUtcOffset: number;    static readonly Now: DateTime;
+    readonly MomentDate: moment.Moment;
+    readonly currentUtcOffset: number;
+    static readonly Now: DateTime;
+    static readonly UtcNow: DateTime;
     readonly TotalMilliSeconds: number;
-    constructor(date?: DateTime | any, kind?: DateTimeKind);
+    constructor(ms: number);
+    constructor(date: DateTime);
+    constructor(momentInput: moment.MomentInput);
+    constructor(ms: number, kind: DateTimeKind);
+    constructor(year: number, month: number, day: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
+    Add(ts: TimeSpan): DateTime;
     Add(quantity: number, unit: moment.unitOfTime.Base): DateTime;
     static Compare(x: DateTime, y: DateTime): number;
     CompareTo(toDate: DateTime): number;
     Difference(toDate: DateTime): TimeSpan;
-    Format(formatting: string): string;
-    static Parse(value: any, kind?: DateTimeKind): DateTime;
+    Format(formatting: string): string;    static Parse(value: any, kind?: DateTimeKind): DateTime;
     ToISOString(): string;
     toString(): string;
     utcOffset(value: number): void;
+    static DateimeStringToTimeZone(dtStr: string, zoneStr: string): DateTime;
     static DateTimeToXSDateTime(dateTime: DateTime): string;
     static DateTimeToXSDate(date: DateTime): string;
     static MinValue: DateTime;
     static MaxValue: DateTime;
-}
-/**
-* TimeZoneInfo
-*/
- class TimeZoneInfo {
-    static readonly Utc: TimeZoneInfo;    static readonly Local: TimeZoneInfo;
-    constructor(offset: number);
-    static IsLocalTimeZone(timeZone: TimeZoneInfo): boolean;
-    readonly DisplayName: string;
-    static ConvertTime(dateTime: DateTime, sourceTZ: TimeZoneInfo, destinationTZ: TimeZoneInfo): DateTime;
-} class TimeSpan {    constructor(args: any);
-    humanize(withSuffix?: boolean): string;
-    as(units: moment.unitOfTime.Base): number;
-    Milliseconds(): number;
-    readonly TotalMilliseconds: number;
-    Seconds(): number;
-    readonly TotalSeconds: number;
-    Minutes(): number;
-    readonly TotalMinutes: number;
-    Hours(): number;
-    readonly TotalHours: number;
-    Days(): number;
-    readonly TotalDays: number;
-    Months(): number;
-    readonly TotalMonths: number;
-    Years(): number;
-    readonly TotalYears: number;
-    Weeks(): number;
-    readonly Totalweeks: number;
-    Add(n: number, p: moment.unitOfTime.Base): TimeSpan;
-    Add(n: number): TimeSpan;
-    Add(d: TimeSpan): TimeSpan;
-    Subtract(n: number, p: moment.unitOfTime.Base): TimeSpan;
-    Subtract(n: number): TimeSpan;
-    Subtract(d: TimeSpan): TimeSpan;
-    ToISOString(): string;
-    ToJSON(): string;
-    static Zero: TimeSpan;
-    static MaxValueTimeSpan: TimeSpan;
-    static MinValueTimeSpan: TimeSpan;
-    static FromDays(value: number): TimeSpan;
-    static FromHours(value: number): TimeSpan;
-    static FromMilliseconds(value: number): TimeSpan;
-    static FromMinutes(value: number): TimeSpan;
-    static FromSeconds(value: number): TimeSpan;
+    readonly Date: DateTime;
+    readonly Day: number;
+    readonly DayOfWeek: DayOfWeek;
+    readonly DayOfYear: number;
+    readonly Hour: number;
+    readonly Kind: DateTimeKind;
+    readonly Millisecond: number;
+    readonly Minute: number;
+    readonly Month: number;
+    readonly Second: number;
+    readonly TimeOfDay: TimeSpan;
+    readonly Today: DateTime;
+    readonly Year: number;
+    AddDays(days: number): DateTime;
+    AddHours(hours: number): DateTime;
+    AddMilliseconds(ms: number): DateTime;
+    AddMinutes(minutes: number): DateTime;
+    AddMonths(months: number): DateTime;
+    AddSeconds(seconds: number): DateTime;
+    AddYears(years: number): DateTime;
+    static DaysInMonth(year: number, month: number): number;
+    Equals(value: any | DateTime): boolean;
+    static Equals(t1: DateTime, t2: DateTime): boolean;
+    IsDaylightSavingTime(): boolean;
+    /**
+     *  Checks whether a given year is a leap year. This method returns true if year is a leap year, or false if not.
+     * @param {number}  year
+     */
+    static IsLeapYear(year: number): boolean;
+    static SpecifyKind(value: DateTime, kind: DateTimeKind): DateTime;
+    Subtract(date: DateTime): TimeSpan;
+    Subtract(ts: TimeSpan): DateTime;
+    ToLocalTime(): DateTime;
+    ToLongDateString(): string;
+    ToLongTimeString(): string;
+    ToShortDateString(): string;
+    ToShortTimeString(): string;
+    ToString(): string;
+    ToUniversalTime(): DateTime;
+    static TryParse(s: string | moment.MomentInput, outDate: IOutParam<DateTime>): boolean;
+    valueOf(): number;
 }
  enum DateTimeStyles {
     None = 0,
@@ -157,11 +165,39 @@ export interface IndexerWithEnumKey<TKey, TValue> {
     AssumeLocal = 32,
     AssumeUniversal = 64,
     RoundtripKind = 128
-}/**
+}
+ var unitOfTime: {
+    "year": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "years": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "y": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "month": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "months": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "M": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "week": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "weeks": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "w": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "day": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "days": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "d": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "hour": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "hours": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "h": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "minute": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "minutes": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "m": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "second": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "seconds": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "s": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "millisecond": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "milliseconds": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+    "ms": "s" | "m" | "h" | "d" | "M" | "y" | "year" | "years" | "month" | "months" | "week" | "weeks" | "w" | "day" | "days" | "hour" | "hours" | "minute" | "minutes" | "second" | "seconds" | "millisecond" | "milliseconds" | "ms";
+};
+/**
  * BootStrap code. to initializes some class to avoid circular reference.
  */
-/** Promise type setup *//** XHR setup *//**#endregion BootStrap code */
- module StringHelper {
+/** Promise type setup *//** XHR setup */
+/** TimeZoneTransitions */
+/**#endregion BootStrap code */ module StringHelper {
     function IsNullOrEmpty(str: string): boolean;
     function Format(source: string, ...args: any[]): string;
     var Empty: string;
@@ -187,7 +223,7 @@ export interface IndexerWithEnumKey<TKey, TValue> {
     function RemoveEntry<T>(array: Array<T>, entry: T, comparer?: (T: any) => boolean): boolean;
     function Find<T>(array: Array<T>, comparer: (item: T) => boolean): T;
     function IndexOf<T>(array: Array<T>, comparer: (item: T) => boolean): number;
-    function OfType<T, U>(array: Array<U>, comparer: (item: U) => boolean): T[];
+    function OfType<T, U>(array: Array<T>, comparer: (item: T) => boolean): U[];
     /**dirty calculation of max dimension, will return more than one if array contains any array element in first testElementCount items */
     function Rank(array: any[], testElementCount?: number): number;
     function isArray<T>(obj: any): obj is T[];
@@ -230,13 +266,19 @@ export interface ParsedUrl {
  module base64Helper {
     function btoa(textToEncode: string): string;
     function atob(textToDecode: string): string;
-}/** Guid proxy class */
- class Guid {
-    static Empty: Guid;    constructor(str: string);
-    ToString(): string;
-    static Parse(str: string): Guid;
 }
-export interface IXHROptions {
+/** Guid proxy class */
+ class Guid {
+    static Empty: Guid;    constructor();
+    constructor(str: string);
+    ToString(): string;
+    toString(): string;
+    static NewGuid(): Guid;
+    static Parse(str: string): Guid;
+    static TryParse(str: any, _parsed_output?: {
+        guid: Guid;
+    }): boolean;
+}export interface IXHROptions {
     type?: string;
     url: string;
     user?: string;
@@ -261,7 +303,8 @@ export interface IXHRApi {
     xhrStream(xhroptions: IXHROptions, progressDelegate: (progressData: IXHRProgress) => void): Promise<XMLHttpRequest>;
     disconnect(): void;
     apiName?: string;
-}/**
+}
+/**
  * Represents the completion of an asynchronous operation
  * @typescript 2.1.1 lib.es6.d.ts Promise Description
  */
@@ -507,7 +550,8 @@ export interface PromiseConstructor {
     resolve(): Promise<void>;
 }
  var Promise: PromiseConstructor;
- function ConfigurePromise(promise: PromiseConstructor): void; class Strings {
+ function ConfigurePromise(promise: PromiseConstructor): void;
+ class Strings {
     static CannotRemoveSubscriptionFromLiveConnection: string;
     static ReadAccessInvalidForNonCalendarFolder: string;
     static PropertyDefinitionPropertyMustBeSet: string;
@@ -702,80 +746,88 @@ export interface PromiseConstructor {
     static UserPhotoSizeNotSpecified: string;
     static JsonSerializationNotImplemented: string;
     static JsonDeserializationNotImplemented: string;
+} class TimeSpan {    constructor(ms: number);
+    constructor(duration: moment.DurationInputArg1 | moment.DurationInputObject);
+    constructor(hours: number, minutes: number, seconds: any);
+    constructor(days: number, hours: number, minutes: number, seconds: any);
+    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds: any);
+    humanize(withSuffix?: boolean): string;
+    as(units: moment.unitOfTime.Base): number;
+    readonly Milliseconds: number;
+    readonly TotalMilliseconds: number;
+    readonly Seconds: number;
+    readonly TotalSeconds: number;
+    readonly Minutes: number;
+    readonly TotalMinutes: number;
+    readonly Hours: number;
+    readonly TotalHours: number;
+    readonly Days: number;
+    readonly TotalDays: number;
+    readonly Months: number;
+    readonly TotalMonths: number;
+    readonly Years: number;
+    readonly TotalYears: number;
+    readonly Weeks: number;
+    readonly Totalweeks: number;
+    Add(num: number, unit: moment.unitOfTime.Base): TimeSpan;
+    Add(ms: number): TimeSpan;
+    Add(ts: TimeSpan): TimeSpan;
+    Subtract(n: number, p: moment.unitOfTime.Base): TimeSpan;
+    Subtract(n: number): TimeSpan;
+    Subtract(d: TimeSpan): TimeSpan;
+    ToISOString(): string;
+    ToJSON(): string;
+    static readonly Zero: TimeSpan;
+    static readonly MaxValueTimeSpan: TimeSpan;
+    static readonly MinValueTimeSpan: TimeSpan;
+    static FromDays(value: number): TimeSpan;
+    static FromHours(value: number): TimeSpan;
+    static FromMilliseconds(value: number): TimeSpan;
+    static FromMinutes(value: number): TimeSpan;
+    static FromSeconds(value: number): TimeSpan;
+    valueOf(): number;
+    toString(): string;
+}/**
+* TimeZoneInfo
+*/
+ class TimeZoneInfo {
+    readonly Id: string;
+    readonly IanaId: string;
+    readonly DisplayName: string;
+    readonly StandardName: string;
+    readonly DaylightName: string;
+    readonly BaseUtcOffset: TimeSpan;
+    readonly SupportsDaylightSavingTime: boolean;
+    static readonly Local: TimeZoneInfo;
+    static readonly Utc: TimeZoneInfo;    static ConvertTime(dateTime: DateTime, sourceTimeZone: TimeZoneInfo, destinationTimeZone: TimeZoneInfo): DateTime;    static CreateCustomTimeZone(id: string, baseUtcOffset: TimeSpan, displayName: string, standardDisplayName: string): TimeZoneInfo;
+    static CreateCustomTimeZone(id: string, baseUtcOffset: TimeSpan, displayName: string, standardDisplayName: string, daylightDisplayName: string, adjustmentRules: TimeZoneInfo.AdjustmentRule[]): TimeZoneInfo;
+    static CreateCustomTimeZone(id: string, baseUtcOffset: TimeSpan, displayName: string, standardDisplayName: string, daylightDisplayName: string, adjustmentRules: TimeZoneInfo.AdjustmentRule[], disableDaylightSavingTime: boolean): TimeZoneInfo;
+    static AddTimeZoneMapping(source: string, mappedTz: string): void;
+    static FindSystemTimeZoneById(zoneName: string): TimeZoneInfo;
+    static readonly ListWindowsTimeZones: () => string[];    static GuessLocalTimeZone(): string;
+    HasSameRules(other: TimeZoneInfo): boolean;
 }
-/**
- * TypeContainer  - contains Type as properties. Required to evade circular dependency. Initilized in ExchangeWebService.ts which is going to weave type objects.
- */
- class TypeContainer {
-    constructor(parameters: any);
-    /**
-     * Type object of ServiceObject (not instance)
-     */
-    static ServiceObject: any;
-    /**
-     * Type object of Folder (not instance)
-     */
-    static Folder: any;
-    /**
-     * Type object of CalendarFolder (not instance)
-     */
-    static CalendarFolder: any;
-    /**
-     * Type object of ContactsFolder (not instance)
-     */
-    static ContactsFolder: any;
-    /**
-     * Type object of SearchFolder (not instance)
-     */
-    static SearchFolder: any;
-    /**
-     * Type object of TasksFolder (not instance)
-     */
-    static TasksFolder: any;
-    /**
-     * Type object of ServiceObjectSchema (not instance)
-     */
-    static ServiceObjectSchema: ServiceObjectSchemaStatic;
-    /**
-     * Type object of Appointment (not instance)
-     */
-    static Appointment: any;
-    /**
-     * Type object of MeetingRequest (not instance)
-     */
-    static MeetingRequest: any;
-    /**
-     * Type object of MeetingResponse (not instance)
-     */
-    static MeetingResponse: any;
-    /**
-     * Type object of MeetingCancellation (not instance)
-     */
-    static MeetingCancellation: any;
-    /**
-     * Type object of Item (not instance)
-     */
-    static Item: any;
-    /**
-     * Type object of ItemAttachment (not instance)
-     */
-    static ItemAttachment: any;
-    /**
-     * Type object of ItemAttachmentOf **Generic Version of ItemAttachment** (not instance)
-     */
-    static ItemAttachmentOf: any;
-    /**
-     * Type object of ExchangeService (not instance)
-     */
-    static ExchangeService: any;
-    /**
-     * IndexedPropertyDefinition
-     */
-    static IndexedPropertyDefinition: IIndexedPropertyDefinition;
-    /**
-     * ExtendedPropertyDefinition
-     */
-    static ExtendedPropertyDefinition: IExtendedPropertyDefinition;
+ module TimeZoneInfo {
+    enum TimeZoneInfoOptions {
+        None = 1,
+        NoThrowOnInvalidTime = 2
+    }
+    class AdjustmentRule {        readonly DateStart: DateTime;
+        readonly DateEnd: DateTime;
+        readonly DaylightDelta: TimeSpan;
+        readonly DaylightTransitionStart: TransitionTime;
+        readonly DaylightTransitionEnd: TransitionTime;        Equals(other: AdjustmentRule): boolean;
+        static CreateAdjustmentRule(dateStart: DateTime, dateEnd: DateTime, daylightDelta: TimeSpan, daylightTransitionStart: TransitionTime, daylightTransitionEnd: TransitionTime): AdjustmentRule;    }
+    class TransitionTime {
+        readonly TimeOfDay: DateTime;
+        readonly Month: number;
+        readonly Week: number;
+        readonly Day: number;
+        readonly DayOfWeek: DayOfWeek;
+        readonly IsFixedDateRule: boolean;
+        Equals(other: TransitionTime): boolean;
+        GetHashCode(): number;        static CreateFixedDateRule(timeOfDay: DateTime, month: number, day: number): TransitionTime;
+        static CreateFloatingDateRule(timeOfDay: DateTime, month: number, week: number, dayOfWeek: DayOfWeek): TransitionTime;    }
 }
 /**
 * Uri: c# uri shim for js
@@ -791,11 +843,673 @@ export interface PromiseConstructor {
     static ParseString(url: string): ParsedUrl;
     static UriSchemeHttp: string;
     static UriSchemeHttps: string;
-} class XHRFactory {
+}/**
+ * Default implementation of XHRApi using fetch
+ */
+ class XHRDefault implements IXHRApi {
+    static FetchStream: typeof FetchStream;
+    static fetchUrl: typeof fetchUrl;
+    static defaultOptions: FetchOptions;
+    fetchOptions: FetchOptions;    xhr(xhroptions: IXHROptions, progressDelegate?: (progressData: IXHRProgress) => void): Promise<XMLHttpRequest>;
+    xhrStream(xhroptions: IXHROptions, progressDelegate: (progressData: IXHRProgress) => void): Promise<XMLHttpRequest>;
+    disconnect(): void;
+    readonly apiName: string;
+    constructor(fetchOptions?: FetchOptions);}
+export interface xFetchOptions {
+    /** how many redirects allowed, defaults to 10 */
+    maxRedirects: number;
+    /** set to true if redirects are not allowed, defaults to false */
+    disableRedirects: boolean;
+    /** optional header fields, in the form of {'Header-Field':'value'} */
+    headers: {
+        [key: string]: (any);
+    };
+    /** maximum allowd length for the file, the remainder is cut off. Defaults to Infinity */
+    maxResponseLength: number;
+    /** defaults to GET */
+    method: string;
+    /** request body */
+    payload: string;
+    /** set to false, to disable content gzipping, needed for Node v0.5.9 which has buggy zlib */
+    disableGzip: boolean;
+    /** an array of cookie definitions in the form of ['name=val'] */
+    cookies: any;
+    /** for sharing cookies between requests, see below */
+    cookieJar: any;
+    /** valid for fetchUrl */
+    outputEncoding: string;
+    /** valid for fetchUrl, set to true to disable automatic charset decoding to utf-8 */
+    disableDecoding: boolean;
+    /** valid for fetchUrl, set input encoding */
+    overrideCharset: string;
+    /** use high performance asyncronous DNS resolution based on c-ares instead of a thread pool calling getaddrinfo(3) */
+    asyncDnsLoookup: boolean;
+    /** set a timeout in ms */
+    timeout: number;
+    /** pass-through http.request agent parameter for https */
+    agentHttps: any;
+    /** pass-through http.request agent parameter for http */
+    agentHttp: any;
+    /** pass-through http.request agent parameter as fallback, if agentHttps or agentHttp are not specified */
+    agent: any;
+    /** whether to reject self-signed certificates (true, default behavior), or ignore and allow them (false) */
+    rejectUnauthorized: boolean;
+    /** is the username for Basic auth */
+    user: string;
+    /** is the password for Basic auth */
+    pass: string;
+}
+ class XHRFactory {
     static xhrHelper: IXHRApi;
     static readonly XHRApi: IXHRApi;
+    static newXHRApi(): XHRDefault;
 }
- class AlternateMailbox {
+ class XHROutlook implements IXHRApi {
+    xhr(xhroptions: IXHROptions, progressDelegate?: (progressData: IXHRProgress) => void): Promise<XMLHttpRequest>;
+    xhrStream(xhroptions: IXHROptions, progressDelegate: (progressData: IXHRProgress) => void): Promise<XMLHttpRequest>;
+    disconnect(): void;
+    readonly apiName: string;
+    constructor();
+}
+ function ConfigureForOutlook(): void;
+ let TimeZoneMappingData: {
+    "America/Aruba": string;
+    "Europe/Copenhagen": string;
+    "Europe/Brussels": string;
+    "Africa/Tunis": string;
+    "America/Pangnirtung": string;
+    "Africa/Malabo": string;
+    "America/Guyana": string;
+    "W. Mongolia Standard Time": (string | number | boolean | string[])[];
+    "Russia Time Zone 10": (string | number | boolean | string[])[];
+    "Ekaterinburg Standard Time": (string | number | boolean | string[])[];
+    "Australia/Lindeman": string;
+    "Asia/Famagusta": string;
+    "America/Mendoza": string;
+    "Indian/Cocos": string;
+    "America/North_Dakota/Beulah": string;
+    "America/Los_Angeles": string;
+    "Sakhalin Standard Time": (string | number | boolean | string[])[];
+    "Altai Standard Time": (string | number | boolean | string[])[];
+    "Pacific/Guam": string;
+    "Pacific/Nauru": string;
+    "Africa/Brazzaville": string;
+    "Europe/Jersey": string;
+    "Newfoundland Standard Time": (string | number | boolean | string[])[];
+    "Europe/Vaduz": string;
+    "Pacific/Ponape": string;
+    "America/Indiana/Knox": string;
+    "America/Argentina/Ushuaia": string;
+    "Tasmania Standard Time": (string | number | boolean | string[])[];
+    "Asia/Jakarta": string;
+    "Europe/Vilnius": string;
+    "Africa/Kigali": string;
+    "America/St_Kitts": string;
+    "Indian/Kerguelen": string;
+    "Africa/Libreville": string;
+    "West Pacific Standard Time": (string | number | boolean | string[])[];
+    "Atlantic Standard Time": (string | number | boolean | string[])[];
+    "W. Central Africa Standard Time": (string | number | boolean | string[])[];
+    "Etc/GMT+8": string;
+    "Atlantic/Faeroe": string;
+    "America/Sitka": string;
+    "UTC": (string | number | boolean | string[])[];
+    "Fiji Standard Time": (string | number | boolean | string[])[];
+    "Pacific/Kosrae": string;
+    "West Asia Standard Time": (string | number | boolean | string[])[];
+    "Europe/Belgrade": string;
+    "Mid-Atlantic Standard Time": (string | number | boolean)[];
+    "Magallanes Standard Time": (string | number | boolean)[];
+    "Kamchatka Standard Time": (string | number | boolean)[];
+    "America/Guatemala": string;
+    "Asia/Singapore": string;
+    "Indian/Mayotte": string;
+    "Nepal Standard Time": (string | number | boolean | string[])[];
+    "UTC-11": (string | number | boolean | string[])[];
+    "Asia/Qatar": string;
+    "Georgian Standard Time": (string | number | boolean | string[])[];
+    "Europe/Simferopol": string;
+    "Etc/GMT+10": string;
+    "Australia/Adelaide": string;
+    "America/Fort_Nelson": string;
+    "Transbaikal Standard Time": (string | number | boolean | string[])[];
+    "Aleutian Standard Time": (string | number | boolean | string[])[];
+    "America/Cayman": string;
+    "Pacific Standard Time (Mexico)": (string | number | boolean | string[])[];
+    "America/Thule": string;
+    "America/Puerto_Rico": string;
+    "Asia/Dili": string;
+    "Pacific/Kiritimati": string;
+    "Europe/Ljubljana": string;
+    "Europe/Tirane": string;
+    "Etc/GMT-5": string;
+    "Etc/GMT+9": string;
+    "Europe/Gibraltar": string;
+    "America/Manaus": string;
+    "America/Argentina/San_Luis": string;
+    "Venezuela Standard Time": (string | number | boolean | string[])[];
+    "Cen. Australia Standard Time": (string | number | boolean | string[])[];
+    "America/Guayaquil": string;
+    "Afghanistan Standard Time": (string | number | boolean | string[])[];
+    "Mauritius Standard Time": (string | number | boolean | string[])[];
+    "New Zealand Standard Time": (string | number | boolean | string[])[];
+    "US Mountain Standard Time": (string | number | boolean | string[])[];
+    "Tokyo Standard Time": (string | number | boolean | string[])[];
+    "Asia/Sakhalin": string;
+    "Europe/Astrakhan": string;
+    "America/Catamarca": string;
+    "Africa/Lubumbashi": string;
+    "America/Boise": string;
+    "America/Glace_Bay": string;
+    "America/Tegucigalpa": string;
+    "America/Chicago": string;
+    "Etc/GMT+6": string;
+    "Antarctica/Macquarie": string;
+    "Europe/Kirov": string;
+    "America/Campo_Grande": string;
+    "Indian/Mauritius": string;
+    "America/La_Paz": string;
+    "Russian Standard Time": (string | number | boolean | string[])[];
+    "America/Miquelon": string;
+    "Asia/Tbilisi": string;
+    "Asia/Aden": string;
+    "Asia/Tehran": string;
+    "Asia/Colombo": string;
+    "America/Lower_Princes": string;
+    "Azores Standard Time": (string | number | boolean | string[])[];
+    "America/Santo_Domingo": string;
+    "Iran Standard Time": (string | number | boolean | string[])[];
+    "Mountain Standard Time (Mexico)": (string | number | boolean | string[])[];
+    "Central Europe Standard Time": (string | number | boolean | string[])[];
+    "Asia/Beirut": string;
+    "America/Denver": string;
+    "America/Halifax": string;
+    "America/Barbados": string;
+    "Pacific/Noumea": string;
+    "Jordan Standard Time": (string | number | boolean | string[])[];
+    "Singapore Standard Time": (string | number | boolean | string[])[];
+    "Pacific/Rarotonga": string;
+    "Asia/Saigon": string;
+    "Europe/Lisbon": string;
+    "America/Jamaica": string;
+    "Atlantic/Stanley": string;
+    "Europe/Sarajevo": string;
+    "Africa/Abidjan": string;
+    "Europe/London": string;
+    "Australia/Lord_Howe": string;
+    "Africa/Kinshasa": string;
+    "Africa/Accra": string;
+    "India Standard Time": (string | number | boolean | string[])[];
+    "Europe/Kiev": string;
+    "America/Caracas": string;
+    "Europe/Guernsey": string;
+    "Africa/Nairobi": string;
+    "Asia/Gaza": string;
+    "America/Kentucky/Monticello": string;
+    "Europe/Sofia": string;
+    "America/Edmonton": string;
+    "Asia/Almaty": string;
+    "Asia/Anadyr": string;
+    "Asia/Pontianak": string;
+    "Europe/Madrid": string;
+    "Asia/Kamchatka": string;
+    "Atlantic/Bermuda": string;
+    "Namibia Standard Time": (string | number | boolean | string[])[];
+    "Pacific/Tarawa": string;
+    "Montevideo Standard Time": (string | number | boolean | string[])[];
+    "America/Costa_Rica": string;
+    "Hawaiian Standard Time": (string | number | boolean | string[])[];
+    "Asia/Calcutta": string;
+    "Asia/Pyongyang": string;
+    "Pacific/Palau": string;
+    "America/Asuncion": string;
+    "Sri Lanka Standard Time": (string | number | boolean | string[])[];
+    "Asia/Dubai": string;
+    "Mountain Standard Time": (string | number | boolean | string[])[];
+    "America/Havana": string;
+    "Asia/Jerusalem": string;
+    "Pacific/Gambier": string;
+    "America/Araguaina": string;
+    "Pacific/Midway": string;
+    "Asia/Manila": string;
+    "MST7MDT": string;
+    "Europe/Bucharest": string;
+    "Asia/Baghdad": string;
+    "Asia/Novokuznetsk": string;
+    "Antarctica/DumontDUrville": string;
+    "Africa/Blantyre": string;
+    "Libya Standard Time": (string | number | boolean | string[])[];
+    "Samoa Standard Time": (string | number | boolean | string[])[];
+    "Pacific/Efate": string;
+    "Europe/Volgograd": string;
+    "America/Argentina/Tucuman": string;
+    "America/St_Lucia": string;
+    "Europe/Budapest": string;
+    "Etc/GMT+1": string;
+    "Asia/Nicosia": string;
+    "Asia/Kuching": string;
+    "America/Chihuahua": string;
+    "Asia/Choibalsan": string;
+    "Europe/Zagreb": string;
+    "America/Martinique": string;
+    "FLE Standard Time": (string | number | boolean | string[])[];
+    "America/Swift_Current": string;
+    "America/Hermosillo": string;
+    "Etc/GMT-9": string;
+    "America/Santarem": string;
+    "Pacific/Fakaofo": string;
+    "Greenwich Standard Time": (string | number | boolean | string[])[];
+    "W. Australia Standard Time": (string | number | boolean | string[])[];
+    "Pacific/Wake": string;
+    "America/Merida": string;
+    "America/Scoresbysund": string;
+    "Asia/Barnaul": string;
+    "Asia/Seoul": string;
+    "America/Inuvik": string;
+    "America/Rainy_River": string;
+    "Pacific/Tahiti": string;
+    "America/Iqaluit": string;
+    "Europe/Moscow": string;
+    "Korea Standard Time": (string | number | boolean | string[])[];
+    "Paraguay Standard Time": (string | number | boolean | string[])[];
+    "Asia/Riyadh": string;
+    "Central European Standard Time": (string | number | boolean | string[])[];
+    "Europe/Samara": string;
+    "Central Standard Time (Mexico)": (string | number | boolean | string[])[];
+    "America/Indiana/Winamac": string;
+    "North Asia East Standard Time": (string | number | boolean | string[])[];
+    "Asia/Yekaterinburg": string;
+    "Africa/Addis_Ababa": string;
+    "Haiti Standard Time": (string | number | boolean | string[])[];
+    "Asia/Jayapura": string;
+    "Etc/GMT-1": string;
+    "Europe/Skopje": string;
+    "America/Dominica": string;
+    "Turks And Caicos Standard Time": (string | number | boolean | string[])[];
+    "Pacific/Kwajalein": string;
+    "Etc/GMT": string;
+    "AUS Eastern Standard Time": (string | number | boolean | string[])[];
+    "Antarctica/Vostok": string;
+    "E. Europe Standard Time": (string | number | boolean | string[])[];
+    "Pacific/Majuro": string;
+    "CST6CDT": string;
+    "Indian/Mahe": string;
+    "America/Yellowknife": string;
+    "Etc/GMT+5": string;
+    "Marquesas Standard Time": (string | number | boolean | string[])[];
+    "Atlantic/Madeira": string;
+    "Pacific/Tongatapu": string;
+    "Europe/Andorra": string;
+    "America/Boa_Vista": string;
+    "Europe/Vienna": string;
+    "Asia/Muscat": string;
+    "America/Winnipeg": string;
+    "America/Nassau": string;
+    "Asia/Aqtobe": string;
+    "Antarctica/McMurdo": string;
+    "Eastern Standard Time": (string | number | boolean | string[])[];
+    "America/Anguilla": string;
+    "Africa/Ouagadougou": string;
+    "Etc/GMT-4": string;
+    "Atlantic/Azores": string;
+    "Europe/Mariehamn": string;
+    "Pacific/Saipan": string;
+    "Etc/UTC": string;
+    "Australia/Currie": string;
+    "America/Louisville": string;
+    "E. Africa Standard Time": (string | number | boolean | string[])[];
+    "E. South America Standard Time": (string | number | boolean | string[])[];
+    "Europe/Uzhgorod": string;
+    "America/El_Salvador": string;
+    "Pacific/Johnston": string;
+    "Syria Standard Time": (string | number | boolean | string[])[];
+    "America/Toronto": string;
+    "Asia/Bishkek": string;
+    "Atlantic/Canary": string;
+    "America/Dawson": string;
+    "Bougainville Standard Time": (string | number | boolean | string[])[];
+    "Alaskan Standard Time": (string | number | boolean | string[])[];
+    "America/Curacao": string;
+    "America/Eirunepe": string;
+    "Asia/Ust-Nera": string;
+    "SA Pacific Standard Time": (string | number | boolean | string[])[];
+    "Africa/Lome": string;
+    "Pacific/Pago_Pago": string;
+    "America/Cambridge_Bay": string;
+    "America/Indianapolis": string;
+    "America/Indiana/Vevay": string;
+    "Antarctica/Davis": string;
+    "Asia/Srednekolymsk": string;
+    "America/Bogota": string;
+    "Europe/Saratov": string;
+    "UTC+13": (string | number | boolean)[];
+    "Europe/Vatican": string;
+    "Belarus Standard Time": (string | number | boolean | string[])[];
+    "Europe/Riga": string;
+    "Arctic/Longyearbyen": string;
+    "Asia/Tashkent": string;
+    "America/Guadeloupe": string;
+    "Africa/Conakry": string;
+    "America/Port-au-Prince": string;
+    "America/Belize": string;
+    "South Africa Standard Time": (string | number | boolean | string[])[];
+    "Europe/Warsaw": string;
+    "Africa/Dakar": string;
+    "UTC-08": (string | number | boolean | string[])[];
+    "America/Vancouver": string;
+    "Europe/Ulyanovsk": string;
+    "Europe/Amsterdam": string;
+    "Cuba Standard Time": (string | number | boolean | string[])[];
+    "Asia/Baku": string;
+    "Asia/Ulaanbaatar": string;
+    "America/Argentina/Rio_Gallegos": string;
+    "North Korea Standard Time": (string | number | boolean | string[])[];
+    "Indian/Maldives": string;
+    "SA Western Standard Time": (string | number | boolean | string[])[];
+    "Central Pacific Standard Time": (string | number | boolean | string[])[];
+    "America/Dawson_Creek": string;
+    "Africa/Dar_es_Salaam": string;
+    "America/Rankin_Inlet": string;
+    "America/Antigua": string;
+    "Asia/Thimphu": string;
+    "Chatham Islands Standard Time": (string | number | boolean | string[])[];
+    "America/North_Dakota/New_Salem": string;
+    "America/Ojinaga": string;
+    "Africa/Asmera": string;
+    "Europe/San_Marino": string;
+    "Pacific/Pitcairn": string;
+    "Europe/Isle_of_Man": string;
+    "North Asia Standard Time": (string | number | boolean | string[])[];
+    "America/Danmarkshavn": string;
+    "America/Mexico_City": string;
+    "Africa/Banjul": string;
+    "Europe/Zurich": string;
+    "America/St_Johns": string;
+    "Pacific/Apia": string;
+    "Pacific/Niue": string;
+    "Etc/GMT-3": string;
+    "America/Fortaleza": string;
+    "China Standard Time": (string | number | boolean | string[])[];
+    "America/Mazatlan": string;
+    "Asia/Samarkand": string;
+    "America/Adak": string;
+    "Russia Time Zone 3": (string | number | boolean | string[])[];
+    "Taipei Standard Time": (string | number | boolean | string[])[];
+    "America/Montreal": string;
+    "Russia Time Zone 11": (string | number | boolean | string[])[];
+    "Arabian Standard Time": (string | number | boolean | string[])[];
+    "Asia/Oral": string;
+    "Asia/Brunei": string;
+    "Bangladesh Standard Time": (string | number | boolean | string[])[];
+    "America/Bahia_Banderas": string;
+    "Africa/Khartoum": string;
+    "Asia/Hovd": string;
+    "Antarctica/Mawson": string;
+    "Africa/Maseru": string;
+    "Asia/Aqtau": string;
+    "Europe/Chisinau": string;
+    "Africa/Douala": string;
+    "Asia/Hong_Kong": string;
+    "Africa/Ndjamena": string;
+    "Indian/Reunion": string;
+    "Asia/Krasnoyarsk": string;
+    "America/Buenos_Aires": string;
+    "America/Grand_Turk": string;
+    "US Eastern Standard Time": (string | number | boolean | string[])[];
+    "Etc/GMT-6": string;
+    "Europe/Monaco": string;
+    "W. Europe Standard Time": (string | number | boolean | string[])[];
+    "America/Montevideo": string;
+    "America/St_Thomas": string;
+    "Africa/Monrovia": string;
+    "Etc/GMT-8": string;
+    "Saint Pierre Standard Time": (string | number | boolean | string[])[];
+    "America/Coral_Harbour": string;
+    "Africa/Djibouti": string;
+    "Asia/Kabul": string;
+    "America/Port_of_Spain": string;
+    "Atlantic/Reykjavik": string;
+    "Central Standard Time": (string | number | boolean | string[])[];
+    "Australia/Melbourne": string;
+    "Africa/Freetown": string;
+    "Asia/Atyrau": string;
+    "Africa/Lagos": string;
+    "Europe/Helsinki": string;
+    "Asia/Karachi": string;
+    "America/Regina": string;
+    "Tocantins Standard Time": (string | number | boolean | string[])[];
+    "Antarctica/Rothera": string;
+    "Etc/GMT+3": string;
+    "Dateline Standard Time": (string | number | boolean | string[])[];
+    "Australia/Sydney": string;
+    "Etc/GMT+12": string;
+    "PST8PDT": string;
+    "Canada Central Standard Time": (string | number | boolean | string[])[];
+    "Lord Howe Standard Time": (string | number | boolean | string[])[];
+    "Europe/Busingen": string;
+    "Turkey Standard Time": (string | number | boolean | string[])[];
+    "Africa/Bamako": string;
+    "America/Grenada": string;
+    "America/Kralendijk": string;
+    "America/Indiana/Petersburg": string;
+    "Etc/GMT+4": string;
+    "GTB Standard Time": (string | number | boolean | string[])[];
+    "Asia/Vientiane": string;
+    "Africa/Lusaka": string;
+    "Europe/Oslo": string;
+    "Australia/Hobart": string;
+    "Central Asia Standard Time": (string | number | boolean | string[])[];
+    "Etc/GMT+7": string;
+    "Kaliningrad Standard Time": (string | number | boolean | string[])[];
+    "Yakutsk Standard Time": (string | number | boolean | string[])[];
+    "Caucasus Standard Time": (string | number | boolean | string[])[];
+    "EST5EDT": string;
+    "Egypt Standard Time": (string | number | boolean | string[])[];
+    "Europe/Dublin": string;
+    "Pacific/Norfolk": string;
+    "Arabic Standard Time": (string | number | boolean | string[])[];
+    "Antarctica/Casey": string;
+    "America/Porto_Velho": string;
+    "Pakistan Standard Time": (string | number | boolean | string[])[];
+    "SE Asia Standard Time": (string | number | boolean | string[])[];
+    "Asia/Hebron": string;
+    "Africa/Windhoek": string;
+    "SA Eastern Standard Time": (string | number | boolean | string[])[];
+    "Asia/Tokyo": string;
+    "Pacific/Honolulu": string;
+    "Asia/Magadan": string;
+    "Omsk Standard Time": (string | number | boolean | string[])[];
+    "America/New_York": string;
+    "Europe/Berlin": string;
+    "Easter Island Standard Time": (string | number | boolean | string[])[];
+    "Central America Standard Time": (string | number | boolean | string[])[];
+    "N. Central Asia Standard Time": (string | number | boolean | string[])[];
+    "Asia/Rangoon": string;
+    "America/Argentina/La_Rioja": string;
+    "Myanmar Standard Time": (string | number | boolean | string[])[];
+    "Etc/GMT-12": string;
+    "Africa/Juba": string;
+    "Etc/GMT-11": string;
+    "America/Yakutat": string;
+    "Pacific/Port_Moresby": string;
+    "Atlantic/South_Georgia": string;
+    "Australia/Darwin": string;
+    "America/Nipigon": string;
+    "America/Panama": string;
+    "America/Cordoba": string;
+    "Europe/Stockholm": string;
+    "America/Rio_Branco": string;
+    "Europe/Prague": string;
+    "Antarctica/Palmer": string;
+    "America/Whitehorse": string;
+    "Pacific/Enderbury": string;
+    "UTC+12": (string | number | boolean | string[])[];
+    "UTC-09": (string | number | boolean | string[])[];
+    "AUS Central Standard Time": (string | number | boolean | string[])[];
+    "Line Islands Standard Time": (string | number | boolean | string[])[];
+    "Africa/Mbabane": string;
+    "Asia/Dushanbe": string;
+    "America/Indiana/Marengo": string;
+    "America/Punta_Arenas": string;
+    "America/Maceio": string;
+    "America/Menominee": string;
+    "America/Anchorage": string;
+    "Norfolk Standard Time": (string | number | boolean | string[])[];
+    "America/Monterrey": string;
+    "America/Paramaribo": string;
+    "Africa/Gaborone": string;
+    "Morocco Standard Time": (string | number | boolean | string[])[];
+    "Australia/Brisbane": string;
+    "West Bank Standard Time": (string | number | boolean | string[])[];
+    "America/St_Barthelemy": string;
+    "America/Montserrat": string;
+    "America/St_Vincent": string;
+    "America/Goose_Bay": string;
+    "America/Argentina/Salta": string;
+    "Europe/Malta": string;
+    "Australia/Perth": string;
+    "Azerbaijan Standard Time": (string | number | boolean | string[])[];
+    "Asia/Katmandu": string;
+    "Pacific/Bougainville": string;
+    "Asia/Phnom_Penh": string;
+    "Africa/Porto-Novo": string;
+    "America/Tortola": string;
+    "Tomsk Standard Time": (string | number | boolean | string[])[];
+    "Romance Standard Time": (string | number | boolean | string[])[];
+    "America/Matamoros": string;
+    "America/Bahia": string;
+    "Indian/Chagos": string;
+    "America/Godthab": string;
+    "Africa/Luanda": string;
+    "America/Resolute": string;
+    "Asia/Omsk": string;
+    "Indian/Christmas": string;
+    "Africa/El_Aaiun": string;
+    "America/Metlakatla": string;
+    "Europe/Athens": string;
+    "Asia/Kuala_Lumpur": string;
+    "Europe/Zaporozhye": string;
+    "Asia/Khandyga": string;
+    "Arab Standard Time": (string | number | boolean | string[])[];
+    "America/Moncton": string;
+    "Europe/Bratislava": string;
+    "Etc/GMT-2": string;
+    "Antarctica/Syowa": string;
+    "Etc/GMT+11": string;
+    "America/Argentina/San_Juan": string;
+    "Asia/Ashgabat": string;
+    "Indian/Comoro": string;
+    "Asia/Shanghai": string;
+    "Asia/Yakutsk": string;
+    "Aus Central W. Standard Time": (string | number | boolean | string[])[];
+    "America/Managua": string;
+    "Africa/Nouakchott": string;
+    "America/North_Dakota/Center": string;
+    "Africa/Algiers": string;
+    "Europe/Rome": string;
+    "Pacific/Wallis": string;
+    "Europe/Tallinn": string;
+    "Australia/Broken_Hill": string;
+    "Etc/GMT-14": string;
+    "Africa/Casablanca": string;
+    "Pacific Standard Time": (string | number | boolean | string[])[];
+    "Pacific/Galapagos": string;
+    "Africa/Bissau": string;
+    "Pacific/Fiji": string;
+    "Asia/Kuwait": string;
+    "America/Cuiaba": string;
+    "Pacific/Funafuti": string;
+    "Etc/GMT-7": string;
+    "Africa/Kampala": string;
+    "Europe/Istanbul": string;
+    "America/Thunder_Bay": string;
+    "America/Creston": string;
+    "Pacific/Easter": string;
+    "Middle East Standard Time": (string | number | boolean | string[])[];
+    "America/Detroit": string;
+    "America/Cancun": string;
+    "Asia/Macau": string;
+    "Eastern Standard Time (Mexico)": (string | number | boolean | string[])[];
+    "America/Indiana/Vincennes": string;
+    "Asia/Bahrain": string;
+    "Argentina Standard Time": (string | number | boolean | string[])[];
+    "Asia/Irkutsk": string;
+    "Asia/Novosibirsk": string;
+    "America/Noronha": string;
+    "Africa/Maputo": string;
+    "America/Sao_Paulo": string;
+    "Europe/Podgorica": string;
+    "Etc/GMT+2": string;
+    "Pacific/Marquesas": string;
+    "America/Blanc-Sablon": string;
+    "Asia/Yerevan": string;
+    "Atlantic/Cape_Verde": string;
+    "Pacific/Auckland": string;
+    "America/Phoenix": string;
+    "Pacific/Truk": string;
+    "Greenland Standard Time": (string | number | boolean | string[])[];
+    "Africa/Mogadishu": string;
+    "Pacific SA Standard Time": (string | number | boolean | string[])[];
+    "Asia/Urumqi": string;
+    "Asia/Chita": string;
+    "America/Lima": string;
+    "Australia/Eucla": string;
+    "Asia/Damascus": string;
+    "Europe/Minsk": string;
+    "Africa/Bujumbura": string;
+    "Asia/Makassar": string;
+    "Saratov Standard Time": (string | number | boolean)[];
+    "Ulaanbaatar Standard Time": (string | number | boolean | string[])[];
+    "Asia/Amman": string;
+    "Tonga Standard Time": (string | number | boolean | string[])[];
+    "Atlantic/St_Helena": string;
+    "America/Santiago": string;
+    "UTC-02": (string | number | boolean | string[])[];
+    "Europe/Luxembourg": string;
+    "Africa/Cairo": string;
+    "America/Recife": string;
+    "America/Indiana/Tell_City": string;
+    "Africa/Niamey": string;
+    "America/Juneau": string;
+    "Asia/Qyzylorda": string;
+    "Asia/Bangkok": string;
+    "Magadan Standard Time": (string | number | boolean | string[])[];
+    "Africa/Johannesburg": string;
+    "America/Santa_Isabel": string;
+    "Astrakhan Standard Time": (string | number | boolean | string[])[];
+    "America/Cayenne": string;
+    "Africa/Tripoli": string;
+    "Africa/Bangui": string;
+    "Asia/Tomsk": string;
+    "Central Brazilian Standard Time": (string | number | boolean | string[])[];
+    "Africa/Harare": string;
+    "Europe/Kaliningrad": string;
+    "Israel Standard Time": (string | number | boolean | string[])[];
+    "E. Australia Standard Time": (string | number | boolean | string[])[];
+    "America/Marigot": string;
+    "Asia/Dhaka": string;
+    "Etc/GMT-10": string;
+    "Europe/Paris": string;
+    "America/Nome": string;
+    "America/Belem": string;
+    "Africa/Sao_Tome": string;
+    "Asia/Taipei": string;
+    "Pacific/Chatham": string;
+    "Asia/Vladivostok": string;
+    "Vladivostok Standard Time": (string | number | boolean | string[])[];
+    "America/Tijuana": string;
+    "Etc/GMT-13": string;
+    "Pacific/Guadalcanal": string;
+    "Indian/Antananarivo": string;
+    "Africa/Ceuta": string;
+    "America/Jujuy": string;
+    "Cape Verde Standard Time": (string | number | boolean | string[])[];
+    "GMT Standard Time": (string | number | boolean | string[])[];
+    "Bahia Standard Time": (string | number | boolean | string[])[];
+};
+ let CustomTimeZoneMappingData: {
+    'tzone://Microsoft/Utc': string;
+}; class AlternateMailbox {
     Type: string;
     DisplayName: string;
     LegacyDN: string;
@@ -803,8 +1517,7 @@ export interface PromiseConstructor {
     SmtpAddress: string;
     OwnerSmtpAddress: string;
     static LoadFromJson(obj: any): AlternateMailbox;
-}
- class AlternateMailboxCollection {
+} class AlternateMailboxCollection {
     Entries: AlternateMailbox[];
     static LoadFromJson(obj: any): AlternateMailboxCollection;
 } class AutodiscoverError {
@@ -812,8 +1525,7 @@ export interface PromiseConstructor {
     Id: string;
     ErrorCode: number;
     Message: string;
-    DebugData: string;}
- class AutodiscoverResponseCollection<TResponse extends AutodiscoverResponse> extends AutodiscoverResponse {
+    DebugData: string;} class AutodiscoverResponseCollection<TResponse extends AutodiscoverResponse> extends AutodiscoverResponse {
     readonly Count: number;
     Item: TResponse;
     Responses: TResponse[];
@@ -825,8 +1537,7 @@ export interface PromiseConstructor {
     GetResponseInstanceXmlElementName(): string;
     LoadFromJson(obj: any): void;
     LoadResponseCollectionFromJson(obj: any): void;
-}
- class AutodiscoverService extends ExchangeServiceBase {    static AutodiscoverMaxRedirections: number;    IsExternal: boolean;
+} class AutodiscoverService extends ExchangeServiceBase {    static AutodiscoverMaxRedirections: number;    IsExternal: boolean;
     RedirectionUrlValidationCallback: AutodiscoverRedirectionUrlValidationCallback;
     DnsServerAddress: any;
     EnableScpLookup: boolean;
@@ -874,18 +1585,20 @@ export interface PromiseConstructor {
 }
 export interface GetSettingsMethod<TGetSettingsResponseCollection, TSettingName> {
     (smtpAddresses: string[], settings: TSettingName[], requestedVersion: ExchangeVersion, autodiscoverUrl: IRefParam<Uri>, thisref: AutodiscoverService): Promise<TGetSettingsResponseCollection>;
-}export interface AutodiscoverRedirectionUrlValidationCallback {
-    (redirectionUrl: string): boolean;
-} class ComparisonHelpers {
-    CaseInsensitiveContains(collection: any[], match: string): boolean;
 }
- class DirectoryHelper {
+export interface AutodiscoverRedirectionUrlValidationCallback {
+    (redirectionUrl: string): boolean;
+}
+ class ComparisonHelpers {
+    CaseInsensitiveContains(collection: any[], match: string): boolean;
+} class DirectoryHelper {
     Service: ExchangeServiceBase;
     GetAutodiscoverScpUrlsForDomain(domainName: string): string[];
     GetScpUrlList(domainName: string, ldapPath: string, maxHops: any): string[];
     GetSiteName(): string;
     TraceMessage(message: string): any;
-} class DocumentSharingLocation {
+}
+ class DocumentSharingLocation {
     ServiceUrl: string;
     LocationUrl: string;
     DisplayName: string;
@@ -895,46 +1608,115 @@ export interface GetSettingsMethod<TGetSettingsResponseCollection, TSettingName>
     CanModifyPermissions: boolean;
     IsDefault: boolean;
     static LoadFromJson(obj: any): DocumentSharingLocation;
-}
- class DocumentSharingLocationCollection {
+} class DocumentSharingLocationCollection {
     Entries: DocumentSharingLocation[];
     static LoadFromJson(obj: any): DocumentSharingLocationCollection;
-}
- class DomainSettingError {
+} class DomainSettingError {
     ErrorCode: AutodiscoverErrorCode;
     ErrorMessage: string;
     SettingName: string;
     LoadFromObject(obj: any): void;
-} class ProtocolConnection {
+}
+ class ProtocolConnection {
     EncryptionMethod: string;
     Hostname: string;
     Port: number;
-}
- class ProtocolConnectionCollection {
+} class ProtocolConnectionCollection {
     Connections: ProtocolConnection[];
     constructor();
     static LoadFromJson(obj: any): ProtocolConnectionCollection;
-}
- class UserSettingError {
+} class UserSettingError {
     ErrorCode: AutodiscoverErrorCode;
     ErrorMessage: string;
     SettingName: string;
     LoadFromJson(obj: any): any;
-} class WebClientUrl {
+}
+ class WebClientUrl {
     AuthenticationMethods: string;
     Url: string;
     static LoadFromJson(obj: any): WebClientUrl;
-}
- class WebClientUrlCollection {
+} class WebClientUrlCollection {
     Urls: WebClientUrl[];
     static LoadFromJson(obj: any): WebClientUrlCollection;
 }
- class EwsLogging {
+ class ClientCertificateCredentials extends ExchangeCredentials {
+    ClientCertificates: any;    PrepareWebRequest(request: any): any;
+}
+ abstract class ExchangeCredentials {
+    static WsSecurityPathSuffix: string;
+    UserName: string;
+    /** Hiding password field from console.log */
+    getPassword: () => string;
+    setPassword: (value: string) => void;
+    Password: string;
+    constructor();
+    constructor(userName: string, password: string);
+    AdjustUrl(url: Uri): Uri;
+    EmitExtraSoapHeaderNamespaceAliases(writer: any): void;
+    static GetUriWithoutSuffix(url: Uri): string;
+    PrepareWebRequest(request: IXHROptions): void;
+    SerializeExtraSoapHeaders(writer: any, webMethodName: string): void;
+}
+ class OAuthCredentials extends ExchangeCredentials {
+    constructor(token: string);
+    constructor(token: string, verbatim: boolean);
+    PrepareWebRequest(request: IXHROptions): void;
+}
+ class PartnerTokenCredentials extends WSSecurityBasedCredentials {    NeedSignature: boolean;    AdjustUrl(url: Uri): Uri;
+    Sign(memoryStream: any): any;
+} class TokenCredentials extends WSSecurityBasedCredentials {
+}
+ class WSSecurityBasedCredentials extends ExchangeCredentials {
+    static WsAddressingHeadersFormat: string;
+    static WsSecurityHeaderFormat: string;
+    static WsuTimeStampFormat: string;
+    SecurityToken: string;
+    EwsUrl: Uri;
+    static NamespaceManager: any;
+    AdjustUrl(url: Uri): Uri;
+    EmitExtraSoapHeaderNamespaceAliases(writer: any): any;
+    PreAuthenticate(): any;
+    SerializeExtraSoapHeaders(writer: any, webMethodName: string): any;
+    SerializeWSAddressingHeaders(xmlWriter: any, webMethodName: string): any;
+    SerializeWSSecurityHeaders(xmlWriter: any): any;
+}
+ class WSSecurityUtilityIdSignedXml {
+    AddReference(xpath: string): any;
+    GetIdElement(document: any, idValue: string): any;
+    GetUniqueId(): string;
+} class WebCredentials extends ExchangeCredentials {
+} class WindowsLiveCredentials extends WSSecurityBasedCredentials {
+    static XmlEncNamespace: string;
+    static WindowsLiveSoapNamespacePrefix: string;
+    static RequestSecurityTokenResponseCollectionElementName: string;
+    static RequestSecurityTokenResponseElementName: string;
+    static EncryptedDataElementName: string;
+    static PpElementName: string;
+    static ReqstatusElementName: string;
+    static SuccessfulReqstatus: string;
+    static XmlSignatureReference: string;
+    TraceEnabled: boolean;
+    TraceListener: ITraceListener;
+    WindowsLiveUrl: Uri;
+    IsAuthenticated: boolean;
+    static DefaultWindowsLiveUrl: Uri;
+    EmitTokenRequest(uriForTokenEndpointReference: Uri): any;
+    MakeTokenRequestToWindowsLive(uriForTokenEndpointReference: Uri): any;
+    ProcessTokenResponse(response: any): any;
+    TraceResponse(response: any, memoryStream: any): any;
+    TraceWebException(e: any): any;
+}
+ class X509CertificateCredentials extends WSSecurityBasedCredentials {    NeedSignature: boolean;
+    AdjustUrl(url: Uri): Uri;
+    Sign(memoryStream: any): any;
+    ToString(): string;
+} class EwsLogging {
     static DebugLogEnabled: boolean;
-    static Assert(condition: boolean, caller: string, message: string): void;
+    static Assert(condition: boolean, caller: string, message: string, always?: boolean): void;
     static Log(message: any, always?: boolean, expandObject?: boolean): void;
     static DebugLog(message: any, expandObject?: boolean): void;
-} class EwsServiceJsonReader {
+}
+ class EwsServiceJsonReader {
     static ReadAsArray(jsObject: any, xmlElementName: string): any[];
     static ReadBase64ElementValue(obj: any): string;
     static ReadServiceObjectsCollectionFromJson<TServiceObject extends ServiceObject>(jsonResponse: any, service: ExchangeService, collectionJsonElementName: string, getObjectInstanceDelegate: GetObjectInstanceDelegate<TServiceObject>, clearPropertyBag: boolean, requestedPropertySet: PropertySet, summaryPropertiesOnly: boolean): TServiceObject[];
@@ -2352,7 +3134,14 @@ export interface EnumVersionDelegate {
      * @param   {IXHROptions}   request   The request.
      */
     SetContentType(request: IXHROptions): void;
-} class ExchangeServiceBase {
+    /**
+     * Get the TimeZoneInfo objects from server
+     *
+     * @returns {Promise<TimeZoneInfo[]>}
+     */
+    GetServerTimeZones(): Promise<TimeZoneInfo[]>;
+}
+ class ExchangeServiceBase {
     static AccountIsLocked: any;
     AcceptGzipEncoding: boolean;
     ClientRequestId: string;
@@ -2376,15 +3165,12 @@ export interface EnumVersionDelegate {
     SuppressXmlVersionHeader: boolean;
     Timeout: number;
     readonly TimeZone: TimeZoneInfo;
-    readonly TimeZoneDefinition: TimeZoneDefinition;
     TraceEnabled: boolean;
     TraceFlags: TraceFlags;
     TraceListener: ITraceListener;
     UseDefaultCredentials: boolean;
     UserAgent: string;
-    WebProxy: any;    protected timeZone: TimeZoneInfo;
-    XHRApi: IXHRApi;
-    readonly GetXHRApi: IXHRApi;
+    WebProxy: any;    protected timeZone: TimeZoneInfo;    XHRApi: IXHRApi;
     constructor();
     constructor(timeZone: TimeZoneInfo);
     constructor(requestedServerVersion: ExchangeVersion);
@@ -2407,7 +3193,8 @@ export interface EnumVersionDelegate {
     TraceMessage(traceType: TraceFlags, logEntry: string): any;
     TraceXml(traceType: TraceFlags, stream: any): any;
     Validate(): any;
-}/**
+}
+/**
  * JSON names not shared with the XmlElementNames or XmlAttributeNames classes.
  */
  module JsonNames {
@@ -2421,9 +3208,11 @@ export interface EnumVersionDelegate {
     var Path: string;
     var RecurrencePattern: string;
     var RecurrenceRange: string;
-} class JsonObject {
+}
+ class JsonObject {
     static JsonValueString: string;
-} class JsonParser {    Parse(): JsonObject;
+}
+ class JsonParser {    Parse(): JsonObject;
     ParseArray(): any[];
     ParseKeyValuePair(jsonObject: JsonObject): void;
     ParseNumber(valueToken: string): any;
@@ -2431,12 +3220,10 @@ export interface EnumVersionDelegate {
     ParseValue(): any;
     ReadAndValidateToken(token: string, expectedTokenTypes: JsonTokenType[]): JsonTokenType;
     UnescapeString(value: string): string;
-}
- class JsonTokenizer {    AdvanceRegExMatch(): void;
+} class JsonTokenizer {    AdvanceRegExMatch(): void;
     NextToken(token: string): JsonTokenType;
     Peek(): JsonTokenType;
-}
- class LazyMember<T> {
+} class LazyMember<T> {
     readonly Member: T;
     constructor(initializationDelegate: InitializeLazyMember<T>);
 }
@@ -2640,8 +3427,7 @@ export interface InitializeLazyMember<T> {
      * Implements ISelfValidate.Validate. Validates this property set.
      */
     Validate(): void;
-}
- class SimplePropertyBag<TKey> {
+} class SimplePropertyBag<TKey> {
     OnChange: PropertyBagChangedDelegate[];
     readonly AddedItems: TKey[];
     readonly RemovedItems: TKey[];
@@ -2656,7 +3442,8 @@ export interface InitializeLazyMember<T> {
     InternalAddItemToChangeList(key: TKey, changeList: TKey[]): void;
     InternalRemoveItem(key: TKey): void;
     TryGetValue(key: TKey, value: IOutParam<any>): boolean;
-}/**
+}
+/**
  * XML attribute names.
  */
  module XmlAttributeNames {
@@ -2752,7 +3539,8 @@ export interface InitializeLazyMember<T> {
     var MoveItem: string;
     var Nil: string;
     var Type: string;
-}/**
+}
+/**
  * XML element names.
  */
  module XmlElementNames {
@@ -4186,79 +4974,10 @@ export interface InitializeLazyMember<T> {
     var EwsPositionElementName: string;
     var EwsErrorCodeElementName: string;
     var EwsExceptionTypeElementName: string;
-} class DnsClient {
+}
+ class DnsClient {
     DnsQuer<T>(domain: string, dnsServerAddress: any): T[];
-}
- class ClientCertificateCredentials extends ExchangeCredentials {
-    ClientCertificates: any;    PrepareWebRequest(request: any): any;
-} class ExchangeCredentials {
-    static WsSecurityPathSuffix: string;
-    UserName: string;
-    /** Hiding password field from console.log */
-    getPassword: () => string;
-    setPassword: (value: string) => void;
-    Password: string;
-    constructor();
-    constructor(userName: string, password: string);
-    AdjustUrl(url: Uri): Uri;
-    EmitExtraSoapHeaderNamespaceAliases(writer: any): void;
-    static GetUriWithoutSuffix(url: Uri): string;
-    PrepareWebRequest(request: IXHROptions): void;
-    SerializeExtraSoapHeaders(writer: any, webMethodName: string): void;
-} class OAuthCredentials extends ExchangeCredentials {
-    constructor(token: string);
-    constructor(token: string, verbatim: boolean);
-    PrepareWebRequest(request: IXHROptions): void;
-} class PartnerTokenCredentials extends WSSecurityBasedCredentials {    NeedSignature: boolean;    AdjustUrl(url: Uri): Uri;
-    Sign(memoryStream: any): any;
-}
- class TokenCredentials extends WSSecurityBasedCredentials {
-} class WSSecurityBasedCredentials extends ExchangeCredentials {
-    static WsAddressingHeadersFormat: string;
-    static WsSecurityHeaderFormat: string;
-    static WsuTimeStampFormat: string;
-    SecurityToken: string;
-    EwsUrl: Uri;
-    static NamespaceManager: any;
-    AdjustUrl(url: Uri): Uri;
-    EmitExtraSoapHeaderNamespaceAliases(writer: any): any;
-    PreAuthenticate(): any;
-    SerializeExtraSoapHeaders(writer: any, webMethodName: string): any;
-    SerializeWSAddressingHeaders(xmlWriter: any, webMethodName: string): any;
-    SerializeWSSecurityHeaders(xmlWriter: any): any;
-} class WSSecurityUtilityIdSignedXml {
-    AddReference(xpath: string): any;
-    GetIdElement(document: any, idValue: string): any;
-    GetUniqueId(): string;
-} class WebCredentials extends ExchangeCredentials {
-    Credentials: any;    AdjustUrl(url: Uri): Uri;
-}
- class WindowsLiveCredentials extends WSSecurityBasedCredentials {
-    static XmlEncNamespace: string;
-    static WindowsLiveSoapNamespacePrefix: string;
-    static RequestSecurityTokenResponseCollectionElementName: string;
-    static RequestSecurityTokenResponseElementName: string;
-    static EncryptedDataElementName: string;
-    static PpElementName: string;
-    static ReqstatusElementName: string;
-    static SuccessfulReqstatus: string;
-    static XmlSignatureReference: string;
-    TraceEnabled: boolean;
-    TraceListener: ITraceListener;
-    WindowsLiveUrl: Uri;
-    IsAuthenticated: boolean;
-    static DefaultWindowsLiveUrl: Uri;
-    EmitTokenRequest(uriForTokenEndpointReference: Uri): any;
-    MakeTokenRequestToWindowsLive(uriForTokenEndpointReference: Uri): any;
-    ProcessTokenResponse(response: any): any;
-    TraceResponse(response: any, memoryStream: any): any;
-    TraceWebException(e: any): any;
-} class X509CertificateCredentials extends WSSecurityBasedCredentials {    NeedSignature: boolean;
-    AdjustUrl(url: Uri): Uri;
-    Sign(memoryStream: any): any;
-    ToString(): string;
-}
-/**
+}/**
  * Represents retention policy tag object.
  *
  * @sealed
@@ -4317,86 +5036,7 @@ export interface InitializeLazyMember<T> {
      * @param   {boolean}   isArchive         Is archive tag.
      */
     constructor(displayName: string, retentionId: Guid, retentionPeriod: number, type: ElcFolderType, retentionAction: RetentionActionType, isVisible: boolean, optedInto: boolean, isArchive: boolean);
-}export interface ICalendarActionProvider {
-    Accept(sendResponse: boolean): Promise<CalendarActionResults>;
-    AcceptTentatively(sendResponse: boolean): Promise<CalendarActionResults>;
-    CreateAcceptMessage(tentative: boolean): AcceptMeetingInvitationMessage;
-    CreateDeclineMessage(): DeclineMeetingInvitationMessage;
-    Decline(sendResponse: boolean): Promise<CalendarActionResults>;
-}export interface ICustomUpdateSerializer {
-}export interface IEnumerable<T> {
-    GetEnumerator(): Array<T>;
-}
-export interface IEwsHttpWebRequest {
-    Accept: string;
-    AllowAutoRedirect: boolean;
-    ClientCertificates: any;
-    ContentType: string;
-    CookieContainer: any;
-    Credentials: any;
-    Headers: any;
-    Method: string;
-    PreAuthenticate: boolean;
-    Proxy: any;
-    RequestUri: string;
-    Timeout: number;
-    UseDefaultCredentials: boolean;
-    UserAgent: string;
-    KeepAlive: boolean;
-    ConnectionGroupName: string;
-    Abort(): void;
-    BeginGetRequestStream(callback: any, state: any): any;
-    BeginGetResponse(callback: any, state: any): any;
-    EndGetRequestStream(asyncResult: any): any;
-    EndGetResponse(asyncResult: any): IEwsHttpWebResponse;
-    GetRequestStream(): any;
-    GetResponse(): IEwsHttpWebResponse;
-}export interface IEwsHttpWebRequestFactory {
-    CreateExceptionResponse(exception: any): IEwsHttpWebResponse;
-    CreateRequest(uri: string): IEwsHttpWebRequest;
-}export interface IEwsHttpWebResponse {
-    ContentEncoding: string;
-    ContentType: string;
-    Headers: any;
-    ResponseUri: string;
-    StatusCode: any;
-    StatusDescription: string;
-    ProtocolVersion: any;
-    Close(): void;
-    GetResponseStream(): any;
-}export interface IFileAttachmentContentHandler {
-    GetOutputStream(attachmentId: string): any;
-}
-export interface IJsonSerializable {
-    ToJson(service: ExchangeService): any;
-}
-export interface IJsonCollectionDeserializer {
-    CreateFromJsonCollection(jsonCollection: any[], service: ExchangeService): void;
-    UpdateFromJsonCollection(jsonCollection: any[], service: ExchangeService): void;
-}export interface IOutParam<T> {
-    outValue: T;
-    exception?: any;
-    success?: boolean;
-}
-export interface IOwnedProperty {
-    Owner: ServiceObject;
-}export interface IRefParam<T> {
-    getValue: () => T;
-    setValue?: (value: T) => void;
-}export interface ISearchStringProvider {
-    GetSearchString(): string;
-}export interface ISelfValidate {
-    Validate(): any;
-}export interface ITraceListener {
-    Trace(traceType: string, traceMessage: string): void;
-}export interface HasEwsEnumAttribute {
-    FromEwsEnumString(value: string): any;
-    ToEwsEnumString(value: any): string;
-}
-export interface HasRequiredServerVersionAttribute {
-    RequiredServerVersion(value: WellKnownFolderName): ExchangeVersion;
-}
-/**
+}/**
  * Represents an error that occurs when the account that is being accessed is locked and requires user interaction to be unlocked.
  */
  class AccountIsLockedException extends ServiceRemoteException {
@@ -4407,15 +5047,14 @@ export interface HasRequiredServerVersionAttribute {
      */
     AccountUnlockUrl: Uri;
     /**
-     * Initializes a new instance of the  class.
+     * Initializes a new instance of the **AccountIsLockedException** class.
      *
      * @param   {string}        message            Error message text.
      * @param   {Uri}           accountUnlockUrl   URL for client to visit to unlock account.
      * @param   {Exception}     innerException     Inner exception.
      */
     constructor(message: string, accountUnlockUrl: Uri, innerException: Exception);
-}
- class ArgumentException extends Exception {
+} class ArgumentException extends Exception {
     ParamName: string;
     constructor();
     constructor(message: string);
@@ -4441,7 +5080,8 @@ export interface HasRequiredServerVersionAttribute {
     constructor(paramName: string, message: string);
     constructor(message: string, innerException: Exception);
     constructor(paramName: string, actualValue: any, message: string);
-} class AutodiscoverLocalException extends ServiceLocalException {
+}
+ class AutodiscoverLocalException extends ServiceLocalException {
     /**
      * Initializes a new instance of **AutodiscoverLocalException**.
      */
@@ -4459,10 +5099,13 @@ export interface HasRequiredServerVersionAttribute {
      * @param   {Exception}   innerException     The exception that is the cause of the current exception.
      */
     constructor(message: string, innerException: Exception);
-} class AutodiscoverRemoteException extends ServiceRemoteException {
+}
+ class AutodiscoverRemoteException extends ServiceRemoteException {
     Error: AutodiscoverError;
-} class AutodiscoverResponseException extends ServiceRemoteException {
-    ErrorCode: AutodiscoverErrorCode;}/**
+}
+ class AutodiscoverResponseException extends ServiceRemoteException {
+    ErrorCode: AutodiscoverErrorCode;}
+/**
  * Represents a remote service exception that can have multiple service responses.
  *
  * @type {TResponse}       The type of the response.
@@ -4489,8 +5132,10 @@ export interface HasRequiredServerVersionAttribute {
      * @param   {Exception}   innerException     The exception that is the cause of the current exception.
      */
     constructor(serviceResponses: ServiceResponseCollection<TResponse>, message: string, innerException: Exception);
-} class CreateAttachmentException extends BatchServiceResponseException<CreateAttachmentResponse> {
-}/**
+}
+ class CreateAttachmentException extends BatchServiceResponseException<CreateAttachmentResponse> {
+}
+/**
  * Represents an error that occurs when a call to the DeleteAttachment web method fails.
  */
  class DeleteAttachmentException extends BatchServiceResponseException<DeleteAttachmentResponse> {
@@ -4509,8 +5154,7 @@ export interface HasRequiredServerVersionAttribute {
      * @param   {Exception}   innerException     The exception that is the cause of the current exception.
      */
     constructor(serviceResponses: ServiceResponseCollection<DeleteAttachmentResponse>, message: string, innerException: Exception);
-}
- class Exception {
+} class Exception {
     stack: string;
     InnerException: Exception;
     readonly Message: string;
@@ -4521,30 +5165,25 @@ export interface HasRequiredServerVersionAttribute {
      * @override user JSON.stringify for now, todo: impelemtn real Exception tostring
      */
     toString(): string;
-}
- class InvalidOperationException extends Exception {
+    ToString(): string;
+} class InvalidOperationException extends Exception {
+    ParamName: string;
+    constructor();
+    constructor(message: string);
+    constructor(message: string, innerException: Exception);
+} class JsonDeserializationNotImplementedException extends ServiceLocalException {
+} class JsonSerializationNotImplementedException extends Exception {
+} class NotSupportedException extends Exception {
     ParamName: string;
     constructor();
     constructor(message: string);
     constructor(message: string, innerException: Exception);
 }
- class JsonDeserializationNotImplementedException extends ServiceLocalException {
-}
- class JsonSerializationNotImplementedException extends Exception {
-}
- class NotSupportedException extends Exception {
-    ParamName: string;
-    constructor();
-    constructor(message: string);
-    constructor(message: string, innerException: Exception);
-} class PropertyException extends ServiceLocalException {
+ class PropertyException extends ServiceLocalException {
     Name: string;
     constructor(message: string, name?: string, innerException?: Exception);
-}
- class ServerBusyException extends ServiceResponseException {    BackOffMilliseconds: number;}
- class ServiceJsonDeserializationException extends ServiceLocalException {
-}
-/**
+} class ServerBusyException extends ServiceResponseException {    BackOffMilliseconds: number;} class ServiceJsonDeserializationException extends ServiceLocalException {
+}/**
  * Represents an error that occurs when a service operation fails locally (e.g. validation error).
  */
  class ServiceLocalException extends Exception {
@@ -4565,12 +5204,10 @@ export interface HasRequiredServerVersionAttribute {
      * @param   {Exception}   innerException     The exception that is the cause of the current exception.
      */
     constructor(message: string, innerException: Exception);
-}
- class ServiceObjectPropertyException extends PropertyException {
+} class ServiceObjectPropertyException extends PropertyException {
     PropertyDefinition: PropertyDefinitionBase;
     constructor(message: string, propertyDefinition: PropertyDefinitionBase, innerException?: Exception);
-}
-/**
+}/**
  * Represents an error that occurs when a service operation fails remotely.
  */
  class ServiceRemoteException extends Exception {
@@ -4591,12 +5228,9 @@ export interface HasRequiredServerVersionAttribute {
      * @param   {Exception}     innerException   Inner exception.
      */
     constructor(message: string, innerException: Exception);
-}
- class ServiceRequestException extends ServiceRemoteException {
-}
- class ServiceRequestUnauthorizedException extends ServiceRequestException {
-}
-/**
+} class ServiceRequestException extends ServiceRemoteException {
+} class ServiceRequestUnauthorizedException extends ServiceRequestException {
+}/**
  * Represents a remote service exception that has a single response.
  */
  class ServiceResponseException extends ServiceRemoteException {
@@ -4618,7 +5252,8 @@ export interface HasRequiredServerVersionAttribute {
      * @returns The error message that explains the reason for the exception.
      */
     readonly Message: string;
-}/**
+}
+/**
  * Represents an error that occurs when a validation check fails.
  *
  * @sealed
@@ -4641,7 +5276,8 @@ export interface HasRequiredServerVersionAttribute {
      * @param   {Exception}   innerException     The exception that is the cause of the current exception.
      */
     constructor(message: string, innerException: Exception);
-}/**
+}
+/**
  * Represents an error that occurs when a request cannot be handled due to a service version mismatch.
  *
  * @sealed
@@ -4664,9 +5300,9 @@ export interface HasRequiredServerVersionAttribute {
      * @param   {Exception}   innerException     The exception that is the cause of the current exception.
      */
     constructor(message: string, innerException: Exception);
+} class ServiceXmlDeserializationException extends ServiceLocalException {
 }
- class ServiceXmlDeserializationException extends ServiceLocalException {
-} class ServiceXmlSerializationException extends ServiceLocalException {
+ class ServiceXmlSerializationException extends ServiceLocalException {
     /**
      * Initializes a new instance of **ServiceXmlSerializationException**.
      */
@@ -4684,9 +5320,9 @@ export interface HasRequiredServerVersionAttribute {
      * @param   {Exception}   innerException     The exception that is the cause of the current exception.
      */
     constructor(message: string, innerException: Exception);
+} class TimeZoneConversionException extends ServiceLocalException {
 }
- class TimeZoneConversionException extends ServiceLocalException {
-}/**
+/**
  * Represents an exception thrown when an error occurs as a result of calling the UpdateInboxRules operation.
  *
  * @sealed
@@ -4713,807 +5349,92 @@ export interface HasRequiredServerVersionAttribute {
      */
     readonly ErrorMessage: string;
 }
-/**
- * Represents mailbox query object.
- *
- * @sealed
- */
- class DiscoverySearchConfiguration {
-    /**
-     * Search Id
-     */
-    SearchId: string;
-    /**
-     * Search query
-     */
-    SearchQuery: string;
-    /**
-     * Set of mailbox and scope pair
-     */
-    SearchableMailboxes: SearchableMailbox[];
-    /**
-     * In-Place hold identity
-     */
-    InPlaceHoldIdentity: string;
-    /**
-     * Managed by organization
-     */
-    ManagedByOrganization: string;
-    /**
-     * Language
-     */
-    Language: string;
+export interface ICalendarActionProvider {
+    Accept(sendResponse: boolean): Promise<CalendarActionResults>;
+    AcceptTentatively(sendResponse: boolean): Promise<CalendarActionResults>;
+    CreateAcceptMessage(tentative: boolean): AcceptMeetingInvitationMessage;
+    CreateDeclineMessage(): DeclineMeetingInvitationMessage;
+    Decline(sendResponse: boolean): Promise<CalendarActionResults>;
+}
+export interface ICustomUpdateSerializer {
+}
+export interface IEnumerable<T> {
+    GetEnumerator(): Array<T>;
+}export interface IEwsHttpWebRequest {
+    Accept: string;
+    AllowAutoRedirect: boolean;
+    ClientCertificates: any;
+    ContentType: string;
+    CookieContainer: any;
+    Credentials: any;
+    Headers: any;
+    Method: string;
+    PreAuthenticate: boolean;
+    Proxy: any;
+    RequestUri: string;
+    Timeout: number;
+    UseDefaultCredentials: boolean;
+    UserAgent: string;
+    KeepAlive: boolean;
+    ConnectionGroupName: string;
+    Abort(): void;
+    BeginGetRequestStream(callback: any, state: any): any;
+    BeginGetResponse(callback: any, state: any): any;
+    EndGetRequestStream(asyncResult: any): any;
+    EndGetResponse(asyncResult: any): IEwsHttpWebResponse;
+    GetRequestStream(): any;
+    GetResponse(): IEwsHttpWebResponse;
+}
+export interface IEwsHttpWebRequestFactory {
+    CreateExceptionResponse(exception: any): IEwsHttpWebResponse;
+    CreateRequest(uri: string): IEwsHttpWebRequest;
+}
+export interface IEwsHttpWebResponse {
+    ContentEncoding: string;
+    ContentType: string;
+    Headers: any;
+    ResponseUri: string;
+    StatusCode: any;
+    StatusDescription: string;
+    ProtocolVersion: any;
+    Close(): void;
+    GetResponseStream(): any;
+}
+export interface IFileAttachmentContentHandler {
+    GetOutputStream(attachmentId: string): any;
+}export interface IJsonSerializable {
+    ToJson(service: ExchangeService): any;
+}export interface IJsonCollectionDeserializer {
+    CreateFromJsonCollection(jsonCollection: any[], service: ExchangeService): void;
+    UpdateFromJsonCollection(jsonCollection: any[], service: ExchangeService): void;
+}
+export interface IOutParam<T> {
+    outValue: T;
+    exception?: any;
+    success?: boolean;
+}export interface IOwnedProperty {
+    Owner: ServiceObject;
+}
+export interface IRefParam<T> {
+    getValue: () => T;
+    setValue?: (value: T) => void;
+}
+export interface ISearchStringProvider {
+    GetSearchString(): string;
+}
+export interface ISelfValidate {
+    Validate(): any;
+}
+export interface ITraceListener {
+    Trace(traceType: string, traceMessage: string): void;
+}
+export interface HasEwsEnumAttribute {
+    FromEwsEnumString(value: string): any;
+    ToEwsEnumString(value: any): string;
+}
+export interface HasRequiredServerVersionAttribute {
+    RequiredServerVersion(value: WellKnownFolderName): ExchangeVersion;
 }/**
- * Class ExtendedAttribute
- *
- * @sealed
- */
- class ExtendedAttribute {
-    /**
-     * Gets or sets the name.
-     *
-     * @value The name.
-     */
-    Name: string;
-    /**
-     * Gets or sets the value.
-     *
-     * @value The value.
-     */
-    Value: string;
-    /**
-     * Initializes a new instance of the **ExtendedAttribute** class.
-     */
-    constructor();
-    /**
-     * Initializes a new instance of the **ExtendedAttribute** class.
-     *
-     * @param   {string}   name    The name.
-     * @param   {string}   value   The value.
-     */
-    constructor(name: string, value: string);
-}/**
- * Represents failed mailbox to be searched
- *
- * @sealed
- */
- class FailedSearchMailbox {
-    Mailbox: string;
-    ErrorCode: number;
-    ErrorMessage: string;
-    IsArchive: boolean;
-    /**
-     * Constructor
-     *
-     * @param   {string}    mailbox        Mailbox identifier
-     * @param   {number}    errorCode      Error code
-     * @param   {string}    errorMessage   Error message
-     */
-    constructor(mailbox: string, errorCode: number, errorMessage: string);
-    /**
-     * Constructor
-     *
-     * @param   {string}    mailbox        Mailbox identifier
-     * @param   {number}    errorCode      Error code
-     * @param   {string}    errorMessage   Error message
-     * @param   {boolean}   isArchive      True if it is mailbox archive
-     */
-    constructor(mailbox: string, errorCode: number, errorMessage: string, isArchive: boolean);
-}/**
- * Represents the keyword statistics result.
- *
- * @sealed
- */
- class KeywordStatisticsSearchResult {
-    /**
-     * Keyword string
-     */
-    Keyword: string;
-    /**
-     * Number of item hits
-     */
-    ItemHits: number;
-    /**
-     * Total size
-     * [CLSCompliant(false)]
-     */
-    Size: number;
-}
-/**
- * Represents mailbox hold result
- *
- * @sealed
- */
- class MailboxHoldResult {
-    /**
-     * Hold id
-     */
-    HoldId: string;
-    /**
-     * Query
-     */
-    Query: string;
-    /**
-     * Collection of mailbox status
-     */
-    Statuses: MailboxHoldStatus[];
-}
-/**
- * Represents mailbox hold status
- *
- * @sealed
- */
- class MailboxHoldStatus {
-    /**
-     * Mailbox
-     */
-    Mailbox: string;
-    /**
-     * Hold Status
-     */
-    Status: HoldStatus;
-    /**
-     * Additional Info
-     */
-    AdditionalInfo: string;
-    /**
-     * Constructor
-     */
-    constructor();
-    /**
-     * Constructor
-     *
-     * @param   {string}        mailbox          Mailbox
-     * @param   {HoldStatus}    status           Hold status
-     * @param   {string}        additionalInfo   Additional info
-     */
-    constructor(mailbox: string, status: HoldStatus, additionalInfo: string);
-}
-/**
- * Represents mailbox query object.
- *
- * @sealed
- */
- class MailboxQuery {
-    /**
-     * Search query
-     */
-    Query: string;
-    /**
-     * Set of mailbox and scope pair
-     */
-    MailboxSearchScopes: MailboxSearchScope[];
-    /**
-     * Constructor
-     *
-     * @param   {string}                query          Search query
-     * @param   {MailboxSearchScope[]}  searchScopes   Set of mailbox and scope pair
-     */
-    constructor(query: string, searchScopes: MailboxSearchScope[]);
-}/**
- * Represents mailbox search scope object.
- */
- class MailboxSearchScope {
-    /**
-     * Mailbox
-     */
-    Mailbox: string;
-    /**
-     * Search scope
-     */
-    SearchScope: MailboxSearchLocation;
-    /**
-     * Gets the extended data.
-     *
-     * @value The extended data.
-     */
-    ExtendedAttributes: ExtendedAttribute[];
-    /**
-     * Constructor
-     *
-     * @param   {string}   mailbox       Mailbox
-     * @param   {MailboxSearchLocation}   searchScope   Search scope
-     */
-    constructor(mailbox: string, searchScope: MailboxSearchLocation);
-}/**
- * Mailbox statistics item
- *
- * @sealed
- */
- class MailboxStatisticsItem {
-    /**
-     * Mailbox id
-     */
-    MailboxId: string;
-    /**
-     * Display name
-     */
-    DisplayName: string;
-    /**
-     * Item count
-     */
-    ItemCount: number;
-    /**
-     * Total size
-     * [CLSCompliant(false)]
-     */
-    Size: number;
-}
-/**
- * Represents non indexable item.
- *
- * @sealed
- */
- class NonIndexableItem {
-    /**
-     * Item Identity
-     */
-    ItemId: ItemId;
-    /**
-     * Error code
-     */
-    ErrorCode: ItemIndexError;
-    /**
-     * Error description
-     */
-    ErrorDescription: string;
-    /**
-     * Is partially indexed
-     */
-    IsPartiallyIndexed: boolean;
-    /**
-     * Is permanent failure
-     */
-    IsPermanentFailure: boolean;
-    /**
-     * Attempt count
-     */
-    AttemptCount: number;
-    /**
-     * Last attempt time
-     */
-    LastAttemptTime: DateTime;
-    /**
-     * Additional info
-     */
-    AdditionalInfo: string;
-    /**
-     * Sort value
-     */
-    SortValue: string;
-}/**
- * Represents non indexable item details result.
- *
- * @sealed
- */
- class NonIndexableItemDetailsResult {
-    /**
-     * Collection of items
-     */
-    Items: NonIndexableItem[];
-    /**
-     * Failed mailboxes
-     */
-    FailedMailboxes: FailedSearchMailbox[];
-}
-/**
- * Represents non indexable item parameters base class
- */
- abstract class NonIndexableItemParameters {
-    /**
-     * List of mailboxes (in legacy DN format)
-     */
-    Mailboxes: string[];
-    /**
-     * Search archive only
-     */
-    SearchArchiveOnly: boolean;
-}
-/**
- * Represents get non indexable item statistics parameters.
- *
- * @sealed
- */
- class GetNonIndexableItemStatisticsParameters extends NonIndexableItemParameters {
-}
-/**
- * Represents get non indexable item details parameters.
- *
- * @sealed
- */
- class GetNonIndexableItemDetailsParameters extends NonIndexableItemParameters {
-    /**
-     * @Nullable Page size
-     */
-    PageSize: number;
-    /**
-     * Page item reference
-     */
-    PageItemReference: string;
-    /**
-     * @Nullable Search page direction
-     */
-    PageDirection: SearchPageDirection;
-}/**
- * Represents non indexable item statistic.
- *
- * @sealed
- */
- class NonIndexableItemStatistic {
-    /**
-     * Mailbox legacy DN
-     */
-    Mailbox: string;
-    /**
-     * Item count
-     */
-    ItemCount: number;
-    /**
-     * Error message
-     */
-    ErrorMessage: string;
-}/**
- * Represents mailbox object for preview item.
- *
- * @sealed
- */
- class PreviewItemMailbox {
-    /**
-     * Mailbox id
-     */
-    MailboxId: string;
-    /**
-     * Primary smtp address
-     */
-    PrimarySmtpAddress: string;
-    /**
-     * Constructor
-     */
-    constructor();
-    /**
-     * Constructor
-     *
-     * @param   {string}   mailboxId            Mailbox id
-     * @param   {string}   primarySmtpAddress   Primary smtp address
-     */
-    constructor(mailboxId: string, primarySmtpAddress: string);
-}/**
- * Represents preview item response shape
- *
- * @sealed
- */
- class PreviewItemResponseShape {
-    /**
-     * Mailbox identifier
-     */
-    BaseShape: PreviewItemBaseShape;
-    /**
-     * Additional properties (must be in form of extended properties)
-     */
-    AdditionalProperties: ExtendedPropertyDefinition[];
-    /**
-     * Constructor
-     */
-    constructor();
-    /**
-     * Constructor
-     *
-     * @param   {PreviewItemBaseShape}          baseShape              Preview item base shape
-     * @param   {ExtendedPropertyDefinition[]}  additionalProperties   Additional properties (must be in form of extended properties)
-     */
-    constructor(baseShape: PreviewItemBaseShape, additionalProperties: ExtendedPropertyDefinition[]);
-}
-/**
- * Represents search mailbox parameters.
- *
- * @sealed
- */
- class SearchMailboxesParameters {
-    /**
-     * Search queries
-     */
-    SearchQueries: MailboxQuery[];
-    /**
-     * Result type
-     */
-    ResultType: SearchResultType;
-    /**
-     * Sort by property
-     */
-    SortBy: string;
-    /**
-     * Sort direction
-     */
-    SortOrder: SortDirection;
-    /**
-     * Perform deduplication
-     */
-    PerformDeduplication: boolean;
-    /**
-     * Page size
-     */
-    PageSize: number;
-    /**
-     * Search page direction
-     */
-    PageDirection: SearchPageDirection;
-    /**
-     * Page item reference
-     */
-    PageItemReference: string;
-    /**
-     * Preview item response shape
-     */
-    PreviewItemResponseShape: PreviewItemResponseShape;
-    /**
-     * Query language
-     */
-    Language: string;
-}/**
- * Represents search mailbox result.
- *
- * @sealed
- */
- class SearchMailboxesResult {
-    /**
-     * Search queries
-     */
-    SearchQueries: MailboxQuery[];
-    /**
-     * Result type
-     */
-    ResultType: SearchResultType;
-    /**
-     * Item count
-     */
-    ItemCount: number;
-    /**
-     * Total size
-     * [CLSCompliant(false)]
-     */
-    Size: number;
-    /**
-     * Page item count
-     */
-    PageItemCount: number;
-    /**
-     * Total page item size
-     * [CLSCompliant(false)]
-     */
-    PageItemSize: number;
-    /**
-     * Keyword statistics search result
-     */
-    KeywordStats: KeywordStatisticsSearchResult[];
-    /**
-     * Search preview items
-     */
-    PreviewItems: SearchPreviewItem[];
-    /**
-     * Failed mailboxes
-     */
-    FailedMailboxes: FailedSearchMailbox[];
-    /**
-     * Refiners
-     */
-    Refiners: SearchRefinerItem[];
-    /**
-     * Mailbox statistics
-     */
-    MailboxStats: MailboxStatisticsItem[];
-    /**
-     * Get collection of recipients
-     *
-     * @param   {any}   jsObject	Json Object converted from XML.
-     * @return  {string[]}          Array of recipients
-     */    /**
-     * Load extended properties from XML.
-     *
-     * @param   {any}				jsObject	Json Object converted from XML.
-     * @param   {ExchangeService}	service	The service.
-     * @return  {ExtendedPropertyCollection}     Extended properties collection
-     */    /**
-     * Loads service object from XML.
-     *
-     * @param   {any}				jsObject	Json Object converted from XML.
-     * @param   {ExchangeService}	service	The service.
-     * @return  {SearchMailboxesResult}     Search result object
-     */
-    static LoadFromXmlJsObject(jsObject: any, service: ExchangeService): SearchMailboxesResult;
-    /**
-     * Load keyword stats from XML.
-     *
-     * @param   {any}   jsObject	Json Object converted from XML.
-     * @return  {KeywordStatisticsSearchResult[]}       Array of keyword statistics
-     */    /**
-     * Load preview items from XML.
-     *
-     * @param   {any}				jsObject	Json Object converted from XML.
-     * @param   {ExchangeService}	service	The service.
-     * @return  {SearchPreviewItem[]}     Array of preview items
-     */}
-/**
- * Represents search preview item.
- *
- * @sealed
- */
- class SearchPreviewItem {
-    /**
-     * Item id
-     */
-    Id: ItemId;
-    /**
-     * Mailbox
-     */
-    Mailbox: PreviewItemMailbox;
-    /**
-     * Parent item id
-     */
-    ParentId: ItemId;
-    /**
-     * Item Class
-     */
-    ItemClass: string;
-    /**
-     * Unique hash
-     */
-    UniqueHash: string;
-    /**
-     * Sort Value
-     */
-    SortValue: string;
-    /**
-     * OWA Link
-     */
-    OwaLink: string;
-    /**
-     * Sender
-     */
-    Sender: string;
-    /**
-     * To recipients
-     */
-    ToRecipients: string[];
-    /**
-     * Cc recipients
-     */
-    CcRecipients: string[];
-    /**
-     * Bcc recipients
-     */
-    BccRecipients: string[];
-    /**
-     * Created Time
-     */
-    CreatedTime: DateTime;
-    /**
-     * Received Time
-     */
-    ReceivedTime: DateTime;
-    /**
-     * Sent Time
-     */
-    SentTime: DateTime;
-    /**
-     * Subject
-     */
-    Subject: string;
-    /**
-     * Item size
-     */
-    Size: number;
-    /**
-     * Preview
-     */
-    Preview: string;
-    /**
-     * Importance
-     */
-    Importance: Importance;
-    /**
-     * Read
-     */
-    Read: boolean;
-    /**
-     * Has attachment
-     */
-    HasAttachment: boolean;
-    /**
-     * Extended properties
-     */
-    ExtendedProperties: ExtendedPropertyCollection;
-}/**
- * Search refiner item
- */
- class SearchRefinerItem {
-    /**
-     * Refiner name
-     */
-    Name: string;
-    /**
-     * Refiner value
-     */
-    Value: string;
-    /**
-     * Refiner count
-     */
-    Count: number;
-    /**
-     * Refiner token, essentially comprises of an operator (i.e. ':' or '>') plus the refiner value The caller such as Sharepoint can simply append this to refiner name for query refinement
-     */
-    Token: string;
-}
-/**
- * Represents searchable mailbox object
- *
- * @sealed
- */
- class SearchableMailbox {
-    /**
-     * Guid
-     */
-    Guid: Guid;
-    /**
-     * Smtp address
-     */
-    SmtpAddress: string;
-    /**
-     * If true, this is an external mailbox
-     */
-    IsExternalMailbox: boolean;
-    /**
-     * External email address for the mailbox
-     */
-    ExternalEmailAddress: string;
-    /**
-     * Display name
-     */
-    DisplayName: string;
-    /**
-     * Is a membership group
-     */
-    IsMembershipGroup: boolean;
-    /**
-     * Reference id
-     */
-    ReferenceId: string;
-    /**
-     * Constructor
-     */
-    constructor();
-    /**
-     * Constructor
-     *
-     * @param   {Guid}      guid                   Guid
-     * @param   {string}    smtpAddress            Smtp address
-     * @param   {boolean}   isExternalMailbox      If true, this is an external mailbox
-     * @param   {string}    externalEmailAddress   External email address
-     * @param   {string}    displayName            Display name
-     * @param   {boolean}   isMembershipGroup      Is a membership group
-     * @param   {string}    referenceId            Reference id
-     */
-    constructor(guid: Guid, smtpAddress: string, isExternalMailbox: boolean, externalEmailAddress: string, displayName: string, isMembershipGroup: boolean, referenceId: string);
-}
-/**
- * Represents set hold on mailboxes parameters.
- *
- * @sealed
- */
- class SetHoldOnMailboxesParameters {
-    /**
-     * Action type
-     */
-    ActionType: HoldAction;
-    /**
-     * Hold id
-     */
-    HoldId: string;
-    /**
-     * Query
-     */
-    Query: string;
-    /**
-     * Collection of mailboxes
-     */
-    Mailboxes: string[];
-    /**
-     * Query language
-     */
-    Language: string;
-    /**
-     * In-place hold identity
-     */
-    InPlaceHoldIdentity: string;
-    /**
-     * Item hold period
-     * *The text value can be "Unlimited" or the string value of any Timespan value.*
-     *
-     * per github issue #120
-     */
-    ItemHoldPeriod: string;
-    /**
-     * Include Non Indexable Items
-     *
-     * per github issue #120
-     */
-    IncludeNonIndexableItems: boolean;
-    /**
-     * Perform deduplication
-     *
-     * per github issue #120
-     */
-    PerformDeduplication: boolean;
-}/**
- * Interface IDiscoveryVersionable.
- * This interface will be used to store versioning information on the request
- *
- */
-export interface IDiscoveryVersionable {
-    /**
-     * Gets or sets the server version.
-     *
-     * @value The server version.
-     */
-    ServerVersion: number;
-}
-/**
- * Class Feature
- */
- class SchemaChange {
-    /**
-     * Gets the minimum server version.
-     *
-     * @value The minimum server version.
-     */
-    MinimumServerVersion: number;
-    /**
-     * Initializes a new instance of the **SchemaChange** class.
-     *
-     * @param   {number}   serverVersion   The server version.
-     */
-    constructor(serverVersion: number);
-    /**
-     * Initializes a new instance of the **SchemaChange** class.
-     *
-     * @param   {string}   serverBuild   The server build.
-     */
-    constructor(serverBuild: string);
-    /**
-     * Determines whether the specified versionable is compatible.
-     *
-     * @param   {IDiscoveryVersionable}   versionable   The versionable.
-     * @return  {boolean}                 *true* if the specified versionable is compatible; otherwise, *false*.
-     */
-    IsCompatible(versionable: IDiscoveryVersionable): boolean;
-}
-/**
- * Class DiscoverySchemaChanges
- * This class is a catalog of schema changes in discovery with the minimum server version in which they were introduced When making a schema change
- * - First make the server side changes and check them in
- * - Create SchemaChange() entry here for the change and the version at which it was checked int
- * - In the request
- *  - Implement IDiscoveryVersionable
- *  - In the Validate method verify if any new schema parameters are compatible if not error out
- *  - In the WriteXml method downgrade the schema based on compatability checks
- * Eg, SearchMailboxesRequest.cs
- *
- * @static
- */
- class DiscoverySchemaChanges {
-    /**
-     * Gets the search mailboxes extended data.
-     *
-     * @value The search mailboxes extended data.
-     */
-    static SearchMailboxesExtendedData: SchemaChange;
-    /**
-     * Gets the search mailboxes additional search scopes.
-     *
-     * The search mailboxes additional search scopes.
-     */
-    static SearchMailboxesAdditionalSearchScopes: SchemaChange;
-}
-/**
  * Represents an AddressEntity object.
  */
  class AddressEntity extends ExtractedEntity {
@@ -5525,22 +5446,24 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **AddressEntity** class.
      */
     constructor();
-}/**
+}
+/**
  * Represents a collection of AddressEntity objects.
  */
  class AddressEntityCollection extends ComplexPropertyCollection<AddressEntity> {
-} class AppointmentOccurrenceId extends ItemId {    OccurrenceIndex: number;
+}
+ class AppointmentOccurrenceId extends ItemId {    OccurrenceIndex: number;
     constructor(recurringMasterUniqueId: string, occurrenceIndex: number);
     GetXmlElementName(): string;
     InternalToJson(service: ExchangeService): any;
-}
- class ApprovalRequestData extends ComplexProperty {
+} class ApprovalRequestData extends ComplexProperty {
     IsUndecidedApprovalRequest: boolean;
     ApprovalDecision: number;
     ApprovalDecisionMaker: string;
     ApprovalDecisionTime: Date;
     LoadFromJson(jsonProperty: JsonObject, service: ExchangeService): any;
-}/**
+}
+/**
  * Represents the archive tag of an item or folder.
  */
  class ArchiveTag extends RetentionTagBase {
@@ -5555,8 +5478,7 @@ export interface IDiscoveryVersionable {
      * @param   {Guid}      retentionId   Retention id.
      */
     constructor(isExplicit: boolean, retentionId: Guid);
-}
-/**
+}/**
  * Represents an attachment to an item.
  */
  class Attachment extends ComplexProperty {
@@ -5606,8 +5528,7 @@ export interface IDiscoveryVersionable {
      * Loads the attachment id from json.
      *
      * @param   {any}   jsonObject   The json object.
-     */}
-/**
+     */}/**
  * Represents an item's attachment collection.
  */
  class AttachmentCollection extends ComplexPropertyCollection<Attachment> implements IOwnedProperty {
@@ -5668,8 +5589,7 @@ export interface IDiscoveryVersionable {
      * @param   {number}   index   Index of the attachment to remove.
      */
     RemoveAt(index: number): void;
-}
-/**
+}/**
  * Represents an attendee to a meeting.
  */
  class Attendee extends EmailAddress {
@@ -5712,7 +5632,8 @@ export interface IDiscoveryVersionable {
      * @param   {EmailAddress}   mailbox   The mailbox used to initialize the Attendee.
      */
     constructor(mailbox: EmailAddress);
-}/**
+}
+/**
  * Represents a collection of attendees.
  */
  class AttendeeCollection extends ComplexPropertyCollection<Attendee> {
@@ -5754,11 +5675,13 @@ export interface IDiscoveryVersionable {
      * @param   {number}   index   The index of the attendee to remove.
      */
     RemoveAt(index: number): void;
-} class ByteArrayArray extends ComplexProperty {
+}
+ class ByteArrayArray extends ComplexProperty {
     readonly Content: string[];
     InternalToJson(service: ExchangeService): any;
     LoadFromXmlJsObject(jsonCollection: any, serviceExchangeService: any): void;
-}/**
+}
+/**
  * Encapsulates information on the changehighlights of a meeting request.
  *
  * @sealed
@@ -5788,7 +5711,8 @@ export interface IDiscoveryVersionable {
      * Gets the old end date and time of the meeting.
      */
     readonly End: DateTime;
-}/**
+}
+/**
  * Represents a client token access request
  */
  class ClientAccessTokenRequest extends ComplexProperty {    /**
@@ -5819,7 +5743,8 @@ export interface IDiscoveryVersionable {
      * @param   {string}                    scope       The scope.
      */
     constructor(id: string, tokenType: ClientAccessTokenType, scope: string);
-}/**
+}
+/**
  * Represents a app in GetAppManifests response.
  *
  * @sealed
@@ -5841,8 +5766,7 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **ClientApp** class.
      */
     constructor();
-}
-/**
+}/**
  * Represents a ClientAppMetadata object.
  *
  * @sealed
@@ -5870,8 +5794,7 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **ClientAppMetadata** class.
      */
     constructor();
-}
- class ClientExtension extends ComplexProperty {
+} class ClientExtension extends ComplexProperty {
     Type: ExtensionType;
     Scope: ExtensionInstallScope;
     ManifestStream: any;
@@ -5884,8 +5807,7 @@ export interface IDiscoveryVersionable {
     IsEnabledByDefault: boolean;
     ProvidedTo: ClientExtensionProvidedTo;
     SpecificUsers: StringList;
-}
-/**
+}/**
  * Represents the complete name of a contact.
  */
  class CompleteName extends ComplexProperty {
@@ -5929,8 +5851,7 @@ export interface IDiscoveryVersionable {
      * Gets the Yomi surname (last name) of the contact.
      */
     readonly YomiSurname: string;
-}
-/**
+}/**
  * Represents a property that can be sent to or retrieved from EWS.
  */
  class ComplexProperty {
@@ -5947,8 +5868,7 @@ export interface IDiscoveryVersionable {
     ReadElementsFromXmlJsObjectToPatch(jsonProperty: any, service: ExchangeService): void;
     UpdateFromXmlJsObject(jsObject: any, service: ExchangeService): void;
     Validate(): void;
-}
-/**
+}/**
  * Represents a collection of properties that can be sent to and retrieved from EWS.
  *
  * @type <TComplexProperty>   ComplexProperty type.
@@ -5991,8 +5911,7 @@ export interface IDiscoveryVersionable {
      * @param   {boolean}   loading           If true, collection is being loaded.
      */
     InternalAdd(complexProperty: TComplexProperty, loading: boolean): void;
-}
-/**
+}/**
  * Represents an ContactEntity object.
  */
  class ContactEntity extends ExtractedEntity {
@@ -6028,12 +5947,12 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **ContactEntity** class.
      */
     constructor();
-}/**
+}
+/**
  * Represents a collection of ContactEntity objects.
  */
  class ContactEntityCollection extends ComplexPropertyCollection<ContactEntity> {
-}
-/**
+}/**
  * Represents an ContactPhoneEntity object.
  */
  class ContactPhoneEntity extends ComplexProperty {
@@ -6053,12 +5972,12 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **ContactPhoneEntity** class.
      */
     constructor();
-}/**
+}
+/**
  * Represents a collection of ContactPhoneEntity objects.
  */
  class ContactPhoneEntityCollection extends ComplexPropertyCollection<ContactPhoneEntity> {
-}
-/**
+}/**
  * Represents the Id of a Conversation.
  */
  class ConversationId extends ServiceId {
@@ -6079,7 +5998,8 @@ export interface IDiscoveryVersionable {
      */
     ToString(): string;
     toString(): string;
-}/**
+}
+/**
  * Represents the response to a GetConversationItems operation.
  *
  * @sealed
@@ -6102,13 +6022,13 @@ export interface IDiscoveryVersionable {
      * @param   {ExchangeService}   service          The service.
      * @param   {string}            xmlElementName   Name of the XML element.
      * @return  {Item}              Item.
-     */}/**
+     */}
+/**
  * Represents a collection of conversation items.
  *
  * @sealed
  */
- class ConversationNodeCollection extends ComplexPropertyCollection<ConversationNode> {}
-/**
+ class ConversationNodeCollection extends ComplexPropertyCollection<ConversationNode> {}/**
  *
  *
  * @sealed
@@ -6133,8 +6053,7 @@ export interface IDiscoveryVersionable {
      * @param   {string}            syncState        State of the sync.
      */
     constructor(conversationId: ConversationId, syncState: string);
-}
-/**
+}/**
  *
  *
  * @sealed
@@ -6160,7 +6079,8 @@ export interface IDiscoveryVersionable {
      * internal set
      */
     ConversationNodes: ConversationNodeCollection;
-}/**
+}
+/**
  * Represents an operation to create a new rule.
  *
  * @sealed
@@ -6182,7 +6102,8 @@ export interface IDiscoveryVersionable {
      * @param   {Rule}   rule   The inbox rule to create.
      */
     constructor(rule: Rule);
-}/**
+}
+/**
  * Represents the permissions of a delegate user.
  *
  * @sealed
@@ -6216,7 +6137,8 @@ export interface IDiscoveryVersionable {
      *
      * @param   {EwsServiceXmlWriter}   writer           The writer.
      * @param   {string}                xmlElementName   The element name.
-     */}/**
+     */}
+/**
  * Represents a delegate user.
  *
  * @sealed
@@ -6254,8 +6176,7 @@ export interface IDiscoveryVersionable {
      * @param   {StandardUser}   standardUser   The standard delegate user.
      */
     constructor(standardUser: StandardUser);
-}
-/**
+}/**
  * Represents an operation to delete an existing rule.
  *
  * @sealed
@@ -6277,7 +6198,8 @@ export interface IDiscoveryVersionable {
      * @param   {string}   ruleId   The Id of the inbox rule to delete.
      */
     constructor(ruleId: string);
-}/**
+}
+/**
  * Encapsulates information on the deleted occurrence of a recurring appointment.
  */
  class DeletedOccurrenceInfo extends ComplexProperty {
@@ -6289,17 +6211,20 @@ export interface IDiscoveryVersionable {
      * Gets the original start date and time of the deleted occurrence.
      */
     readonly OriginalStart: DateTime;
-}/**
+}
+/**
  * Represents a collection of deleted occurrence objects.
  */
  class DeletedOccurrenceInfoCollection extends ComplexPropertyCollection<DeletedOccurrenceInfo> {
-} class DictionaryEntryProperty<TKey> extends ComplexProperty {
+}
+ class DictionaryEntryProperty<TKey> extends ComplexProperty {
     protected keyType: any;    Key: TKey;
     constructor();
     constructor(key: TKey);
     WriteDeleteUpdateToJson(service: ExchangeService, ewsObject: ServiceObject, updates: any[]): boolean;
     WriteSetUpdateToJson(service: ExchangeService, ewsObject: ServiceObject, propertyDefinition: PropertyDefinition, updates: any[]): boolean;
-}/**
+}
+/**
  * Represents a generic dictionary that can be sent to or retrieved from EWS.
  *
  * @typeparam   <TKey>      The type of key.
@@ -6333,7 +6258,8 @@ export interface IDiscoveryVersionable {
      *
      * @param   {EwsServiceXmlWriter}   writer   The writer.
      * @param   {TKey}                  key      The key.
-     */}/**
+     */}
+/**
  * Represents an e-mail address.
  */
  class EmailAddress extends ComplexProperty implements ISearchStringProvider {
@@ -6437,7 +6363,8 @@ export interface IDiscoveryVersionable {
      */
     ToString(): string;
     toString(): string;
-}/**
+}
+/**
  * Represents a collection of e-mail addresses.
  */
  class EmailAddressCollection extends ComplexPropertyCollection<EmailAddress> {
@@ -6493,8 +6420,7 @@ export interface IDiscoveryVersionable {
      * @param   {number}   index   The index of the e-mail address to remove.
      */
     RemoveAt(index: number): void;
-}
- class EmailAddressDictionary extends DictionaryProperty<EmailAddressKey, EmailAddressEntry> {
+} class EmailAddressDictionary extends DictionaryProperty<EmailAddressKey, EmailAddressEntry> {
     constructor();
     /**
      * Gets or sets the e-mail address at the specified key.
@@ -6518,8 +6444,7 @@ export interface IDiscoveryVersionable {
      * @return  {boolean}                  true if the Dictionary contains an e-mail address associated with the specified key; otherwise, false.
      */
     TryGetValue(key: EmailAddressKey, emailAddress: IOutParam<EmailAddress>): boolean;
-}
-/**
+}/**
  * Represents an EmailAddressEntity object.
  */
  class EmailAddressEntity extends ExtractedEntity {
@@ -6527,20 +6452,19 @@ export interface IDiscoveryVersionable {
      * Gets the meeting suggestion Location.
      */
     EmailAddress: string;
-}/**
+}
+/**
  * Represents a collection of EmailAddressEntity objects.
  */
  class EmailAddressEntityCollection extends ComplexPropertyCollection<EmailAddressEntity> {
-}
- class EmailAddressEntry extends DictionaryEntryProperty<EmailAddressKey> {    EmailAddress: EmailAddress;
+} class EmailAddressEntry extends DictionaryEntryProperty<EmailAddressKey> {    EmailAddress: EmailAddress;
     constructor();
     constructor(key: EmailAddressKey, emailAddress: EmailAddress);
     EmailAddressChanged(complexProperty: ComplexProperty): void;
     InternalToJson(service: ExchangeService): any;
     LoadFromJson(jsonProperty: any, service: ExchangeService): any;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-}
-/**
+}/**
  * Represents an EmailUserEntity object.
  */
  class EmailUserEntity extends ComplexProperty {
@@ -6556,11 +6480,13 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **EmailUserEntity** class.
      */
     constructor();
-}/**
+}
+/**
  * Represents a collection of EmailUserEntity objects.
  */
  class EmailUserEntityCollection extends ComplexPropertyCollection<EmailUserEntity> {
-}/**
+}
+/**
  * Represents Enhanced Location.
  */
  class EnhancedLocation extends ComplexProperty {    /**
@@ -6600,7 +6526,8 @@ export interface IDiscoveryVersionable {
      * PersonaPostalAddress OnChange.
      *
      * @param   {ComplexProperty}   complexProperty   ComplexProperty object.
-     */}/**
+     */}
+/**
  * Represents an EntityExtractionResult object.
  */
  class EntityExtractionResult extends ComplexProperty {
@@ -6632,8 +6559,7 @@ export interface IDiscoveryVersionable {
      * Gets the extracted PhoneNumbers
      */
     PhoneNumbers: PhoneEntityCollection;
-}
- class ExtendedProperty extends ComplexProperty {
+} class ExtendedProperty extends ComplexProperty {
     readonly PropertyDefinition: ExtendedPropertyDefinition;
     Value: any;
     constructor(propertyDefinition?: ExtendedPropertyDefinition);
@@ -6642,7 +6568,8 @@ export interface IDiscoveryVersionable {
     GetStringValue(): string;
     LoadFromJson(jsonProperty: any, service: ExchangeService): any;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-} class ExtendedPropertyCollection extends ComplexPropertyCollection<ExtendedProperty> implements ICustomUpdateSerializer {
+}
+ class ExtendedPropertyCollection extends ComplexPropertyCollection<ExtendedProperty> implements ICustomUpdateSerializer {
     CreateComplexProperty(xmlElementName: string): ExtendedProperty;
     CreateDefaultComplexProperty(): ExtendedProperty;
     GetCollectionItemXmlElementName(complexProperty: ExtendedProperty): string;
@@ -6653,7 +6580,8 @@ export interface IDiscoveryVersionable {
     SetExtendedProperty(propertyDefinition: ExtendedPropertyDefinition, value: any): void;
     TryGetProperty(propertyDefinition: ExtendedPropertyDefinition, extendedProperty: IOutParam<ExtendedProperty>): boolean;
     TryGetValue<T>(propertyDefinition: ExtendedPropertyDefinition, propertyValue: IOutParam<T>): boolean;
-}/**
+}
+/**
  * Represents an ExtractedEntity object.
  */
  abstract class ExtractedEntity extends ComplexProperty {
@@ -6665,8 +6593,7 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **ExtractedEntity** class.
      */
     constructor();
-}
-/**
+}/**
  * Represents a file attachment.
  */
  class FileAttachment extends Attachment {    /**
@@ -6682,8 +6609,7 @@ export interface IDiscoveryVersionable {
      */
     IsContactPhoto: boolean;
     ReadElementsFromXmlJsObjectToPatch(reader: any): boolean;
-}
-/**
+}/**
  * Encapsulates information on the occurrence of a recurring appointment.
  */
  class Flag extends ComplexProperty {
@@ -6707,7 +6633,8 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **Flag** class.
      */
     constructor();
-} class FolderId extends ServiceId {
+}
+ class FolderId extends ServiceId {
     readonly FolderName: WellKnownFolderName;
     readonly Mailbox: Mailbox;
     readonly IsValid: boolean;
@@ -6716,8 +6643,7 @@ export interface IDiscoveryVersionable {
     GetXmlElementName(): string;
     ToString(): string;
     Validate(version?: ExchangeVersion): void;
-}
-/**
+}/**
  * Represents a collection of folder Ids.
  *
  * @sealed
@@ -6761,52 +6687,162 @@ export interface IDiscoveryVersionable {
      */
     RemoveAt(index: number): void;
 }
- class FolderPermission extends ComplexProperty {
+/**
+ * Represents a permission on a folder.
+ *
+ * @sealed
+ */
+ class FolderPermission extends ComplexProperty {    /**
+     * Variants of pre-defined permission levels that Outlook also displays with the same levels.
+     */    /**
+     * Gets the Id of the user the permission applies to.
+     */
     UserId: UserId;
+    /**
+     * Gets or sets a value indicating whether the user can create new items.
+     */
     CanCreateItems: boolean;
+    /**
+     * Gets or sets a value indicating whether the user can create sub-folders.
+     */
     CanCreateSubFolders: boolean;
+    /**
+     * Gets or sets a value indicating whether the user owns the folder.
+     */
     IsFolderOwner: boolean;
+    /**
+     * Gets or sets a value indicating whether the folder is visible to the user.
+     */
     IsFolderVisible: boolean;
+    /**
+     * Gets or sets a value indicating whether the user is a contact for the folder.
+     */
     IsFolderContact: boolean;
+    /**
+     * Gets or sets a value indicating if/how the user can edit existing items.
+     */
     EditItems: PermissionScope;
+    /**
+     * Gets or sets a value indicating if/how the user can delete existing items.
+     */
     DeleteItems: PermissionScope;
+    /**
+     * Gets or sets the read items access permission.
+     */
     ReadItems: FolderPermissionReadAccess;
+    /**
+     * Gets or sets the permission level.
+     */
     PermissionLevel: FolderPermissionLevel;
+    /**
+     * Gets the permission level that Outlook would display for this folder permission.
+     */
     readonly DisplayPermissionLevel: FolderPermissionLevel;
+    /**
+     * Initializes a new instance of the **FolderPermission** class.
+     */
     constructor();
+    /**
+     * Initializes a new instance of the **FolderPermission** class.
+     *
+     * @param   {UserId}                    userId            The Id of the user  the permission applies to.
+     * @param   {FolderPermissionLevel}     permissionLevel   The level of the permission.
+     */
     constructor(userId: UserId, permissionLevel: FolderPermissionLevel);
+    /**
+     * Initializes a new instance of the **FolderPermission** class.
+     *
+     * @param   {string}                    primarySmtpAddress  The primary SMTP address of the user the permission applies to.
+     * @param   {FolderPermissionLevel}     permissionLevel     The level of the permission.
+     */
     constructor(primarySmtpAddress: string, permissionLevel: FolderPermissionLevel);
+    /**
+     * Initializes a new instance of the **FolderPermission** class.
+     *
+     * @param   {StandardUser}              standardUser        The standard user the permission applies to.
+     * @param   {FolderPermissionLevel}     permissionLevel     The level of the permission.
+     */
     constructor(standardUser: StandardUser, permissionLevel: FolderPermissionLevel);
-    AdjustPermissionLevel(): void;
-    AssignIndividualPermissions(permission: FolderPermission): void;
-    Clone(): FolderPermission;
-    InternalToJson(service: ExchangeService, isCalendarFolder: boolean): any;    LoadFromJson(jsonProperty: any, service: ExchangeService): any;
-    LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-    PropertyChanged(complexProperty: ComplexProperty): void;
-    Validate(isCalendarFolder?: boolean, permissionIndex?: number): void;
-} class FolderPermissionCollection extends ComplexPropertyCollection<FolderPermission> {
+    /**
+     * Determines the permission level of this folder permission based on its individual settings, and sets the PermissionLevel property accordingly.
+     */    /**
+     * Copies the values of the individual permissions of the specified folder permission to this folder permissions.
+     *
+     * @param   {FolderPermission}   permission   The folder permission to copy the values from.
+     */    /**
+     * Create a copy of this FolderPermission instance.
+     *
+     * @return  {FolderPermission}      Clone of this instance.
+     */    /**
+     * Determines whether the specified folder permission is the same as this one. The comparison does not take UserId and PermissionLevel into consideration.
+     *
+     * @param   {FolderPermission}  permission   The folder permission to compare with this folder permission.
+     * @return  {boolean}           True is the specified folder permission is equal to this one, false otherwise.
+     */    /**
+     * Property was changed.
+     *
+     * @param   {ComplexProperty}   complexProperty   The complex property.
+     */}/**
+ * Represents a collection of folder permissions.
+ *
+ * @sealed
+ */
+ class FolderPermissionCollection extends ComplexPropertyCollection<FolderPermission> {
+    /**
+     * Gets the name of the inner collection XML element.
+     *
+     * @value   XML element name.
+     */    /**
+     * Gets the name of the collection item XML element.
+     *
+     * @value   XML element name.
+     */    /**
+     * Gets a list of unknown user Ids in the collection.
+     */
     readonly UnknownEntries: string[];
+    /**
+     * Initializes a new instance of the **FolderPermissionCollection** class.
+     *
+     * @param   {Folder}   owner   The folder owner.
+     */
     constructor(owner: Folder);
+    /**
+     * Adds a permission to the collection.
+     *
+     * @param   {FolderPermission}   permission   The permission to add.
+     */
     Add(permission: FolderPermission): void;
+    /**
+     * Adds the specified permissions to the collection.
+     *
+     * @param   {FolderPermission[]}   permissions   The permissions to add.
+     */
     AddRange(permissions: FolderPermission[]): void;
+    /**
+     * Clears this collection.
+     */
     Clear(): void;
-    CreateComplexProperty(xmlElementName: string): FolderPermission;
-    CreateDefaultComplexProperty(): FolderPermission;
-    GetCollectionItemXmlElementName(complexProperty: FolderPermission): string;
-    InternalToJson(service: ExchangeService): any;
-    LoadFromJson(jsonProperty: any, service: ExchangeService): any;
-    LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
+    /**
+     * Removes a permission from the collection.
+     *
+     * @param   {FolderPermission}  permission   The permission to remove.
+     * @return  {boolean}           True if the folder permission was successfully removed from the collection, false otherwise.
+     */
     Remove(permission: FolderPermission): boolean;
+    /**
+     * Removes a permission from the collection.
+     *
+     * @param   {number}   index   The zero-based index of the permission to remove.
+     */
     RemoveAt(index: number): void;
-    Validate(): void;
-} class GroupMember extends ComplexProperty {
+}
+ class GroupMember extends ComplexProperty {
     Key: string;
     AddressInformation: EmailAddress;
     Status: MemberStatus;    AddressInformationChanged(complexProperty: ComplexProperty): any;
     InternalToJson(service: ExchangeService): any;
     LoadFromJson(jsonProperty: JsonObject, service: ExchangeService): any;
-}
- class GroupMemberCollection extends ComplexPropertyCollection<GroupMember> {    Add(member: GroupMember): any;
+} class GroupMemberCollection extends ComplexPropertyCollection<GroupMember> {    Add(member: GroupMember): any;
     AddContactEmailAddress(contact: Contact, emailAddressKey: EmailAddressKey): any;
     AddContactGroup(contactGroupId: ItemId): any;
     AddDirectoryContact(address: string, routingType: string): any;
@@ -6825,8 +6861,7 @@ export interface IDiscoveryVersionable {
     InternalValidate(): any;
     Remove(member: GroupMember): boolean;
     RemoveAt(index: number): any;
-}
-/**
+}/**
  * Represents an AQS highlight term.
  *
  * @sealed
@@ -6844,22 +6879,21 @@ export interface IDiscoveryVersionable {
      * Gets term value.
      */
     readonly Value: string;
-} class ImAddressDictionary extends DictionaryProperty<ImAddressKey, ImAddressEntry> {
+}
+ class ImAddressDictionary extends DictionaryProperty<ImAddressKey, ImAddressEntry> {
     constructor();
     _getItem(key: ImAddressKey): string;
     _setItem(key: ImAddressKey, value: string): void;
     CreateEntryInstance(): ImAddressEntry;
     GetFieldURI(): string;
     TryGetValue(key: ImAddressKey, imAddress: IOutParam<string>): boolean;
-}
- class ImAddressEntry extends DictionaryEntryProperty<ImAddressKey> {    ImAddress: string;
+} class ImAddressEntry extends DictionaryEntryProperty<ImAddressKey> {    ImAddress: string;
     constructor();
     constructor(key: ImAddressKey, imAddress: string);
     InternalToJson(service: ExchangeService): any;
     LoadFromJson(jsonProperty: any, service: ExchangeService): any;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-}
-/**
+}/**
  * Represents an Internet message header.
  */
  class InternetMessageHeader extends ComplexProperty {
@@ -6878,7 +6912,8 @@ export interface IDiscoveryVersionable {
      */
     ToString(): string;
     toString(): string;
-}/**
+}
+/**
  * Represents a collection of Internet message headers.
  */
  class InternetMessageHeaderCollection extends ComplexPropertyCollection<InternetMessageHeader> {
@@ -6889,8 +6924,7 @@ export interface IDiscoveryVersionable {
      * @return  {InternetMessageHeader}     An InternetMessageHeader representing the header with the specified name; null if no header with the specified name was found.
      */
     Find(name: string): InternetMessageHeader;
-}
-/**
+}/**
  * Represents an item attachment.
  */
  class ItemAttachment extends Attachment {
@@ -6922,7 +6956,8 @@ export interface IDiscoveryVersionable {
      */
     Load(bodyType?: BodyType, additionalProperties?: PropertyDefinitionBase[]): Promise<void>;
     ReadElementsFromXmlJsObjectToPatch(reader: any): boolean;
-}/**
+}
+/**
  * Represents a strongly typed item attachment. **Workaround of ItemAttachment<TItem>** - not allowed in typescript to have two class, one generic and one non-generic
  */
  class ItemAttachmentOf<TItem extends Item> extends ItemAttachment {
@@ -6930,7 +6965,8 @@ export interface IDiscoveryVersionable {
      * Gets the item associated with the attachment.
      */
     Item: TItem;
-}/**
+}
+/**
  * Represents a collection of items.
  */
  class ItemCollection<TItem extends Item> extends ComplexProperty {
@@ -6951,18 +6987,19 @@ export interface IDiscoveryVersionable {
      */
     constructor();
     GetEnumerator(): any;
-}
- class ItemId extends ServiceId {
+} class ItemId extends ServiceId {
     constructor();
     constructor(uniqueId: string);
     GetXmlElementName(): string;
-}/**
+}
+/**
  * Represents a collection of item Ids.
  *
  * @sealed
  */
  class ItemIdCollection extends ComplexPropertyCollection<ItemId> {
-}/**
+}
+/**
  * Represents a mailbox reference.
  */
  class Mailbox extends ComplexProperty implements ISearchStringProvider {
@@ -7020,7 +7057,8 @@ export interface IDiscoveryVersionable {
      * @return  {string}      String representation of instance.
      */
     GetSearchString(): string;
-} class ManagedFolderInformation extends ComplexProperty {
+}
+ class ManagedFolderInformation extends ComplexProperty {
     CanDelete: boolean;
     CanRenameOrMove: boolean;
     MustDisplayComment: boolean;
@@ -7032,8 +7070,7 @@ export interface IDiscoveryVersionable {
     FolderSize: number;
     HomePage: string;
     LoadFromJson(jsonProperty: any, service: ExchangeService): any;
-}
-/**
+}/**
  * Represents an MeetingSuggestion object.
  */
  class MeetingSuggestion extends ExtractedEntity {
@@ -7061,18 +7098,11 @@ export interface IDiscoveryVersionable {
      * Gets the meeting suggestion EndTime.
      */
     EndTime: DateTime;
-}/**
+}
+/**
  * Represents a collection of MeetingSuggestion objects.
  */
  class MeetingSuggestionCollection extends ComplexPropertyCollection<MeetingSuggestion> {
-} class MeetingTimeZone extends ComplexProperty {
-    Name: string;
-    BaseOffset: any;
-    Standard: TimeChange;
-    Daylight: TimeChange;
-    InternalToJson(service: ExchangeService): any;
-    LoadFromJson(jsonProperty: JsonObject, service: ExchangeService): any;
-    ToTimeZoneInfo(): any;
 }
  class MessageBody extends ComplexProperty {
     BodyType: BodyType;
@@ -7082,8 +7112,7 @@ export interface IDiscoveryVersionable {
     constructor(bodyType: BodyType, text: string);
     LoadFromXmlJsObject(jsObject: any, service: ExchangeService): void;
     ToString(): string;
-}
-/**
+}/**
  * Represents the MIME content of an item.
  */
  class MimeContent extends MimeContentBase {
@@ -7105,8 +7134,7 @@ export interface IDiscoveryVersionable {
      */
     ToString(): string;
     toString(): string;
-}
-/**
+}/**
  * Represents the MIME content of an item.
  */
  abstract class MimeContentBase extends ComplexProperty {
@@ -7126,8 +7154,7 @@ export interface IDiscoveryVersionable {
      * Gets or sets the content.  - ews-javascript-api this is base64 value without encoding applied.
      */
     Content: string;
-}
-/**
+}/**
  * Represents the MIME content of an item.
  */
  class MimeContentUTF8 extends MimeContentBase {
@@ -7149,7 +7176,8 @@ export interface IDiscoveryVersionable {
      */
     ToString(): string;
     toString(): string;
-}/**
+}
+/**
  * Represents the normalized body of an item - the HTML fragment representation of the body.
  */
  class NormalizedBody extends ComplexProperty {    /**
@@ -7175,8 +7203,7 @@ export interface IDiscoveryVersionable {
      */
     ToString(): string;
     toString(): string;
-}
-/**
+}/**
  * Encapsulates information on the occurrence of a recurring appointment.
  */
  class OccurrenceInfo extends ComplexProperty {
@@ -7196,11 +7223,13 @@ export interface IDiscoveryVersionable {
      * Gets the original start date and time of the occurrence.
      */
     readonly OriginalStart: DateTime;
-}/**
+}
+/**
  * Represents a collection of OccurrenceInfo objects.
  */
  class OccurrenceInfoCollection extends ComplexPropertyCollection<OccurrenceInfo> {
-}/**
+}
+/**
  * Represents Lync online meeting settings.
  */
  class OnlineMeetingSettings extends ComplexProperty {    /**
@@ -7219,7 +7248,8 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **OnlineMeetingSettings** class.
      */
     constructor();
-}/**
+}
+/**
  * Represents PersonaPostalAddress.
  */
  class PersonaPostalAddress extends ComplexProperty {    /**
@@ -7301,8 +7331,7 @@ export interface IDiscoveryVersionable {
      * @param   {number}            altitudeAccuracy   The location altitude Accuracy.
      */
     constructor(street: string, city: string, state: string, country: string, postalCode: string, postOfficeBox: string, locationSource: LocationSource, locationUri: string, formattedAddress: string, latitude: number, longitude: number, accuracy: number, altitude: number, altitudeAccuracy: number);
-}
-/**
+}/**
  * Represents an PhoneEntity object.
  */
  class PhoneEntity extends ExtractedEntity {
@@ -7318,31 +7347,34 @@ export interface IDiscoveryVersionable {
      * Gets the phone entity Type.
      */
     Type: string;
-}/**
+}
+/**
  * Represents a collection of PhoneEntity objects.
  */
  class PhoneEntityCollection extends ComplexPropertyCollection<PhoneEntity> {
-} class PhoneNumberDictionary extends DictionaryProperty<PhoneNumberKey, PhoneNumberEntry> {
+}
+ class PhoneNumberDictionary extends DictionaryProperty<PhoneNumberKey, PhoneNumberEntry> {
     constructor();
     _getItem(key: PhoneNumberKey): string;
     _setItem(key: PhoneNumberKey, value: string): void;
     CreateEntryInstance(): PhoneNumberEntry;
     GetFieldURI(): string;
     TryGetValue(key: PhoneNumberKey, phoneNumber: IOutParam<string>): boolean;
-} class PhoneNumberEntry extends DictionaryEntryProperty<PhoneNumberKey> {    PhoneNumber: string;
+}
+ class PhoneNumberEntry extends DictionaryEntryProperty<PhoneNumberKey> {    PhoneNumber: string;
     constructor();
     constructor(key: PhoneNumberKey, imAddress: string);
     InternalToJson(service: ExchangeService): any;
     LoadFromJson(jsonProperty: JsonObject, service: ExchangeService): any;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-} class PhysicalAddressDictionary extends DictionaryProperty<PhysicalAddressKey, PhysicalAddressEntry> {
+}
+ class PhysicalAddressDictionary extends DictionaryProperty<PhysicalAddressKey, PhysicalAddressEntry> {
     constructor();
     _getItem(key: PhysicalAddressKey): PhysicalAddressEntry;
     _setItem(key: PhysicalAddressKey, value: PhysicalAddressEntry): void;
     CreateEntryInstance(): PhysicalAddressEntry;
     TryGetValue(key: PhysicalAddressKey, physicalAddress: IOutParam<PhysicalAddressEntry>): boolean;
-}
-/**
+}/**
  * PhysicalAddressEntry class
  */
  class PhysicalAddressEntry extends DictionaryEntryProperty<PhysicalAddressKey> {    Street: string;
@@ -7358,7 +7390,8 @@ export interface IDiscoveryVersionable {
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
     WriteDeleteUpdateToJson(service: ExchangeService, ewsObject: ServiceObject, updates: any[]): boolean;
     WriteSetUpdateToJson(service: ExchangeService, ewsObject: ServiceObject, propertyDefinition: PropertyDefinition, updates: any[]): boolean;
-}/**
+}
+/**
  * Represents the policy tag of an item or folder.
  */
  class PolicyTag extends RetentionTagBase {
@@ -7373,11 +7406,11 @@ export interface IDiscoveryVersionable {
      * @param   {Guid}      retentionId   Retention id.
      */
     constructor(isExplicit: boolean, retentionId: Guid);
-}
- class RecurringAppointmentMasterId extends ItemId {
+} class RecurringAppointmentMasterId extends ItemId {
     constructor(occurrenceId: string);
     GetXmlElementName(): string;
-}/**
+}
+/**
  * Represents the retention tag of an item.
  */
  class RetentionTagBase extends ComplexProperty {
@@ -7408,8 +7441,7 @@ export interface IDiscoveryVersionable {
      */
     ToString(): string;
     toString(): string;
-}
-/**
+}/**
  * Represents a rule that automatically handles incoming messages.
  * A rule consists of a set of conditions and exceptions that determine whether or not a set of actions should be executed on incoming messages.
  *
@@ -7474,8 +7506,7 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **Rule** class.
      */
     constructor();
-}
-/**
+}/**
  * Represents the set of actions available for a rule.
  *
  * @sealed
@@ -7580,8 +7611,7 @@ export interface IDiscoveryVersionable {
      *
      * @param   {MobilePhone[]}   recipientCollection   Recipient list in a MobilePhone collection type.
      * @return  {EmailAddressCollection}		An EmailAddressCollection object containing recipients with "MOBILE" address type.
-     */}
-/**
+     */}/**
  * Represents a collection of rules.
  *
  * @sealed
@@ -7610,8 +7640,7 @@ export interface IDiscoveryVersionable {
      *  Returns an enumerator that iterates through the collection. this case this.rules
      */
     GetEnumerator(): Rule[];
-}
-/**
+}/**
  * Represents an error that occurred as a result of executing a rule operation.
  *
  * @sealed
@@ -7646,7 +7675,8 @@ export interface IDiscoveryVersionable {
  * Represents an operation to be performed on a rule.
  */
  abstract class RuleOperation extends ComplexProperty {
-}/**
+}
+/**
  * Represents an error that occurred while processing a rule operation.
  *
  * @sealed
@@ -7677,13 +7707,15 @@ export interface IDiscoveryVersionable {
      *  Returns an enumerator that iterates through the collection. this case this.rules
      */
     GetEnumerator(): RuleError[];
-}/**
+}
+/**
  * Represents a collection of rule operation errors.
  *
  * @sealed
  */
  class RuleOperationErrorCollection extends ComplexPropertyCollection<RuleOperationError> {
-}/**
+}
+/**
  * Represents the date and time range within which messages have been received.
  *
  * @sealed
@@ -7703,8 +7735,7 @@ export interface IDiscoveryVersionable {
      * If End is set to null, no end date applies.
      */
     End: DateTime;
-}
-/**
+}/**
  * Represents the minimum and maximum size of a message.
  *
  * @sealed
@@ -7724,7 +7755,8 @@ export interface IDiscoveryVersionable {
      * If MaximumSize is set to null, no maximum size applies.
      */
     MaximumSize: number;
-}/**
+}
+/**
  * Represents the set of conditions and exceptions available for a rule.
  *
  * @sealed
@@ -7951,14 +7983,16 @@ export interface IDiscoveryVersionable {
      * To disable this predicate, set both its MinimumSize and MaximumSize properties to null.
      */
     readonly WithinSizeRange: RulePredicateSizeRange;
-} class SearchFolderParameters extends ComplexProperty {
+}
+ class SearchFolderParameters extends ComplexProperty {
     Traversal: SearchFolderTraversal;
     RootFolderIds: FolderIdCollection;
     SearchFilter: SearchFilter;    InternalToJson(service: ExchangeService): any;
     LoadFromJson(jsonProperty: JsonObject, service: ExchangeService): any;
     PropertyChanged(complexProperty: ComplexProperty): any;
     Validate(): any;
-} class ServiceId extends ComplexProperty {
+}
+ class ServiceId extends ComplexProperty {
     readonly IsValid: boolean;
     protected IsValidProxy(): boolean;
     UniqueId: string;
@@ -7971,8 +8005,8 @@ export interface IDiscoveryVersionable {
     LoadFromXmlJsObject(jsObject: any, service: ExchangeService): void;
     SameIdAndChangeKey(other: ServiceId): boolean;
     ToString(): string;
-}
- class SetClientExtensionAction extends ComplexProperty {}/**
+} class SetClientExtensionAction extends ComplexProperty {}
+/**
  * Represents an operation to update an existing rule.
  *
  * @sealed
@@ -7994,7 +8028,8 @@ export interface IDiscoveryVersionable {
      * @param   {Rule}   rule   The inbox rule to update.
      */
     constructor(rule: Rule);
-}/**
+}
+/**
  * Represents a list of strings.
  *
  * @sealed
@@ -8082,7 +8117,8 @@ export interface IDiscoveryVersionable {
      * @return  {string}      A comma-separated list of the strings present in the list.
      */
     ToString(): string;
-}/**
+}
+/**
  * Represents an TaskSuggestion object.
  */
  class TaskSuggestion extends ExtractedEntity {
@@ -8094,12 +8130,12 @@ export interface IDiscoveryVersionable {
      * Gets the meeting suggestion Assignees.
      */
     Assignees: EmailUserEntityCollection;
-}/**
+}
+/**
  * Represents a collection of TaskSuggestion objects.
  */
  class TaskSuggestionCollection extends ComplexPropertyCollection<TaskSuggestion> {
-}
-/**
+}/**
  * Represents the body of a message.
  */
  class TextBody extends MessageBody {
@@ -8114,15 +8150,7 @@ export interface IDiscoveryVersionable {
      */
     constructor(text: string);
 }
- class TimeChange extends ComplexProperty {
-    TimeZoneName: string;
-    Offset: any;
-    Time: Time;
-    AbsoluteDate: Date;
-    Recurrence: TimeChangeRecurrence;} class TimeChangeRecurrence extends ComplexProperty {
-    DayOfTheWeekIndex: DayOfTheWeekIndex;
-    DayOfTheWeek: DayOfTheWeek;
-    Month: Month;}/**
+/**
  * Represents the body part of an item that is unique to the conversation the item is part of.
  */
  class UniqueBody extends ComplexProperty {    /**
@@ -8148,8 +8176,7 @@ export interface IDiscoveryVersionable {
      */
     ToString(): string;
     toString(): string;
-}
-/**
+}/**
  * Represents an UrlEntity object.
  */
  class UrlEntity extends ExtractedEntity {
@@ -8158,11 +8185,13 @@ export interface IDiscoveryVersionable {
      * Initializes a new instance of the **UrlEntity** class.
      */
     constructor();
-}/**
+}
+/**
  * Represents a collection of UrlEntity objects.
  */
  class UrlEntityCollection extends ComplexPropertyCollection<UrlEntity> {
-}/**
+}
+/**
  * Represents a user configuration's Dictionary property.
  *
  * @sealed
@@ -8293,398 +8322,886 @@ export interface IDiscoveryVersionable {
      * @param   {EwsServiceXmlWriter}   writer             The writer.
      * @param   {any}                   dictionaryObject   The dictionary object to write.
      */}
+/**
+ * Represents the Id of a user.
+ *
+ * @sealed
+ */
  class UserId extends ComplexProperty {
+    /**
+     * Gets or sets the SID of the user.
+     */
     SID: string;
+    /**
+     * Gets or sets the primary SMTP address or the user.
+     */
     PrimarySmtpAddress: string;
+    /**
+     * Gets or sets the display name of the user.
+     */
     DisplayName: string;
+    /**
+     * Gets or sets a value indicating which standard user the user represents.
+     *
+     * @Nullable
+     */
     StandardUser: StandardUser;
+    /**
+     * Initializes a new instance of the **UserId** class.
+     */
     constructor();
+    /**
+     * Initializes a new instance of the **UserId** class.
+     *
+     * @param   {StandardUser}   standardUser   The StandardUser value used to initialize the UserId.
+     */
     constructor(standardUser: StandardUser);
+    /**
+     * Initializes a new instance of the **UserId** class.
+     *
+     * @param   {string}   primarySmtpAddress   The primary SMTP address used to initialize the UserId.
+     */
     constructor(primarySmtpAddress: string);
-    /**this is to shim constructor with easy use within file/module. */
-    constructor(primarySmtpAddressOrStandardUser?: string | StandardUser);
-    InternalToJson(service: ExchangeService): any;
-    IsValid(): boolean;
-    LoadFromJson(jsonProperty: any, service: ExchangeService): any;
-    LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-} class VotingInformation extends ComplexProperty {
-    UserOptions: VotingOptionData[];
-    VotingResponse: string;
-    LoadFromJson(jsonProperty: JsonObject, service: ExchangeService): any;
-} class VotingOptionData extends ComplexProperty {
+}
+/**
+ * Represents voting information.
+ * @sealed
+ */
+ class VotingInformation extends ComplexProperty {
+    /**
+     * Gets the list of user options.
+     */
+    readonly UserOptions: VotingOptionData[];
+    /**
+     * Gets the voting response.
+     */
+    readonly VotingResponse: string;
+}
+/**
+ * Represents voting option information.
+ * @sealed
+ */
+ class VotingOptionData extends ComplexProperty {
+    /**
+     * Gets the display name for the voting option.
+     */
+    readonly DisplayName: string;
+    /**
+     * Gets the send prompt.
+     */
+    readonly SendPrompt: SendPrompt;
+}/**
+ * Represents mailbox query object.
+ *
+ * @sealed
+ */
+ class DiscoverySearchConfiguration {
+    /**
+     * Search Id
+     */
+    SearchId: string;
+    /**
+     * Search query
+     */
+    SearchQuery: string;
+    /**
+     * Set of mailbox and scope pair
+     */
+    SearchableMailboxes: SearchableMailbox[];
+    /**
+     * In-Place hold identity
+     */
+    InPlaceHoldIdentity: string;
+    /**
+     * Managed by organization
+     */
+    ManagedByOrganization: string;
+    /**
+     * Language
+     */
+    Language: string;
+}
+/**
+ * Class ExtendedAttribute
+ *
+ * @sealed
+ */
+ class ExtendedAttribute {
+    /**
+     * Gets or sets the name.
+     *
+     * @value The name.
+     */
+    Name: string;
+    /**
+     * Gets or sets the value.
+     *
+     * @value The value.
+     */
+    Value: string;
+    /**
+     * Initializes a new instance of the **ExtendedAttribute** class.
+     */
+    constructor();
+    /**
+     * Initializes a new instance of the **ExtendedAttribute** class.
+     *
+     * @param   {string}   name    The name.
+     * @param   {string}   value   The value.
+     */
+    constructor(name: string, value: string);
+}
+/**
+ * Represents failed mailbox to be searched
+ *
+ * @sealed
+ */
+ class FailedSearchMailbox {
+    Mailbox: string;
+    ErrorCode: number;
+    ErrorMessage: string;
+    IsArchive: boolean;
+    /**
+     * Constructor
+     *
+     * @param   {string}    mailbox        Mailbox identifier
+     * @param   {number}    errorCode      Error code
+     * @param   {string}    errorMessage   Error message
+     */
+    constructor(mailbox: string, errorCode: number, errorMessage: string);
+    /**
+     * Constructor
+     *
+     * @param   {string}    mailbox        Mailbox identifier
+     * @param   {number}    errorCode      Error code
+     * @param   {string}    errorMessage   Error message
+     * @param   {boolean}   isArchive      True if it is mailbox archive
+     */
+    constructor(mailbox: string, errorCode: number, errorMessage: string, isArchive: boolean);
+}
+/**
+ * Represents the keyword statistics result.
+ *
+ * @sealed
+ */
+ class KeywordStatisticsSearchResult {
+    /**
+     * Keyword string
+     */
+    Keyword: string;
+    /**
+     * Number of item hits
+     */
+    ItemHits: number;
+    /**
+     * Total size
+     * [CLSCompliant(false)]
+     */
+    Size: number;
+}/**
+ * Represents mailbox hold result
+ *
+ * @sealed
+ */
+ class MailboxHoldResult {
+    /**
+     * Hold id
+     */
+    HoldId: string;
+    /**
+     * Query
+     */
+    Query: string;
+    /**
+     * Collection of mailbox status
+     */
+    Statuses: MailboxHoldStatus[];
+}/**
+ * Represents mailbox hold status
+ *
+ * @sealed
+ */
+ class MailboxHoldStatus {
+    /**
+     * Mailbox
+     */
+    Mailbox: string;
+    /**
+     * Hold Status
+     */
+    Status: HoldStatus;
+    /**
+     * Additional Info
+     */
+    AdditionalInfo: string;
+    /**
+     * Constructor
+     */
+    constructor();
+    /**
+     * Constructor
+     *
+     * @param   {string}        mailbox          Mailbox
+     * @param   {HoldStatus}    status           Hold status
+     * @param   {string}        additionalInfo   Additional info
+     */
+    constructor(mailbox: string, status: HoldStatus, additionalInfo: string);
+}/**
+ * Represents mailbox query object.
+ *
+ * @sealed
+ */
+ class MailboxQuery {
+    /**
+     * Search query
+     */
+    Query: string;
+    /**
+     * Set of mailbox and scope pair
+     */
+    MailboxSearchScopes: MailboxSearchScope[];
+    /**
+     * Constructor
+     *
+     * @param   {string}                query          Search query
+     * @param   {MailboxSearchScope[]}  searchScopes   Set of mailbox and scope pair
+     */
+    constructor(query: string, searchScopes: MailboxSearchScope[]);
+}
+/**
+ * Represents mailbox search scope object.
+ */
+ class MailboxSearchScope {
+    /**
+     * Mailbox
+     */
+    Mailbox: string;
+    /**
+     * Search scope
+     */
+    SearchScope: MailboxSearchLocation;
+    /**
+     * Gets the extended data.
+     *
+     * @value The extended data.
+     */
+    ExtendedAttributes: ExtendedAttribute[];
+    /**
+     * Constructor
+     *
+     * @param   {string}   mailbox       Mailbox
+     * @param   {MailboxSearchLocation}   searchScope   Search scope
+     */
+    constructor(mailbox: string, searchScope: MailboxSearchLocation);
+}
+/**
+ * Mailbox statistics item
+ *
+ * @sealed
+ */
+ class MailboxStatisticsItem {
+    /**
+     * Mailbox id
+     */
+    MailboxId: string;
+    /**
+     * Display name
+     */
     DisplayName: string;
-    SendPrompt: SendPrompt;
-    LoadFromJson(jsonProperty: JsonObject, service: ExchangeService): any;
+    /**
+     * Item count
+     */
+    ItemCount: number;
+    /**
+     * Total size
+     * [CLSCompliant(false)]
+     */
+    Size: number;
 }/**
- * Represents an event that applies to a folder.
+ * Represents non indexable item.
+ *
+ * @sealed
  */
- class FolderEvent extends NotificationEvent {
+ class NonIndexableItem {
     /**
-     * The new number of unread messages. This is is only meaningful when EventType is equal to EventType.Modified. For all other event types, it's null.
-     */    /**
-     * Gets the Id of the folder this event applies to.
+     * Item Identity
      */
-    readonly FolderId: FolderId;
+    ItemId: ItemId;
     /**
-     * Gets the Id of the folder that was moved or copied. OldFolderId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied. For all other event types, OldFolderId is null.
+     * Error code
      */
-    readonly OldFolderId: FolderId;
+    ErrorCode: ItemIndexError;
     /**
-     * Gets the new number of unread messages. This is is only meaningful when EventType is equal to EventType.Modified. For all other event types, UnreadCount is null.
+     * Error description
      */
-    readonly UnreadCount: number;
+    ErrorDescription: string;
+    /**
+     * Is partially indexed
+     */
+    IsPartiallyIndexed: boolean;
+    /**
+     * Is permanent failure
+     */
+    IsPermanentFailure: boolean;
+    /**
+     * Attempt count
+     */
+    AttemptCount: number;
+    /**
+     * Last attempt time
+     */
+    LastAttemptTime: DateTime;
+    /**
+     * Additional info
+     */
+    AdditionalInfo: string;
+    /**
+     * Sort value
+     */
+    SortValue: string;
 }
 /**
- * Represents a collection of notification events.
+ * Represents non indexable item details result.
+ *
+ * @sealed
  */
- class GetEventsResults {
+ class NonIndexableItemDetailsResult {
     /**
-     * Map XML element name to notification event type.
-     *
-     * /remarks/ 	If you add a new notification event type, you'll need to add a new entry to the dictionary here.
-     */    /**
-     * Gets the XML element name to event type mapping.
-     *
-     * @value	The XML element name to event type mapping.
+     * Collection of items
      */
-    static readonly XmlElementNameToEventTypeMap: Dictionary<string, EventType>;
+    Items: NonIndexableItem[];
     /**
-     * Watermark in event.
-     */    /**
-     * Subscription id.
-     */    /**
-     * Previous watermark.
-     */    /**
-     * True if more events available for this subscription.
-     */    /**
-     * Collection of notification events.
-     */    /**
-     * Gets the collection of folder events.
-     *
-     * @value	The folder events.
+     * Failed mailboxes
      */
-    readonly FolderEvents: FolderEvent[];
+    FailedMailboxes: FailedSearchMailbox[];
+}/**
+ * Represents non indexable item parameters base class
+ */
+ abstract class NonIndexableItemParameters {
     /**
-     * Gets the collection of item events.
-     *
-     * @value	The item events.
+     * List of mailboxes (in legacy DN format)
      */
-    readonly ItemEvents: ItemEvent[];
+    Mailboxes: string[];
     /**
-     * Gets the collection of all events.
-     *
-     * @value	The events.
+     * Search archive only
      */
-    readonly AllEvents: NotificationEvent[];
+    SearchArchiveOnly: boolean;
+}
+/**
+ * Represents get non indexable item statistics parameters.
+ *
+ * @sealed
+ */
+ class GetNonIndexableItemStatisticsParameters extends NonIndexableItemParameters {
+}
+/**
+ * Represents get non indexable item details parameters.
+ *
+ * @sealed
+ */
+ class GetNonIndexableItemDetailsParameters extends NonIndexableItemParameters {
     /**
-     * Loads the events from XML.
+     * @Nullable Page size
+     */
+    PageSize: number;
+    /**
+     * Page item reference
+     */
+    PageItemReference: string;
+    /**
+     * @Nullable Search page direction
+     */
+    PageDirection: SearchPageDirection;
+}
+/**
+ * Represents non indexable item statistic.
+ *
+ * @sealed
+ */
+ class NonIndexableItemStatistic {
+    /**
+     * Mailbox legacy DN
+     */
+    Mailbox: string;
+    /**
+     * Item count
+     */
+    ItemCount: number;
+    /**
+     * Error message
+     */
+    ErrorMessage: string;
+}
+/**
+ * Represents mailbox object for preview item.
+ *
+ * @sealed
+ */
+ class PreviewItemMailbox {
+    /**
+     * Mailbox id
+     */
+    MailboxId: string;
+    /**
+     * Primary smtp address
+     */
+    PrimarySmtpAddress: string;
+    /**
+     * Constructor
+     */
+    constructor();
+    /**
+     * Constructor
      *
-     * @param   {any[]}               jsEventsArray         The json events array.
-     * @param   {string}     		  xmlElementName		Name of the element.
-     * @param   {ExchangeService}     service               The service.
+     * @param   {string}   mailboxId            Mailbox id
+     * @param   {string}   primarySmtpAddress   Primary smtp address
+     */
+    constructor(mailboxId: string, primarySmtpAddress: string);
+}
+/**
+ * Represents preview item response shape
+ *
+ * @sealed
+ */
+ class PreviewItemResponseShape {
+    /**
+     * Mailbox identifier
+     */
+    BaseShape: PreviewItemBaseShape;
+    /**
+     * Additional properties (must be in form of extended properties)
+     */
+    AdditionalProperties: ExtendedPropertyDefinition[];
+    /**
+     * Constructor
+     */
+    constructor();
+    /**
+     * Constructor
+     *
+     * @param   {PreviewItemBaseShape}          baseShape              Preview item base shape
+     * @param   {ExtendedPropertyDefinition[]}  additionalProperties   Additional properties (must be in form of extended properties)
+     */
+    constructor(baseShape: PreviewItemBaseShape, additionalProperties: ExtendedPropertyDefinition[]);
+}/**
+ * Represents search mailbox parameters.
+ *
+ * @sealed
+ */
+ class SearchMailboxesParameters {
+    /**
+     * Search queries
+     */
+    SearchQueries: MailboxQuery[];
+    /**
+     * Result type
+     */
+    ResultType: SearchResultType;
+    /**
+     * Sort by property
+     */
+    SortBy: string;
+    /**
+     * Sort direction
+     */
+    SortOrder: SortDirection;
+    /**
+     * Perform deduplication
+     */
+    PerformDeduplication: boolean;
+    /**
+     * Page size
+     */
+    PageSize: number;
+    /**
+     * Search page direction
+     */
+    PageDirection: SearchPageDirection;
+    /**
+     * Page item reference
+     */
+    PageItemReference: string;
+    /**
+     * Preview item response shape
+     */
+    PreviewItemResponseShape: PreviewItemResponseShape;
+    /**
+     * Query language
+     */
+    Language: string;
+}
+/**
+ * Represents search mailbox result.
+ *
+ * @sealed
+ */
+ class SearchMailboxesResult {
+    /**
+     * Search queries
+     */
+    SearchQueries: MailboxQuery[];
+    /**
+     * Result type
+     */
+    ResultType: SearchResultType;
+    /**
+     * Item count
+     */
+    ItemCount: number;
+    /**
+     * Total size
+     * [CLSCompliant(false)]
+     */
+    Size: number;
+    /**
+     * Page item count
+     */
+    PageItemCount: number;
+    /**
+     * Total page item size
+     * [CLSCompliant(false)]
+     */
+    PageItemSize: number;
+    /**
+     * Keyword statistics search result
+     */
+    KeywordStats: KeywordStatisticsSearchResult[];
+    /**
+     * Search preview items
+     */
+    PreviewItems: SearchPreviewItem[];
+    /**
+     * Failed mailboxes
+     */
+    FailedMailboxes: FailedSearchMailbox[];
+    /**
+     * Refiners
+     */
+    Refiners: SearchRefinerItem[];
+    /**
+     * Mailbox statistics
+     */
+    MailboxStats: MailboxStatisticsItem[];
+    /**
+     * Get collection of recipients
+     *
+     * @param   {any}   jsObject	Json Object converted from XML.
+     * @return  {string[]}          Array of recipients
+     */    /**
+     * Load extended properties from XML.
+     *
+     * @param   {any}				jsObject	Json Object converted from XML.
+     * @param   {ExchangeService}	service	The service.
+     * @return  {ExtendedPropertyCollection}     Extended properties collection
+     */    /**
+     * Loads service object from XML.
+     *
+     * @param   {any}				jsObject	Json Object converted from XML.
+     * @param   {ExchangeService}	service	The service.
+     * @return  {SearchMailboxesResult}     Search result object
+     */
+    static LoadFromXmlJsObject(jsObject: any, service: ExchangeService): SearchMailboxesResult;
+    /**
+     * Load keyword stats from XML.
+     *
+     * @param   {any}   jsObject	Json Object converted from XML.
+     * @return  {KeywordStatisticsSearchResult[]}       Array of keyword statistics
+     */    /**
+     * Load preview items from XML.
+     *
+     * @param   {any}				jsObject	Json Object converted from XML.
+     * @param   {ExchangeService}	service	The service.
+     * @return  {SearchPreviewItem[]}     Array of preview items
      */}/**
- * Represents an event that applies to an item.
+ * Represents search preview item.
+ *
+ * @sealed
  */
- class ItemEvent extends NotificationEvent {
+ class SearchPreviewItem {
     /**
-     * Id of the item this event applies to.
-     */    /**
-     * Id of the item that moved or copied. This is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
-     * For all other event types, it's null.
-     */    /**
-     * Gets the Id of the item this event applies to.
+     * Item id
      */
-    readonly ItemId: ItemId;
+    Id: ItemId;
     /**
-     * Gets the Id of the item that was moved or copied. OldItemId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
-     * For all other event types, OldItemId is null.
+     * Mailbox
      */
-    readonly OldItemId: ItemId;
+    Mailbox: PreviewItemMailbox;
+    /**
+     * Parent item id
+     */
+    ParentId: ItemId;
+    /**
+     * Item Class
+     */
+    ItemClass: string;
+    /**
+     * Unique hash
+     */
+    UniqueHash: string;
+    /**
+     * Sort Value
+     */
+    SortValue: string;
+    /**
+     * OWA Link
+     */
+    OwaLink: string;
+    /**
+     * Sender
+     */
+    Sender: string;
+    /**
+     * To recipients
+     */
+    ToRecipients: string[];
+    /**
+     * Cc recipients
+     */
+    CcRecipients: string[];
+    /**
+     * Bcc recipients
+     */
+    BccRecipients: string[];
+    /**
+     * Created Time
+     */
+    CreatedTime: DateTime;
+    /**
+     * Received Time
+     */
+    ReceivedTime: DateTime;
+    /**
+     * Sent Time
+     */
+    SentTime: DateTime;
+    /**
+     * Subject
+     */
+    Subject: string;
+    /**
+     * Item size
+     */
+    Size: number;
+    /**
+     * Preview
+     */
+    Preview: string;
+    /**
+     * Importance
+     */
+    Importance: Importance;
+    /**
+     * Read
+     */
+    Read: boolean;
+    /**
+     * Has attachment
+     */
+    HasAttachment: boolean;
+    /**
+     * Extended properties
+     */
+    ExtendedProperties: ExtendedPropertyCollection;
 }
 /**
- * Represents an event as exposed by push and pull notifications.
+ * Search refiner item
  */
- abstract class NotificationEvent {
+ class SearchRefinerItem {
     /**
-     * Type of this event.
-     */    /**
-     * Date and time when the event occurred.
-     */    /**
-     * Id of parent folder of the item or folder this event applies to.
-     */    /**
-     * Id of the old prarent foldero of the item or folder this event applies to.
-     * This property is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
-     * For all other event types, oldParentFolderId will be null.
-     */    /**
-     * Gets the type of this event.
+     * Refiner name
      */
-    readonly EventType: EventType;
+    Name: string;
     /**
-     * Gets the date and time when the event occurred.
+     * Refiner value
      */
-    readonly TimeStamp: DateTime;
+    Value: string;
     /**
-     * Gets the Id of the parent folder of the item or folder this event applie to.
+     * Refiner count
      */
-    ParentFolderId: FolderId;
+    Count: number;
     /**
-     * Gets the Id of the old parent folder of the item or folder this event applies to.
-     * OldParentFolderId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
-     * For all other event types, OldParentFolderId is null.
+     * Refiner token, essentially comprises of an operator (i.e. ':' or '>') plus the refiner value The caller such as Sharepoint can simply append this to refiner name for query refinement
      */
-    OldParentFolderId: FolderId;
+    Token: string;
 }/**
- * Provides data to a StreamingSubscriptionConnection's OnNotificationEvent event.
- */
- class NotificationEventArgs {
-    /**
-     * Gets the subscription for which notifications have been received.
-     *
-     * internal set
-     */
-    Subscription: StreamingSubscription;
-    /**
-     * Gets the events that were received.
-     *
-     * internal set
-     */
-    Events: NotificationEvent[];
-}
-/**
- * Represents a pull subscription.
+ * Represents searchable mailbox object
  *
  * @sealed
  */
- class PullSubscription extends SubscriptionBase {    /**
-     * Gets a value indicating whether more events are available on the server.
-     * MoreEventsAvailable is undefined (null) until GetEvents is called.
-     */
-    readonly MoreEventsAvailable: boolean;
+ class SearchableMailbox {
     /**
-     * Obtains a collection of events that occurred on the subscribed folders since the point in time defined by the Watermark property. When GetEvents succeeds, Watermark is updated.
+     * Guid
+     */
+    Guid: Guid;
+    /**
+     * Smtp address
+     */
+    SmtpAddress: string;
+    /**
+     * If true, this is an external mailbox
+     */
+    IsExternalMailbox: boolean;
+    /**
+     * External email address for the mailbox
+     */
+    ExternalEmailAddress: string;
+    /**
+     * Display name
+     */
+    DisplayName: string;
+    /**
+     * Is a membership group
+     */
+    IsMembershipGroup: boolean;
+    /**
+     * Reference id
+     */
+    ReferenceId: string;
+    /**
+     * Constructor
+     */
+    constructor();
+    /**
+     * Constructor
      *
-     * @return  {Promise<GetEventsResults>}      Returns a collection of events that occurred since the last watermark	:Promise.
+     * @param   {Guid}      guid                   Guid
+     * @param   {string}    smtpAddress            Smtp address
+     * @param   {boolean}   isExternalMailbox      If true, this is an external mailbox
+     * @param   {string}    externalEmailAddress   External email address
+     * @param   {string}    displayName            Display name
+     * @param   {boolean}   isMembershipGroup      Is a membership group
+     * @param   {string}    referenceId            Reference id
      */
-    GetEvents(): Promise<GetEventsResults>;
-    /**
-     * Unsubscribes from the pull subscription.
-     */
-    Unsubscribe(): Promise<void>;
-}
-/**
- * Represents a push subscriptions.
- *
- * @sealed
- */
- class PushSubscription extends SubscriptionBase {
-}
-/**
- * Represents a streaming subscription.
- *
- * @sealed
- */
- class StreamingSubscription extends SubscriptionBase {
-    /**
-     * Gets the service used to create this subscription.
-     */
-    readonly Service: ExchangeService;
-    /**
-     * Gets a value indicating whether this subscription uses watermarks.
-     */
-    protected readonly UsesWatermark: boolean;
-    /**
-     * Unsubscribes from the streaming subscription.
-     */
-    Unsubscribe(): Promise<void>;
-} class StreamingSubscriptionConnection {
-    /**
-     * Mapping of streaming id to subscriptions currently on the connection.
-     */    /**
-     * connection lifetime, in minutes
-     */    /**
-     * ExchangeService instance used to make the EWS call.
-     */    /**
-     * Value indicating whether the class is disposed.
-     */    /**
-     * Currently used instance of a GetStreamingEventsRequest connected to EWS.
-     */    /**
-     * Lock object
-     */    /**
-     * Occurs when notifications are received from the server.
-     */
-    OnNotificationEvent: NotificationEventDelegate[];
-    /**
-     * Occurs when a subscription encounters an error.
-     */
-    OnSubscriptionError: SubscriptionErrorDelegate[];
-    /**
-     * Occurs when a streaming subscription connection is disconnected from the server.
-     */
-    OnDisconnect: SubscriptionErrorDelegate[];
-    /**
-     * Getting the current subscriptions in this connection.
-     */
-    readonly CurrentSubscriptions: StreamingSubscription[];
-    /**
-     * Gets a value indicating whether this connection is opened
-     */
-    readonly IsOpen: boolean;
-    /**
-     * Initializes a new instance of the **StreamingSubscriptionConnection** class.
-     *
-     * @param   {ExchangeService}   		service         The ExchangeService instance this connection uses to connect to the server.
-     * @param   {number}   					lifetime        The maximum time, in minutes, the connection will remain open. Lifetime must be between 1 and 30.
-     */
-    constructor(service: ExchangeService, lifetime: number);
-    /**
-     * Initializes a new instance of the **StreamingSubscriptionConnection** class.
-     *
-     * @param   {ExchangeService}   		service         The ExchangeService instance this connection uses to connect to the server.
-     * @param   {StreamingSubscription[]}   subscriptions   The streaming subscriptions this connection is receiving events for.
-     * @param   {number}   					lifetime        The maximum time, in minutes, the connection will remain open. Lifetime must be between 1 and 30.
-     */
-    constructor(service: ExchangeService, subscriptions: StreamingSubscription[], lifetime: number);
-    /**
-     * Adds a subscription to this connection.
-     *
-     * @param   {StreamingSubscription}   subscription   The subscription to add.
-     */
-    AddSubscription(subscription: StreamingSubscription): void;
-    /**
-     * Closes this connection so it stops receiving events from the server.
-     * This terminates a long-standing call to EWS.
-     *
-     * @exception	{InvalidOperationException}		Thrown when Close is called while not connected.
-     */
-    Close(): void;
-    /**
-     * Frees resources associated with this StreamingSubscriptionConnection.
-     */
-    Dispose(): void;
-    /**
-     * @private Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-     *
-     * @param   {boolean}   suppressFinalizer   Value indicating whether to suppress the garbage collector's finalizer..
-     */
-    Dispose(suppressFinalizer: boolean): void;
-    /**
-     * Handles the service response object.
-     *
-     * @param   {any}   response   The response.
-     */    /**
-     * Internal helper method called when the request disconnects.
-     *
-     * @param   {Exception}   ex   The exception that caused the disconnection. May be null.
-     */    /**
-     * Issues the general failure.
-     *
-     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
-     */    /**
-     * Issues the notification events.
-     *
-     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
-     */    /**
-     * Issues the subscription failures.
-     *
-     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
-     */    /**
-     * Called when the request is disconnected.
-     *
-     * @param   {any}   								sender   The sender.
-     * @param   {HangingRequestDisconnectEventArgs}   	args     The  instance containing the event data.
-     */    /**
-     * Opens this connection so it starts receiving events from the server.
-     * This results in a long-standing call to EWS.
-     *
-     * @exception	{InvalidOperationException}		Thrown when Open is called while connected.
-     */
-    Open(): void;
-    /**
-     * Removes the specified streaming subscription from the connection.
-     *
-     * @param   {StreamingSubscription}   subscription   The subscription to remove.
-     */
-    RemoveSubscription(subscription: StreamingSubscription): void;
-    /**
-     * Throws if disposed.
-     */
-    ThrowIfDisposed(): void;
-    /**
-     * Validates the state of the connection.
-     *
-     * @param   {boolean}   isConnectedExpected   Value indicating whether we expect to be currently connected.
-     * @param   {string}   	errorMessage          The error message.
-     */
-    ValidateConnectionState(isConnectedExpected: boolean, errorMessage: string): void;
-}
-/**
- * Represents a delegate that is invoked when notifications are received from the server
- *
- * @param   {any}   					sender   The StreamingSubscriptionConnection instance that received the events.
- * @param   {NotificationEventArgs}   	args     The event data.
- */
-export interface NotificationEventDelegate {
-    (sender: any, args: NotificationEventArgs): void;
-}
-/**
- * Represents a delegate that is invoked when an error occurs within a streaming subscription connection.
- *
- * @param   {any}   						sender   The StreamingSubscriptionConnection instance within which the error occurred.
- * @param   {SubscriptionErrorEventArgs}   	args     The event data.
- */
-export interface SubscriptionErrorDelegate {
-    (sender: any, args: SubscriptionErrorEventArgs): void;
-}
-/**
- * Represents the base class for event subscriptions.
- */
- abstract class SubscriptionBase {
-    protected service: ExchangeService;
-    /**
-     * Gets the session.
-     *
-     * @value The session.
-     */
-    readonly Service: ExchangeService;
-    /**
-     * Gets the Id of the subscription.
-     *
-     * internal set
-     */
-    Id: string;
-    /**
-     * Gets the latest watermark of the subscription. Watermark is always null for streaming subscriptions.
-     *
-     * internal set
-     */
-    Watermark: string;
-    /**
-     * Gets whether or not this subscription uses watermarks.
-     */
-    protected readonly UsesWatermark: boolean;
+    constructor(guid: Guid, smtpAddress: string, isExternalMailbox: boolean, externalEmailAddress: string, displayName: string, isMembershipGroup: boolean, referenceId: string);
 }/**
- * Provides data to a StreamingSubscriptionConnection's OnSubscriptionError and OnDisconnect events.
+ * Represents set hold on mailboxes parameters.
+ *
+ * @sealed
  */
- class SubscriptionErrorEventArgs {
+ class SetHoldOnMailboxesParameters {
     /**
-     * Gets the subscription for which an error occurred. If Subscription is null, the error applies to the entire connection.
-     *
-     * internal set
+     * Action type
      */
-    Subscription: StreamingSubscription;
+    ActionType: HoldAction;
     /**
-     * Gets the exception representing the error. If Exception is null, the connection was cleanly closed by the server.
-     *
-     * internal set
+     * Hold id
      */
-    Exception: Exception;
-} class AbstractFolderIdWrapper {
+    HoldId: string;
+    /**
+     * Query
+     */
+    Query: string;
+    /**
+     * Collection of mailboxes
+     */
+    Mailboxes: string[];
+    /**
+     * Query language
+     */
+    Language: string;
+    /**
+     * In-place hold identity
+     */
+    InPlaceHoldIdentity: string;
+    /**
+     * Item hold period
+     * *The text value can be "Unlimited" or the string value of any Timespan value.*
+     *
+     * per github issue #120
+     */
+    ItemHoldPeriod: string;
+    /**
+     * Include Non Indexable Items
+     *
+     * per github issue #120
+     */
+    IncludeNonIndexableItems: boolean;
+    /**
+     * Perform deduplication
+     *
+     * per github issue #120
+     */
+    PerformDeduplication: boolean;
+}
+/**
+ * Interface IDiscoveryVersionable.
+ * This interface will be used to store versioning information on the request
+ *
+ */
+export interface IDiscoveryVersionable {
+    /**
+     * Gets or sets the server version.
+     *
+     * @value The server version.
+     */
+    ServerVersion: number;
+}
+/**
+ * Class Feature
+ */
+ class SchemaChange {
+    /**
+     * Gets the minimum server version.
+     *
+     * @value The minimum server version.
+     */
+    MinimumServerVersion: number;
+    /**
+     * Initializes a new instance of the **SchemaChange** class.
+     *
+     * @param   {number}   serverVersion   The server version.
+     */
+    constructor(serverVersion: number);
+    /**
+     * Initializes a new instance of the **SchemaChange** class.
+     *
+     * @param   {string}   serverBuild   The server build.
+     */
+    constructor(serverBuild: string);
+    /**
+     * Determines whether the specified versionable is compatible.
+     *
+     * @param   {IDiscoveryVersionable}   versionable   The versionable.
+     * @return  {boolean}                 *true* if the specified versionable is compatible; otherwise, *false*.
+     */
+    IsCompatible(versionable: IDiscoveryVersionable): boolean;
+}
+/**
+ * Class DiscoverySchemaChanges
+ * This class is a catalog of schema changes in discovery with the minimum server version in which they were introduced When making a schema change
+ * - First make the server side changes and check them in
+ * - Create SchemaChange() entry here for the change and the version at which it was checked int
+ * - In the request
+ *  - Implement IDiscoveryVersionable
+ *  - In the Validate method verify if any new schema parameters are compatible if not error out
+ *  - In the WriteXml method downgrade the schema based on compatability checks
+ * Eg, SearchMailboxesRequest.cs
+ *
+ * @static
+ */
+ class DiscoverySchemaChanges {
+    /**
+     * Gets the search mailboxes extended data.
+     *
+     * @value The search mailboxes extended data.
+     */
+    static SearchMailboxesExtendedData: SchemaChange;
+    /**
+     * Gets the search mailboxes additional search scopes.
+     *
+     * The search mailboxes additional search scopes.
+     */
+    static SearchMailboxesAdditionalSearchScopes: SchemaChange;
+}
+ class AbstractFolderIdWrapper {
     GetFolder(): Folder;
     Validate(version: ExchangeVersion): void;
-} class AbstractItemIdWrapper {
+}
+ class AbstractItemIdWrapper {
     GetItem(): Item;
     IternalToJson(service: ExchangeService): any;
-}/**
+}
+/**
  * Represents the results of an action performed on a calendar item or meeting message, such as accepting, tentatively accepting or declining a meeting request.
  *
  * @sealed
@@ -8736,7 +9253,8 @@ export interface SubscriptionErrorDelegate {
      * Gets a value indicating if and how meeting requests are delivered to delegates.
      */
     readonly MeetingRequestsDeliveryScope: MeetingRequestsDeliveryScope;
-}export interface ComplexPropertyChangedDelegate {
+}
+export interface ComplexPropertyChangedDelegate {
     (complexProperty: ComplexProperty): void;
 }
 export interface GetObjectInstanceDelegate<T> {
@@ -8765,8 +9283,10 @@ export interface CreateServiceObjectWithServiceParam {
 }
 export interface CreateServiceObjectWithAttachmentParam {
     (itemAttachment: ItemAttachment, isNew: boolean): any;
-} class EwsTraceListener {    Trace(traceType: string, traceMessage: string): void;
-}/**
+}
+ class EwsTraceListener {    Trace(traceType: string, traceMessage: string): void;
+}
+/**
  * Represents the results of an ExpandGroup operation.
  *
  * @sealed
@@ -8794,34 +9314,32 @@ export interface CreateServiceObjectWithAttachmentParam {
      *  Returns an enumerator that iterates through the collection. this case this.members
      */
     GetEnumerator(): EmailAddress[];
-}
- class FolderIdWrapper extends AbstractFolderIdWrapper {    constructor(folderId: FolderId);
+} class FolderIdWrapper extends AbstractFolderIdWrapper {    constructor(folderId: FolderId);
     Validate(version: ExchangeVersion): void;
 } class FolderWrapper extends AbstractFolderIdWrapper {    constructor(folder: Folder);
     GetFolder(): Folder;
-} class ImpersonatedUserId {
+}
+ class ImpersonatedUserId {
     IdType: ConnectingIdType;
     Id: string;
     constructor(idType?: ConnectingIdType, id?: string);
-}
- class ItemIdWrapper extends AbstractItemIdWrapper {    constructor(itemId: ItemId);
+} class ItemIdWrapper extends AbstractItemIdWrapper {    constructor(itemId: ItemId);
     IternalToJson(service: ExchangeService): any;
 }
  class ItemWrapper extends AbstractItemIdWrapper {    constructor(item: Item);
     GetItem(): Item;
     IternalToJson(service: ExchangeService): any;
-} class ManagementRoles {
-    constructor(userRoles?: string[], applicationRoles?: string[]);
 }
- type MapiTypeConverterMap = Dictionary<MapiPropertyType, MapiTypeConverterMapEntry>;
+ class ManagementRoles {
+    constructor(userRoles?: string[], applicationRoles?: string[]);
+} type MapiTypeConverterMap = Dictionary<MapiPropertyType, MapiTypeConverterMapEntry>;
  class MapiTypeConverter {    static readonly MapiTypeConverterMap: MapiTypeConverterMap;    static ChangeType(mapiType: MapiPropertyType, value: any): any;
     static ConvertToString(mapiPropType: MapiPropertyType, value: any): string;
     static ConvertToValue(mapiPropType: MapiPropertyType, stringValue: string): any;
     static ConvertToValue(mapiPropType: MapiPropertyType, strings: string[]): any[];
     static IsArrayType(mapiType: MapiPropertyType): boolean;
     static ParseMapiIntegerValue(s: string): any;
-}
- class MapiTypeConverterMapEntry {
+} class MapiTypeConverterMapEntry {
     Parse: (string: any) => any;
     ConvertToString: (any: any) => string;
     Type: MapiTypeConverterTypeSystem;
@@ -8831,8 +9349,7 @@ export interface CreateServiceObjectWithAttachmentParam {
     ConvertToValue(stringValue: string): any;
     ConvertToValueOrDefault(stringValue: string): any;
     ValidateValueAsArray(value: any): void;
-}
-/**
+}/**
  * Represents a mobile phone.
  *
  * @sealed
@@ -8866,12 +9383,14 @@ export interface CreateServiceObjectWithAttachmentParam {
      * ISelfValidate.Validate
      */
     Validate(): void;
-} class NameResolution {    readonly Mailbox: EmailAddress;
+}
+ class NameResolution {    readonly Mailbox: EmailAddress;
     readonly Contact: Contact;
     constructor(owner: NameResolutionCollection);
     LoadFromJson(jsonProperty: any, service: ExchangeService): void;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-}/**
+}
+/**
  * Represents a list of suggested name resolutions.
  *
  * @sealed
@@ -8903,8 +9422,9 @@ export interface CreateServiceObjectWithAttachmentParam {
  * /remarks/    ews-javascript-api -> removing internal modifier to, this class will be used to pass on to error delegate of promise instead of Exceptions.
  *
  * /remarks/    ews-javascript-api -> 0.9 - Extending from Error object to avoid BlueBird errors when promise is rejected without and Error object
+ * /remarks/    ews-javascript-api -> 0.9 - extending from Exception which looks like Error to BlueBird. can not extend from Error. Typescript 1.8+ can not extend builtin objects property, it swallows inheriting properties see  https://github.com/Microsoft/TypeScript/wiki/Breaking-Changes#extending-built-ins-like-error-array-and-map-may-no-longer-work
  */
- class SoapFaultDetails extends Error {    /**
+ class SoapFaultDetails extends Exception {    /**
      * Response code returned by EWS requests.
      * Default to InternalServerError.
      */    /**
@@ -8931,10 +9451,6 @@ export interface CreateServiceObjectWithAttachmentParam {
      */
     HttpStatusCode: number;
     /**
-     * @private Initializes a new instance of the **SoapFaultDetails** class.
-     */
-    constructor();
-    /**
      * Parses the detail node.
      *
      * @param   {any}   jsObject   The detail node.
@@ -8942,12 +9458,7 @@ export interface CreateServiceObjectWithAttachmentParam {
      * Parses the message XML.
      *
      * @param   {any}   jsObject   The message Xml object.
-     */} class Time {
-    Hours: number;
-    Minutes: number;
-    Seconds: number;    ConvertToMinutes(): number;
-    ToXSTime(): string;
-}
+     */}
  type base64String = string;
 /**
  * Represents an object that can be used to store user-defined configuration settings.
@@ -9095,10 +9606,391 @@ export interface CreateServiceObjectWithAttachmentParam {
      *
      * @param   {EwsServiceXmlWriter}   writer   The writer.
      */}
- class SafeXmlFactory {    CreateSafeXmlTextReader(stream: any): any;
-    CreateXPathDocument(uri: string, space: any): any;
+/**
+ * Represents an event that applies to a folder.
+ */
+ class FolderEvent extends NotificationEvent {
+    /**
+     * The new number of unread messages. This is is only meaningful when EventType is equal to EventType.Modified. For all other event types, it's null.
+     */    /**
+     * Gets the Id of the folder this event applies to.
+     */
+    readonly FolderId: FolderId;
+    /**
+     * Gets the Id of the folder that was moved or copied. OldFolderId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied. For all other event types, OldFolderId is null.
+     */
+    readonly OldFolderId: FolderId;
+    /**
+     * Gets the new number of unread messages. This is is only meaningful when EventType is equal to EventType.Modified. For all other event types, UnreadCount is null.
+     */
+    readonly UnreadCount: number;
+}/**
+ * Represents a collection of notification events.
+ */
+ class GetEventsResults {
+    /**
+     * Map XML element name to notification event type.
+     *
+     * /remarks/ 	If you add a new notification event type, you'll need to add a new entry to the dictionary here.
+     */    /**
+     * Gets the XML element name to event type mapping.
+     *
+     * @value	The XML element name to event type mapping.
+     */
+    static readonly XmlElementNameToEventTypeMap: Dictionary<string, EventType>;
+    /**
+     * Watermark in event.
+     */    /**
+     * Subscription id.
+     */    /**
+     * Previous watermark.
+     */    /**
+     * True if more events available for this subscription.
+     */    /**
+     * Collection of notification events.
+     */    /**
+     * Gets the collection of folder events.
+     *
+     * @value	The folder events.
+     */
+    readonly FolderEvents: FolderEvent[];
+    /**
+     * Gets the collection of item events.
+     *
+     * @value	The item events.
+     */
+    readonly ItemEvents: ItemEvent[];
+    /**
+     * Gets the collection of all events.
+     *
+     * @value	The events.
+     */
+    readonly AllEvents: NotificationEvent[];
+    /**
+     * Loads the events from XML.
+     *
+     * @param   {any[]}               jsEventsArray         The json events array.
+     * @param   {string}     		  xmlElementName		Name of the element.
+     * @param   {ExchangeService}     service               The service.
+     */}/**
+ * Represents an event that applies to an item.
+ */
+ class ItemEvent extends NotificationEvent {
+    /**
+     * Id of the item this event applies to.
+     */    /**
+     * Id of the item that moved or copied. This is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
+     * For all other event types, it's null.
+     */    /**
+     * Gets the Id of the item this event applies to.
+     */
+    readonly ItemId: ItemId;
+    /**
+     * Gets the Id of the item that was moved or copied. OldItemId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
+     * For all other event types, OldItemId is null.
+     */
+    readonly OldItemId: ItemId;
+}/**
+ * Represents an event as exposed by push and pull notifications.
+ */
+ abstract class NotificationEvent {
+    /**
+     * Type of this event.
+     */    /**
+     * Date and time when the event occurred.
+     */    /**
+     * Id of parent folder of the item or folder this event applies to.
+     */    /**
+     * Id of the old prarent foldero of the item or folder this event applies to.
+     * This property is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
+     * For all other event types, oldParentFolderId will be null.
+     */    /**
+     * Gets the type of this event.
+     */
+    readonly EventType: EventType;
+    /**
+     * Gets the date and time when the event occurred.
+     */
+    readonly TimeStamp: DateTime;
+    /**
+     * Gets the Id of the parent folder of the item or folder this event applie to.
+     */
+    ParentFolderId: FolderId;
+    /**
+     * Gets the Id of the old parent folder of the item or folder this event applies to.
+     * OldParentFolderId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
+     * For all other event types, OldParentFolderId is null.
+     */
+    OldParentFolderId: FolderId;
 }
- class SecurityTimestamp {
+/**
+ * Provides data to a StreamingSubscriptionConnection's OnNotificationEvent event.
+ */
+ class NotificationEventArgs {
+    /**
+     * Gets the subscription for which notifications have been received.
+     *
+     * internal set
+     */
+    Subscription: StreamingSubscription;
+    /**
+     * Gets the events that were received.
+     *
+     * internal set
+     */
+    Events: NotificationEvent[];
+}
+/**
+ * Represents a pull subscription.
+ *
+ * @sealed
+ */
+ class PullSubscription extends SubscriptionBase {    /**
+     * Gets a value indicating whether more events are available on the server.
+     * MoreEventsAvailable is undefined (null) until GetEvents is called.
+     */
+    readonly MoreEventsAvailable: boolean;
+    /**
+     * Obtains a collection of events that occurred on the subscribed folders since the point in time defined by the Watermark property. When GetEvents succeeds, Watermark is updated.
+     *
+     * @return  {Promise<GetEventsResults>}      Returns a collection of events that occurred since the last watermark	:Promise.
+     */
+    GetEvents(): Promise<GetEventsResults>;
+    /**
+     * Unsubscribes from the pull subscription.
+     */
+    Unsubscribe(): Promise<void>;
+}/**
+ * Represents a push subscriptions.
+ *
+ * @sealed
+ */
+ class PushSubscription extends SubscriptionBase {
+}/**
+ * Represents a streaming subscription.
+ *
+ * @sealed
+ */
+ class StreamingSubscription extends SubscriptionBase {
+    /**
+     * Gets the service used to create this subscription.
+     */
+    readonly Service: ExchangeService;
+    /**
+     * Gets a value indicating whether this subscription uses watermarks.
+     */
+    protected readonly UsesWatermark: boolean;
+    /**
+     * Unsubscribes from the streaming subscription.
+     */
+    Unsubscribe(): Promise<void>;
+}/**
+ * Represents a connection to an ongoing stream of events.
+ *
+ * @sealed
+ */
+ class StreamingSubscriptionConnection {
+    /**
+     * Mapping of streaming id to subscriptions currently on the connection.
+     */    /**
+     * connection lifetime, in minutes
+     */    /**
+     * ExchangeService instance used to make the EWS call.
+     */    /**
+     * Value indicating whether the class is disposed.
+     */    /**
+     * Currently used instance of a GetStreamingEventsRequest connected to EWS.
+     */    /**
+     * Lock object
+     */    /**
+     * Occurs when notifications are received from the server.
+     */
+    OnNotificationEvent: NotificationEventDelegate[];
+    /**
+     * Occurs when a subscription encounters an error.
+     */
+    OnSubscriptionError: SubscriptionErrorDelegate[];
+    /**
+     * Occurs when a streaming subscription connection is disconnected from the server.
+     */
+    OnDisconnect: SubscriptionErrorDelegate[];
+    /**
+     * Occurs when a streaming subscription connection gets headers from the server.
+     */
+    OnResponseHeader: ResponseHeaderDelegate[];
+    /**
+     * Getting the current subscriptions in this connection.
+     */
+    readonly CurrentSubscriptions: StreamingSubscription[];
+    /**
+     * Gets a value indicating whether this connection is opened
+     */
+    readonly IsOpen: boolean;
+    /**
+     * Initializes a new instance of the **StreamingSubscriptionConnection** class.
+     *
+     * @param   {ExchangeService}   		service         The ExchangeService instance this connection uses to connect to the server.
+     * @param   {number}   					lifetime        The maximum time, in minutes, the connection will remain open. Lifetime must be between 1 and 30.
+     */
+    constructor(service: ExchangeService, lifetime: number);
+    /**
+     * Initializes a new instance of the **StreamingSubscriptionConnection** class.
+     *
+     * @param   {ExchangeService}   		service         The ExchangeService instance this connection uses to connect to the server.
+     * @param   {StreamingSubscription[]}   subscriptions   The streaming subscriptions this connection is receiving events for.
+     * @param   {number}   					lifetime        The maximum time, in minutes, the connection will remain open. Lifetime must be between 1 and 30.
+     */
+    constructor(service: ExchangeService, subscriptions: StreamingSubscription[], lifetime: number);
+    /**
+     * Adds a subscription to this connection.
+     *
+     * @param   {StreamingSubscription}   subscription   The subscription to add.
+     */
+    AddSubscription(subscription: StreamingSubscription): void;
+    /**
+     * Closes this connection so it stops receiving events from the server.
+     * This terminates a long-standing call to EWS.
+     *
+     * @exception	{InvalidOperationException}		Thrown when Close is called while not connected.
+     */
+    Close(): void;
+    /**
+     * Frees resources associated with this StreamingSubscriptionConnection.
+     */
+    Dispose(): void;
+    /**
+     * @private Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+     *
+     * @param   {boolean}   suppressFinalizer   Value indicating whether to suppress the garbage collector's finalizer..
+     */
+    Dispose(suppressFinalizer: boolean): void;
+    /**
+     * Handles the service response object.
+     *
+     * @param   {any}   response   The response.
+     */    /**
+     * Internal helper method called when the request disconnects.
+     *
+     * @param   {Exception}   ex   The exception that caused the disconnection. May be null.
+     */    /**
+     * Internal helper method called when the request receives headers.
+     *
+     * @param   {any}   headers   The headerf from server.
+     */    /**
+     * Issues the general failure.
+     *
+     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
+     */    /**
+     * Issues the notification events.
+     *
+     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
+     */    /**
+     * Issues the subscription failures.
+     *
+     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
+     */    /**
+     * Called when the request is disconnected.
+     *
+     * @param   {any}   								sender   The sender.
+     * @param   {HangingRequestDisconnectEventArgs}   	args     The  instance containing the event data.
+     */    /**
+     * Opens this connection so it starts receiving events from the server.
+     * This results in a long-standing call to EWS.
+     *
+     * @exception	{InvalidOperationException}		Thrown when Open is called while connected.
+     */
+    Open(): Promise<void>;
+    /**
+     * Removes the specified streaming subscription from the connection.
+     *
+     * @param   {StreamingSubscription}   subscription   The subscription to remove.
+     */
+    RemoveSubscription(subscription: StreamingSubscription): void;
+    /**
+     * Throws if disposed.
+     */
+    ThrowIfDisposed(): void;
+    /**
+     * Validates the state of the connection.
+     *
+     * @param   {boolean}   isConnectedExpected   Value indicating whether we expect to be currently connected.
+     * @param   {string}   	errorMessage          The error message.
+     */
+    ValidateConnectionState(isConnectedExpected: boolean, errorMessage: string): void;
+}
+/**
+ * Represents a delegate that is invoked when notifications are received from the server
+ *
+ * @param   {any}   					sender   The StreamingSubscriptionConnection instance that received the events.
+ * @param   {NotificationEventArgs}   	args     The event data.
+ */
+export interface NotificationEventDelegate {
+    (sender: any, args: NotificationEventArgs): void;
+}
+/**
+ * Represents a delegate that is invoked when an error occurs within a streaming subscription connection.
+ *
+ * @param   {any}   						sender   The StreamingSubscriptionConnection instance within which the error occurred.
+ * @param   {SubscriptionErrorEventArgs}   	args     The event data.
+ */
+export interface SubscriptionErrorDelegate {
+    (sender: any, args: SubscriptionErrorEventArgs): void;
+}
+/**
+ * Represents a delegate that is invoked when an error occurs within a streaming subscription connection.
+ *
+ * @param   {any}   						sender   The StreamingSubscriptionConnection instance within which the error occurred.
+ * @param   {SubscriptionErrorEventArgs}   	args     The event data.
+ */
+export interface ResponseHeaderDelegate {
+    (header: any): void;
+}/**
+ * Represents the base class for event subscriptions.
+ */
+ abstract class SubscriptionBase {
+    protected service: ExchangeService;
+    /**
+     * Gets the session.
+     *
+     * @value The session.
+     */
+    readonly Service: ExchangeService;
+    /**
+     * Gets the Id of the subscription.
+     *
+     * internal set
+     */
+    Id: string;
+    /**
+     * Gets the latest watermark of the subscription. Watermark is always null for streaming subscriptions.
+     *
+     * internal set
+     */
+    Watermark: string;
+    /**
+     * Gets whether or not this subscription uses watermarks.
+     */
+    protected readonly UsesWatermark: boolean;
+}
+/**
+ * Provides data to a StreamingSubscriptionConnection's OnSubscriptionError and OnDisconnect events.
+ */
+ class SubscriptionErrorEventArgs {
+    /**
+     * Gets the subscription for which an error occurred. If Subscription is null, the error applies to the entire connection.
+     *
+     * internal set
+     */
+    Subscription: StreamingSubscription;
+    /**
+     * Gets the exception representing the error. If Exception is null, the connection was cleanly closed by the server.
+     *
+     * internal set
+     */
+    Exception: Exception;
+} class SafeXmlFactory {    CreateSafeXmlTextReader(stream: any): any;
+    CreateXPathDocument(uri: string, space: any): any;
+} class SecurityTimestamp {
     static DefaultTimestampValidityDurationString: string;
     static DefaultFormat: string;
     CreationTimeUtc: Date;
@@ -9111,7 +10003,8 @@ export interface CreateServiceObjectWithAttachmentParam {
     GetExpiryTimeChars(): any[];
     ToChars(utcTime: Date): any[];
     ToString(): string;
-}/**
+}
+/**
  * Represents a date range view of appointments in calendar folder search operations.
  */
  class CalendarView extends ViewBase {
@@ -9146,8 +10039,7 @@ export interface CreateServiceObjectWithAttachmentParam {
      * @param   {number}    maxItemsReturned   The maximum number of items the search operation should return.
      */
     constructor(startDate: DateTime, endDate: DateTime, maxItemsReturned: number);
-}
-/**
+}/**
  * Represents the view settings in a folder search operation.
  *
  * @sealed
@@ -9189,7 +10081,8 @@ export interface CreateServiceObjectWithAttachmentParam {
      * @param   {number}   offsetBasePoint   The base point of the offset.
      */
     constructor(pageSize: number, offset: number, offsetBasePoint: OffsetBasePoint);
-}/**
+}
+/**
  * Represents the results of an conversation search operation.
  *
  * @sealed
@@ -9211,7 +10104,8 @@ export interface CreateServiceObjectWithAttachmentParam {
      * Gets the indexed offset of the first conversation by the search operation.
      */
     IndexedOffset: number;
-}/**
+}
+/**
  * Represents the results of a folder search operation.
  *
  * @sealed
@@ -9237,7 +10131,8 @@ export interface CreateServiceObjectWithAttachmentParam {
      *  Returns an enumerator that iterates through the collection. this case this.items
      */
     GetEnumerator(): Folder[];
-}/**
+}
+/**
  * Represents the results of an item search operation.
  *
  * @sealed
@@ -9263,8 +10158,7 @@ export interface CreateServiceObjectWithAttachmentParam {
      * Gets a collection containing the highlight terms that were found by the search operation.
      */
     readonly HighlightTerms: HighlightTerm[];
-}
-/**
+}/**
  * Represents the view settings in a folder search operation.
  *
  * @sealed
@@ -9294,7 +10188,8 @@ export interface CreateServiceObjectWithAttachmentParam {
      * @param   {number}   offsetBasePoint   The base point of the offset.
      */
     constructor(pageSize: number, offset: number, offsetBasePoint: OffsetBasePoint);
-}/**
+}
+/**
  * Represents the results of an item search operation.
  *
  * @sealed
@@ -9319,7 +10214,8 @@ export interface CreateServiceObjectWithAttachmentParam {
      */
     readonly ItemGroups: ItemGroup<TItem>[];
     GetEnumerator(): any;
-}/**
+}
+/**
  * Represents grouping options in item search operations.
  *
  * @sealed
@@ -9361,12 +10257,12 @@ export interface CreateServiceObjectWithAttachmentParam {
      * Implements ISelfValidate.Validate. Validates this grouping.
      */
     Validate(): void;
-}
- class ItemGroup<TItem extends Item> {
+} class ItemGroup<TItem extends Item> {
     GroupIndex: string;
     Items: TItem[];
     constructor(groupIndex: string, items: TItem[]);
-}/**
+}
+/**
  * Represents the view settings in a folder search operation.
  *
  * @sealed
@@ -9401,8 +10297,7 @@ export interface CreateServiceObjectWithAttachmentParam {
      * @param   {number}   offsetBasePoint   The base point of the offset.
      */
     constructor(pageSize: number, offset: number, offsetBasePoint: OffsetBasePoint);
-}
- type PropertyDefinitionSortDirectionPair = KeyValuePair<PropertyDefinitionBase, SortDirection>;
+} type PropertyDefinitionSortDirectionPair = KeyValuePair<PropertyDefinitionBase, SortDirection>;
 /**
  * Represents an ordered collection of property definitions qualified with a sort direction.
  *
@@ -9441,7 +10336,8 @@ export interface CreateServiceObjectWithAttachmentParam {
      * @return  {boolean}                   True if collection contains property definition, otherwise false.
      */
     TryGetValue(propertyDefinition: PropertyDefinitionBase, sortDirection: IOutParam<SortDirection>): boolean;
-}/**
+}
+/**
  * Represents a view settings that support paging in a search operation.
  */
  abstract class PagedView extends ViewBase {    /**
@@ -9477,8 +10373,7 @@ export interface CreateServiceObjectWithAttachmentParam {
      * @param   {number}   offsetBasePoint   The base point of the offset.
      */
     constructor(pageSize: number, offset: number, offsetBasePoint: OffsetBasePoint);
-}
-/**
+}/**
  * Represents the view settings in a folder search operation.
  *
  * @sealed
@@ -9521,8 +10416,7 @@ export interface CreateServiceObjectWithAttachmentParam {
      * @param   {OffsetBasePoint}   offsetBasePoint   The base point of the offset.
      */
     constructor(condition: SearchFilter, pageSize: number, offsetBasePoint: OffsetBasePoint);
-}
-/**
+}/**
  * Represents the base view class for search operations.
  */
  abstract class ViewBase {    /**
@@ -9631,8 +10525,7 @@ export interface IExtendedPropertyDefinition {
     new (propertySet: DefaultExtendedPropertySet, id: number, mapiType: MapiPropertyType): ExtendedPropertyDefinition;
     new (propertySetId: Guid, name: string, mapiType: MapiPropertyType): ExtendedPropertyDefinition;
     new (propertySetId: Guid, id: number, mapiType: MapiPropertyType): ExtendedPropertyDefinition;
-}
-/**
+}/**
  * Represents an indexed property definition.
  */
  class IndexedPropertyDefinition extends ServiceObjectPropertyDefinition {
@@ -9662,8 +10555,7 @@ export interface IExtendedPropertyDefinition {
  */
 export interface IIndexedPropertyDefinition {
     new (uri: string, index: string): IndexedPropertyDefinition;
-}
-/**
+}/**
  * Represents the definition of a folder or item property.
  */
  abstract class PropertyDefinition extends ServiceObjectPropertyDefinition {
@@ -9677,8 +10569,7 @@ export interface IIndexedPropertyDefinition {
      * @value {ExchangeVersion} The version.
      */
     readonly Version: ExchangeVersion;
-}
-/**
+}/**
  * Represents the base class for all property definitions.
  */
  abstract class PropertyDefinitionBase {
@@ -9713,8 +10604,7 @@ export interface IIndexedPropertyDefinition {
      * @value {ExchangeVersion} The version.
      */
     readonly Version: ExchangeVersion;
-}
- class PhoneCall extends ComplexProperty {
+} class PhoneCall extends ComplexProperty {
     State: PhoneCallState;
     ConnectionFailureCause: ConnectionFailureCause;
     SIPResponseText: string;
@@ -9722,16 +10612,15 @@ export interface IIndexedPropertyDefinition {
     Disconnect(): any;
     LoadFromJson(jsonProperty: JsonObject, service: ExchangeService): any;
     Refresh(): any;
-}
- class PhoneCallId extends ComplexProperty {
+} class PhoneCallId extends ComplexProperty {
     Id: string;    InternalToJson(service: ExchangeService): any;
     LoadFromJson(jsonProperty: JsonObject, service: ExchangeService): any;
-} class UnifiedMessaging {    constructor(service: ExchangeService);
+}
+ class UnifiedMessaging {    constructor(service: ExchangeService);
     DisconnectPhoneCall(id: PhoneCallId): any;
     GetPhoneCallInformation(id: PhoneCallId): PhoneCall;
     PlayOnPhone(itemId: ItemId, dialString: string): PhoneCall;
-}
-/**
+}/**
  * Represents a change as returned by a synchronization operation.
  */
  abstract class Change {
@@ -9745,7 +10634,8 @@ export interface IIndexedPropertyDefinition {
      * Gets the type of the change.
      */
     ChangeType: ChangeType;
-}/**
+}
+/**
  * Represents a collection of changes as returned by a synchronization operation.
  *
  * @sealed
@@ -9775,8 +10665,7 @@ export interface IIndexedPropertyDefinition {
      *  Returns an enumerator that iterates through the collection. this case this.changes
      */
     GetEnumerator(): TChange[];
-}
-/**
+}/**
  * Represents a change on a folder as returned by a synchronization operation.
  *
  * @sealed
@@ -9790,8 +10679,7 @@ export interface IIndexedPropertyDefinition {
      * Gets the Id of the folder the change applies to.
      */
     readonly FolderId: FolderId;
-}
-/**
+}/**
  * Represents a change on an item as returned by a synchronization operation.
  *
  * @sealed
@@ -9808,7 +10696,8 @@ export interface IIndexedPropertyDefinition {
      * Gets the Id of the item the change applies to.
      */
     readonly ItemId: ItemId;
-}/**
+}
+/**
  * Indicates which occurrence of a recurring task should be deleted
  */
  enum AffectedTaskOccurrence {
@@ -9820,7 +10709,8 @@ export interface IIndexedPropertyDefinition {
      * Only the current occurrence of the recurring task will be deleted.
      */
     SpecifiedOccurrenceOnly = 1
-}/**
+}
+/**
  * Defines the type of aggregation to perform.
  */
  enum AggregateType {
@@ -9832,7 +10722,8 @@ export interface IIndexedPropertyDefinition {
      * The minimum value is calculated.
      */
     Maximum = 1
-}/**
+}
+/**
  * Defines the type of an appointment.
  */
  enum AppointmentType {
@@ -9916,7 +10807,8 @@ export interface IIndexedPropertyDefinition {
      * Return both free/busy data and suggestions.
      */
     FreeBusyAndSuggestions = 2
-}/**
+}
+/**
  * Defines base property sets that are used as the base for custom property sets.
  */
  enum BasePropertySet {
@@ -9928,7 +10820,8 @@ export interface IIndexedPropertyDefinition {
      * Includes all the first class properties of items and folders.
      */
     FirstClassProperties = 1
-}/**
+}
+/**
  * Defines the type of body of an item.
  */
  enum BodyType {
@@ -9940,7 +10833,8 @@ export interface IIndexedPropertyDefinition {
      * The body is in plain text.
      */
     Text = 1
-}/**
+}
+/**
  * Defines the type of change of a synchronization event.
  */
  enum ChangeType {
@@ -9960,7 +10854,8 @@ export interface IIndexedPropertyDefinition {
      * An item's IsRead flag was changed.
      */
     ReadFlagChange = 3
-}/**
+}
+/**
  * Defines the type of ClientAccessTokenType
  */
  enum ClientAccessTokenType {
@@ -9976,7 +10871,8 @@ export interface IIndexedPropertyDefinition {
      * ScopedToken
      */
     ScopedToken = 2
-}/**
+}
+/**
  * Defines the type of ClientExtensionProvidedTo.
  */
  enum ClientExtensionProvidedTo {
@@ -9988,7 +10884,8 @@ export interface IIndexedPropertyDefinition {
      * SpecificUsers
      */
     SpecificUsers = 1
-}/**
+}
+/**
  * Defines the way values are compared in search filters.
  */
  enum ComparisonMode {
@@ -10008,7 +10905,8 @@ export interface IIndexedPropertyDefinition {
      * The comparison ignores casing and spacing characters.
      */
     IgnoreCaseAndNonSpacingCharacters = 3
-}/**
+}
+/**
  * Defines how conflict resolutions are handled in update operations.
  */
  enum ConflictResolutionMode {
@@ -10024,7 +10922,8 @@ export interface IIndexedPropertyDefinition {
      * Local property changes overwrite server-side changes.
      */
     AlwaysOverwrite = 2
-}/**
+}
+/**
  * Defines the conflict types that can be returned in meeting time suggestions.
  */
  enum ConflictType {
@@ -10044,7 +10943,8 @@ export interface IIndexedPropertyDefinition {
      * There is a conflict with an unresolvable attendee or an attendee that is not a user, group, or contact.
      */
     UnknownAttendeeConflict = 3
-}/**
+}
+/**
  * Defines the type of Id of a ConnectingId object.
  */
  enum ConnectingIdType {
@@ -10060,7 +10960,8 @@ export interface IIndexedPropertyDefinition {
      * The Id is an SMTP address.
      */
     SmtpAddress = 2
-}/**
+}
+/**
  * The ConnectionFailureCause enumeration
  */
  enum ConnectionFailureCause {
@@ -10084,7 +10985,8 @@ export interface IIndexedPropertyDefinition {
      * Other
      */
     Other = 4
-}/**
+}
+/**
  * The consent states enumeration
  */
  enum ConsentState {
@@ -10100,7 +11002,8 @@ export interface IIndexedPropertyDefinition {
      * User has requested to enable the extension.
      */
     Consented = 2
-}/**
+}
+/**
  * Defines the source of a contact or group.
  */
  enum ContactSource {
@@ -10112,7 +11015,8 @@ export interface IIndexedPropertyDefinition {
      * The contact or group is stored in Exchange.
      */
     Store = 1
-}/**
+}
+/**
  * Defines the containment mode for Contains search filters.
  */
  enum ContainmentMode {
@@ -10152,7 +11056,8 @@ export interface IIndexedPropertyDefinition {
      * Complete
      */
     Complete = 2
-}/**
+}
+/**
  * Defines the folder traversal depth in queries.
  */
  enum ConversationQueryTraversal {
@@ -10167,7 +11072,8 @@ export interface IIndexedPropertyDefinition {
 } module ConversationQueryTraversal {
     /**RequiredServerVersionAttribute */
     function RequiredServerVersion(value: ConversationQueryTraversal): ExchangeVersion;
-}/**
+}
+/**
  * Defines the order in which conversation nodes should be returned by GetConversationItems.
  */
  enum ConversationSortOrder {
@@ -10187,7 +11093,8 @@ export interface IIndexedPropertyDefinition {
      * Chronological order, descending.
      */
     DateOrderDescending = 3
-}/**
+}
+/**
  * Defines the precision for returned DateTime values
  */
  enum DateTimePrecision {
@@ -10203,7 +11110,8 @@ export interface IIndexedPropertyDefinition {
      * Milliseconds
      */
     Milliseconds = 2
-}/**
+}
+/**
  * Specifies the day of the week.
  *
  * /remarks/    For the standard days of the week (Sunday, Monday...) the DayOfTheWeek enum value is the same as the System.DayOfWeek enum type.
@@ -10250,7 +11158,8 @@ export interface IIndexedPropertyDefinition {
      * Any weekend day (Saturday or Sunday)
      */
     WeekendDay = 9
-}/**
+}
+/**
  * Defines the index of a week day within a month.
  */
  enum DayOfTheWeekIndex {
@@ -10274,7 +11183,8 @@ export interface IIndexedPropertyDefinition {
      * The last specific day of the week in the month. For example, the last Tuesday of the month.
      */
     Last = 4
-}/**
+}
+/**
  * Enum for the day of the week.
  * System.DayOfWeek
  */
@@ -10307,7 +11217,8 @@ export interface IIndexedPropertyDefinition {
      * Saturday
      */
     Saturday = 6
-}/**
+}
+/**
  * Defines the default sets of extended properties.
  */
  enum DefaultExtendedPropertySet {
@@ -10347,7 +11258,8 @@ export interface IIndexedPropertyDefinition {
      * The Task extended property set.
      */
     Task = 8
-}/**
+}
+/**
  *
  */
  enum DelegateFolderPermissionLevel {
@@ -10371,7 +11283,8 @@ export interface IIndexedPropertyDefinition {
      * The delegate has Custom permissions.
      */
     Custom = 4
-}/**
+}
+/**
  * Represents deletion modes.
  */
  enum DeleteMode {
@@ -10387,12 +11300,14 @@ export interface IIndexedPropertyDefinition {
      * The item or folder will be moved to the mailbox' Deleted Items folder.
      */
     MoveToDeletedItems = 2
-} enum DictionaryKeyType {
+}
+ enum DictionaryKeyType {
     EmailAddressKey = 0,
     ImAddressKey = 1,
     PhoneNumberKey = 2,
     PhysicalAddressKey = 3
-}/**
+}
+/**
  * Disable reason type
  */
  enum DisableReasonType {
@@ -10425,7 +11340,8 @@ export interface IIndexedPropertyDefinition {
      * The version of the Exchange server hosting the URL of the Exchange Web Services.
      */
     ExternalEwsVersion = 1
-}/**
+}
+/**
  * Defines the effective user rights associated with an item or folder.
  *
  * [Flags]
@@ -10463,7 +11379,8 @@ export interface IIndexedPropertyDefinition {
      * The user can view private items.
      */
     ViewPrivateItems = 64
-}/**
+}
+/**
  * Defines the folder type of a retention policy tag.
  */
  enum ElcFolderType {
@@ -10544,7 +11461,8 @@ export interface IIndexedPropertyDefinition {
      * Non IPM Subtree root.
      */
     NonIpmRoot = 19
-}/**
+}
+/**
  * Defines e-mail address entries for a contact.
  */
  enum EmailAddressKey {
@@ -10560,7 +11478,8 @@ export interface IIndexedPropertyDefinition {
      * The third e-mail address.
      */
     EmailAddress3 = 2
-}/**
+}
+/**
  * Defines the email position of an extracted entity.
  */
  enum EmailPosition {
@@ -10580,7 +11499,8 @@ export interface IIndexedPropertyDefinition {
      * The position is in the signature.
      */
     Signature = 3
-}/**custom created to simplify creation of above Enum(s) to ExchangeVersion mapping in EwsUtil, There is no c# like Attribute typesystem and reflection available */
+}
+/**custom created to simplify creation of above Enum(s) to ExchangeVersion mapping in EwsUtil, There is no c# like Attribute typesystem and reflection available */
  enum EnumToSchemaMappingHelper {
     WellKnownFolderName = 0,
     /**Item Traversal */
@@ -10591,7 +11511,8 @@ export interface IIndexedPropertyDefinition {
     MeetingRequestsDeliveryScope = 5,
     ViewFilter = 6,
     MailboxType = 7
-}/**
+}
+/**
  * Defines the types of event that can occur in a folder.
  */
  enum EventType {
@@ -10634,7 +11555,8 @@ export interface IIndexedPropertyDefinition {
     function FromEwsEnumString(value: string): EventType;
     /**EwsEnumAttribute */
     function ToEwsEnumString(value: EventType): string;
-}/**
+}
+/**
  * Defines the each available Exchange release version
  */
  enum ExchangeVersion {
@@ -10676,7 +11598,8 @@ export interface IIndexedPropertyDefinition {
     V2015_10_05 = 8,
     /** internal tracking of any version not updated in **ews-javascript-api** */
     Exchange_Version_Not_Updated = 15000
-}/**
+}
+/**
  * Defines the type of ExtensionInstallScope.
  */
  enum ExtensionInstallScope {
@@ -10696,7 +11619,8 @@ export interface IIndexedPropertyDefinition {
      * Exchange Default
      */
     Default = 3
-}/**
+}
+/**
  * Defines the type of ExtensionType.
  */
  enum ExtensionType {
@@ -10712,7 +11636,8 @@ export interface IIndexedPropertyDefinition {
      * MarketPlace
      */
     MarketPlace = 2
-}/**
+}
+/**
  * Defines the way the FileAs property of a contact is automatically formatted.
  */
  enum FileAsMapping {
@@ -10795,7 +11720,8 @@ export interface IIndexedPropertyDefinition {
     function FromEwsEnumString(value: string): FileAsMapping;
     /**EwsEnumAttribute */
     function ToEwsEnumString(value: FileAsMapping): string;
-}/**
+}
+/**
  * Defines the follow-up actions that may be stamped on a message.
  */
  enum FlaggedForAction {
@@ -10843,7 +11769,8 @@ export interface IIndexedPropertyDefinition {
      * The recipient is requested to review the message.
      */
     Review = 10
-}/**
+}
+/**
  * Defines permission levels for calendar folders.
  */
  enum FolderPermissionLevel {
@@ -10895,7 +11822,8 @@ export interface IIndexedPropertyDefinition {
      * The Custom level.
      */
     Custom = 11
-}/**
+}
+/**
  * Defines a user's read access permission on items in a non-calendar folder.
  */
  enum FolderPermissionReadAccess {
@@ -10915,7 +11843,8 @@ export interface IIndexedPropertyDefinition {
      * The user has access to the full details of items.
      */
     FullDetails = 3
-}/**
+}
+/**
  * Defines the scope of FindFolders operations.
  */
  enum FolderTraversal {
@@ -10931,7 +11860,8 @@ export interface IIndexedPropertyDefinition {
      * Only soft deleted folders are retrieved.
      */
     SoftDeleted = 2
-}/**
+}
+/**
  * Defines the type of free/busy information returned by a GetUserAvailability operation.
  */
  enum FreeBusyViewType {
@@ -10965,8 +11895,7 @@ export interface IIndexedPropertyDefinition {
      * Otherwise, FreeBusyMerged or DetailedMerged will be returned.
      */
     DetailedMerged = 5
-}
-/**
+}/**
  * Defines the response types from a GetUserPhoto request
  */
  enum GetUserPhotoStatus {
@@ -10998,7 +11927,8 @@ export interface IIndexedPropertyDefinition {
      * Release the hold
      */
     Remove = 2
-}/**
+}
+/**
  * Defines the hold status.
  */
  enum HoldStatus {
@@ -11022,8 +11952,7 @@ export interface IIndexedPropertyDefinition {
      * The hold operation failed
      */
     Failed = 4
-}
-/**
+}/**
  * The values indicate the types of item icons to display.
  */
  enum IconIndex {
@@ -11171,7 +12100,8 @@ export interface IIndexedPropertyDefinition {
      * Icon task delegated
      */
     TaskDelegated = 35
-}/**
+}
+/**
  * Defines supported Id formats in ConvertId operations.
  */
  enum IdFormat {
@@ -11199,7 +12129,8 @@ export interface IIndexedPropertyDefinition {
      * The Outlook Web Access Id format.
      */
     OwaId = 5
-}/**
+}
+/**
  * Defines Instant Messaging address entries for a contact.
  */
  enum ImAddressKey {
@@ -11215,7 +12146,8 @@ export interface IIndexedPropertyDefinition {
      * The third Instant Messaging address.
      */
     ImAddress3 = 2
-}/**
+}
+/**
  * Defines the importance of an item.
  */
  enum Importance {
@@ -11231,7 +12163,8 @@ export interface IIndexedPropertyDefinition {
      * High importance.
      */
     High = 2
-}/**
+}
+/**
  * Defines the flag status of an Item.
  */
  enum ItemFlagStatus {
@@ -11247,7 +12180,8 @@ export interface IIndexedPropertyDefinition {
      * Complete.
      */
     Complete = 2
-}/**
+}
+/**
  * Item index error
  */
  enum ItemIndexError {
@@ -11279,7 +12213,8 @@ export interface IIndexedPropertyDefinition {
      * Data is truncated
      */
     MarsWriterTruncation = 6
-}/**
+}
+/**
  * Defines the scope of FindItems operations.
  */
  enum ItemTraversal {
@@ -11298,7 +12233,8 @@ export interface IIndexedPropertyDefinition {
 } module ItemTraversal {
     /**RequiredServerVersionAttribute */
     function RequiredServerVersion(value: ItemTraversal): ExchangeVersion;
-} enum JsonTokenType {
+}
+ enum JsonTokenType {
     String = 0,
     Number = 1,
     Boolean = 2,
@@ -11310,7 +12246,8 @@ export interface IIndexedPropertyDefinition {
     Colon = 8,
     Comma = 9,
     EndOfFile = 10
-}/**
+}
+/**
  * Defines the legacy free/busy status associated with an appointment.
  */
  enum LegacyFreeBusyStatus {
@@ -11338,7 +12275,8 @@ export interface IIndexedPropertyDefinition {
      * No free/busy status is associated with the appointment.
      */
     NoData = 5
-}/**
+}
+/**
  * Online Meeting Lobby Bypass options.
  */
  enum LobbyBypass {
@@ -11350,7 +12288,8 @@ export interface IIndexedPropertyDefinition {
      * Enabled for gateway participants.
      */
     EnabledForGatewayParticipants = 1
-}/**
+}
+/**
  * Source of resolution.
  */
  enum LocationSource {
@@ -11378,7 +12317,8 @@ export interface IIndexedPropertyDefinition {
      * Sourced from a resource (such as a conference room)
      */
     Resource = 5
-}/**
+}
+/**
  * Defines a logical operator as used by search filter collections.
  */
  enum LogicalOperator {
@@ -11390,7 +12330,8 @@ export interface IIndexedPropertyDefinition {
      * The OR operator.
      */
     Or = 1
-}/**
+}
+/**
  * Defines the location for mailbox search.
  */
  enum MailboxSearchLocation {
@@ -11452,7 +12393,8 @@ export interface IIndexedPropertyDefinition {
     function FromEwsEnumString(value: string): MailboxType;
     /**EwsEnumAttribute */
     function ToEwsEnumString(value: MailboxType): string;
-}/**
+}
+/**
  * Defines the MAPI type of an extended property.
  */
  enum MapiPropertyType {
@@ -11564,7 +12506,8 @@ export interface IIndexedPropertyDefinition {
      * The property is of type StringArray.
      */
     StringArray = 26
-}/** shim to store type of data in MapiTypeConverterMapEntry */
+}
+/** shim to store type of data in MapiTypeConverterMapEntry */
  enum MapiTypeConverterTypeSystem {
     boolean = 0,
     string = 1,
@@ -11572,7 +12515,8 @@ export interface IIndexedPropertyDefinition {
     DateTime = 3,
     guid = 4,
     byteArray = 5
-}/**
+}
+/**
  * The attendee is the organizer of the meeting.
  */
  enum MeetingAttendeeType {
@@ -11596,7 +12540,8 @@ export interface IIndexedPropertyDefinition {
      * The attendee is a resource.
      */
     Resource = 4
-}/**
+}
+/**
  * Defines the type of a meeting request.
  */
  enum MeetingRequestType {
@@ -11628,7 +12573,8 @@ export interface IIndexedPropertyDefinition {
      * The meeting update was forwarded to a delegate, and this copy is informational.
      */
     PrincipalWantsCopy = 6
-}/**
+}
+/**
  * Defines how meeting requests are sent to delegates.
  */
  enum MeetingRequestsDeliveryScope {
@@ -11651,7 +12597,8 @@ export interface IIndexedPropertyDefinition {
 } module MeetingRequestsDeliveryScope {
     /**RequiredServerVersionAttribute */
     function RequiredServerVersion(value: MeetingRequestsDeliveryScope): ExchangeVersion;
-}/**
+}
+/**
  * Defines the types of response given to a meeting request.
  */
  enum MeetingResponseType {
@@ -11679,7 +12626,8 @@ export interface IIndexedPropertyDefinition {
      * No response was received for the meeting.
      */
     NoResponseReceived = 5
-}/**
+}
+/**
  * Defines the status of group members.
  */
  enum MemberStatus {
@@ -11695,7 +12643,8 @@ export interface IIndexedPropertyDefinition {
      * The member is demoted.
      */
     Demoted = 2
-}/**
+}
+/**
  * Defines how messages are disposed of in CreateItem and UpdateItem operations.
  */
  enum MessageDisposition {
@@ -11711,7 +12660,8 @@ export interface IIndexedPropertyDefinition {
      * Messages are sent but no copy is saved.
      */
     SendOnly = 2
-}/**
+}
+/**
  * Defines months of the year.
  */
  enum Month {
@@ -11763,7 +12713,8 @@ export interface IIndexedPropertyDefinition {
      * December.
      */
     December = 12
-}/**
+}
+/**
  * Defines the offset's base point in a paged view.
  */
  enum OffsetBasePoint {
@@ -11775,7 +12726,8 @@ export interface IIndexedPropertyDefinition {
      * The offset is from the end of the view.
      */
     End = 1
-}/**
+}
+/**
  * Online Meeting Access Level options.
  */
  enum OnlineMeetingAccessLevel {
@@ -11795,7 +12747,8 @@ export interface IIndexedPropertyDefinition {
      * Everyone.
      */
     Everyone = 3
-}/**
+}
+/**
  * Defines the external audience of an Out of Office notification.
  */
  enum OofExternalAudience {
@@ -11811,7 +12764,8 @@ export interface IIndexedPropertyDefinition {
      * All recipients should receive Out of Office notifications.
      */
     All = 2
-}/**
+}
+/**
  * Defines a user's Out of Office Assistant status.
  */
  enum OofState {
@@ -11843,7 +12797,8 @@ export interface IIndexedPropertyDefinition {
      * The user has the associated permission on all items.
      */
     All = 2
-}/**
+}
+/**
  * The PhoneCallState enumeration
  */
  enum PhoneCallState {
@@ -11879,7 +12834,8 @@ export interface IIndexedPropertyDefinition {
      * Forwarding.
      */
     Forwarding = 7
-}/**
+}
+/**
  * Defines phone number entries for a contact.
  */
  enum PhoneNumberKey {
@@ -11959,7 +12915,8 @@ export interface IIndexedPropertyDefinition {
      * The TTY/TTD phone number.
      */
     TtyTddPhone = 18
-}/**
+}
+/**
  * Defines a physical address index.
  */
  enum PhysicalAddressIndex {
@@ -11979,7 +12936,8 @@ export interface IIndexedPropertyDefinition {
      * The alternate address.
      */
     Other = 3
-}/**
+}
+/**
  * Defines physical address entries for a contact.
  */
  enum PhysicalAddressKey {
@@ -11995,7 +12953,8 @@ export interface IIndexedPropertyDefinition {
      * An alternate address.
      */
     Other = 2
-}/**
+}
+/**
  * Online Meeting Presenters options.
  */
  enum Presenters {
@@ -12011,7 +12970,8 @@ export interface IIndexedPropertyDefinition {
      * Everyone.
      */
     Everyone = 2
-}/**
+}
+/**
  * Preview item base shape
  */
  enum PreviewItemBaseShape {
@@ -12035,7 +12995,8 @@ export interface IIndexedPropertyDefinition {
      * Javascript Object Notation
      */
     JSON = 1
-}/**
+}
+/**
  * Defines the location where a ResolveName operation searches for contacts.
  */
  enum ResolveNameSearchLocation {
@@ -12055,7 +13016,8 @@ export interface IIndexedPropertyDefinition {
      * The name is resolved against the Contacts folder and then against the Global Address List if no match was found.
      */
     ContactsThenDirectory = 3
-}/**
+}
+/**
  * Defines the response actions that can be taken on an item.
  *
  * [Flags]
@@ -12105,7 +13067,8 @@ export interface IIndexedPropertyDefinition {
      * A reply to the item can be posted.
      */
     PostReply = 512
-}/**
+}
+/**
  * Defines the type of a ResponseMessage object.
  */
  enum ResponseMessageType {
@@ -12121,7 +13084,8 @@ export interface IIndexedPropertyDefinition {
      * The ResponseMessage is a forward.
      */
     Forward = 2
-}/**
+}
+/**
  * Defines the action of a retention policy tag.
  */
  enum RetentionActionType {
@@ -12153,7 +13117,8 @@ export interface IIndexedPropertyDefinition {
      * Expired items will be moved to the archive.
      */
     MoveToArchive = 6
-}/**
+}
+/**
  * Defines the retention type.
  */
  enum RetentionType {
@@ -12165,7 +13130,8 @@ export interface IIndexedPropertyDefinition {
      * Archive retention.
      */
     Archive = 1
-}/**
+}
+/**
  * Defines the error codes identifying why a rule failed validation.
  */
  enum RuleErrorCode {
@@ -12267,7 +13233,8 @@ export interface IIndexedPropertyDefinition {
      * The rule is not supported.
      */
     UnsupportedRule = 23
-}/**
+}
+/**
  * Defines the available properties of a rule.
  */
  enum RuleProperty {
@@ -12641,7 +13608,8 @@ export interface IIndexedPropertyDefinition {
     function FromEwsEnumString(value: string): RuleProperty;
     /**EwsEnumAttribute */
     function ToEwsEnumString(value: RuleProperty): string;
-}/**
+}
+/**
  * Defines the scope of a search folder.
  */
  enum SearchFolderTraversal {
@@ -12653,7 +13621,8 @@ export interface IIndexedPropertyDefinition {
      * Items belonging to the root folder and its sub-folders are retrieved.
      */
     Deep = 1
-}/**
+}
+/**
  * Defines the page direction for mailbox search.
  */
  enum SearchPageDirection {
@@ -12665,7 +13634,8 @@ export interface IIndexedPropertyDefinition {
      * Navigate to previous page.
      */
     Previous = 1
-}/**
+}
+/**
  * Defines the type of search result.
  */
  enum SearchResultType {
@@ -12677,7 +13647,8 @@ export interface IIndexedPropertyDefinition {
      * Preview only.
      */
     PreviewOnly = 1
-}/**
+}
+/**
  * Defines how meeting cancellations should be sent to attendees when an appointment is deleted.
  */
  enum SendCancellationsMode {
@@ -12693,7 +13664,8 @@ export interface IIndexedPropertyDefinition {
      * Meeting cancellations are sent to all attendees and a copy of the cancellation message is saved in the organizer's Sent Items folder.
      */
     SendToAllAndSaveCopy = 2
-}/**
+}
+/**
  * Defines if/how meeting invitations are sent.
  */
  enum SendInvitationsMode {
@@ -12709,7 +13681,8 @@ export interface IIndexedPropertyDefinition {
      * Meeting invitations are sent to all attendees and a copy of the invitation message is saved.
      */
     SendToAllAndSaveCopy = 2
-}/**
+}
+/**
  * Defines if/how meeting invitations or cancellations should be sent to attendees when an appointment is updated.
  */
  enum SendInvitationsOrCancellationsMode {
@@ -12733,7 +13706,8 @@ export interface IIndexedPropertyDefinition {
      * Meeting invitations/cancellations are sent only to attendees that have been added or modified and a copy is saved in the organizer's Sent Items folder.
      */
     SendToChangedAndSaveCopy = 4
-}/**
+}
+/**
  * The values indicate the types of item icons to display.
  */
  enum SendPrompt {
@@ -12749,7 +13723,8 @@ export interface IIndexedPropertyDefinition {
      * VotingOption
      */
     VotingOption = 2
-}/**
+}
+/**
  * Defines the sensitivity of an item.
  */
  enum Sensitivity {
@@ -12769,7 +13744,8 @@ export interface IIndexedPropertyDefinition {
      * The item is confidential.
      */
     Confidential = 3
-}/**
+}
+/**
  * Defines the error codes that can be returned by the Exchange Web Services.
  */
  enum ServiceError {
@@ -14731,7 +15707,8 @@ export interface IIndexedPropertyDefinition {
      * Data represents a persona
      */
     Persona = 3
-}/**
+}
+/**
  * Defines the result of a call to an EWS method.
  * Values in this enumeration have to be ordered from lowest to highest severity.
  */
@@ -14748,7 +15725,8 @@ export interface IIndexedPropertyDefinition {
      * The call triggered at least one error
      */
     Error = 2
-}/**
+}
+/**
  * Defines the type of SetClientExtensionActionId.
  */
  enum SetClientExtensionActionId {
@@ -14764,7 +15742,8 @@ export interface IIndexedPropertyDefinition {
      * Configure
      */
     Configure = 2
-}/**
+}
+/**
  * Defines a sort direction
  */
  enum SortDirection {
@@ -14776,7 +15755,8 @@ export interface IIndexedPropertyDefinition {
      * The sort is performed in descending order.
      */
     Descending = 1
-}/**
+}
+/**
  * Defines a standard delegate user.
  */
  enum StandardUser {
@@ -14788,7 +15768,8 @@ export interface IIndexedPropertyDefinition {
      * The Anonymous delegate user, used to define delegate permissions for unauthenticated users.
      */
     Anonymous = 1
-}/**
+}
+/**
  * Defines the quality of an availability suggestion.
  */
  enum SuggestionQuality {
@@ -14808,7 +15789,8 @@ export interface IIndexedPropertyDefinition {
      * The suggestion is poor.
      */
     Poor = 3
-}/**
+}
+/**
  * Determines items to be included in a SyncFolderItems response.
  */
  enum SyncFolderItemsScope {
@@ -14820,7 +15802,8 @@ export interface IIndexedPropertyDefinition {
      * Include normal and associated items in the response.
      */
     NormalAndAssociatedItems = 1
-}/**
+}
+/**
  * This maps to the bogus TaskDelegationState in the EWS schema.
  * The schema enum has 6 values, but EWS should never return anything but values between 0 and 3, so we should be safe without mappings for EWS's Declined and Max values
  */
@@ -14841,7 +15824,8 @@ export interface IIndexedPropertyDefinition {
      * The task was delegated but the delegation was declined.
      */
     Declined = 3
-}/**
+}
+/**
  * Defines the modes of a Task.
  */
  enum TaskMode {
@@ -14869,7 +15853,8 @@ export interface IIndexedPropertyDefinition {
      * The task is self delegated
      */
     SelfDelegated = 5
-}/**
+}
+/**
  * Defines the execution status of a task.
  */
  enum TaskStatus {
@@ -14893,7 +15878,8 @@ export interface IIndexedPropertyDefinition {
      * The execution of the task is deferred.
      */
     Deferred = 4
-}/**
+}
+/**
  * TeamMailbox lifecycle state
  */
  enum TeamMailboxLifecycleState {
@@ -14919,7 +15905,8 @@ export interface IIndexedPropertyDefinition {
     function FromEwsEnumString(value: string): TeamMailboxLifecycleState;
     /**EwsEnumAttribute */
     function ToEwsEnumString(value: TeamMailboxLifecycleState): string;
-}/**
+}
+/**
  * Defines flags to control tracing details
  *
  * [Flags]
@@ -14977,7 +15964,8 @@ export interface IIndexedPropertyDefinition {
      * All trace types enabled.
      */
     All = 9223372036854776000
-}/**
+}
+/**
  * Identifies the user configuration dictionary key and value types.
  */
  enum UserConfigurationDictionaryObjectType {
@@ -15021,7 +16009,8 @@ export interface IIndexedPropertyDefinition {
      * Byte array type
      */
     ByteArray = 9
-}/**
+}
+/**
  * Identifies the user configuration properties to retrieve.
  *
  * [Flags]
@@ -15047,7 +16036,8 @@ export interface IIndexedPropertyDefinition {
      * Retrieve all properties.
      */
     All = 15
-}/**
+}
+/**
  * User settings that can be requested using GetUserSettings.
  *
  * /remarks/  Add new values to the end and keep in sync with Microsoft.Exchange.Autodiscover.ConfigurationSettings.UserConfigurationSettingName.
@@ -15453,7 +16443,8 @@ export interface IIndexedPropertyDefinition {
      * External OutlookService URL
      */
     ExternalOutlookServiceUrl = 99
-}/**
+}
+/**
  * Defines the view filter for queries.
  */
  enum ViewFilter {
@@ -15504,7 +16495,8 @@ export interface IIndexedPropertyDefinition {
 } module ViewFilter {
     /**RequiredServerVersionAttribute */
     function RequiredServerVersion(value: ViewFilter): ExchangeVersion;
-}/**
+}
+/**
  * The values in this enumeration must match the values of the DistinguishedFolderIdNameType type in the schema.
  */
  enum WellKnownFolderName {
@@ -15688,7 +16680,8 @@ export interface IIndexedPropertyDefinition {
 } module WellKnownFolderName {
     /**RequiredServerVersionAttribute */
     function RequiredServerVersion(value: WellKnownFolderName): ExchangeVersion;
-} class AutodiscoverRequest {
+}
+ class AutodiscoverRequest {
     readonly Service: AutodiscoverService;
     readonly Url: Uri;
     constructor(service: AutodiscoverService, url: Uri);    CreateServiceResponse(): AutodiscoverResponse;
@@ -15701,7 +16694,8 @@ export interface IIndexedPropertyDefinition {
     LoadFromObject(obj: any): AutodiscoverResponse;
     ProcessWebException(webException: XMLHttpRequest): void;
     Validate(): void;
-} class GetDomainSettingsRequest extends AutodiscoverRequest {    Domains: string[];
+}
+ class GetDomainSettingsRequest extends AutodiscoverRequest {    Domains: string[];
     Settings: DomainSettingName[];
     RequestedVersion: ExchangeVersion;    constructor(service: AutodiscoverService, url: Uri);
     CreateServiceResponse(): AutodiscoverResponse;
@@ -15711,8 +16705,7 @@ export interface IIndexedPropertyDefinition {
     GetWsAddressingActionName(): string;
     PostProcessResponses(responses: GetDomainSettingsResponseCollection): any;
     Validate(): void;
-}
- class GetUserSettingsRequest extends AutodiscoverRequest {
+} class GetUserSettingsRequest extends AutodiscoverRequest {
     static GetUserSettingsActionUri: string;
     SmtpAddresses: string[];
     Settings: UserSettingName[];
@@ -15725,12 +16718,14 @@ export interface IIndexedPropertyDefinition {
     GetWsAddressingActionName(): string;
     PostProcessResponses(responses: GetUserSettingsResponseCollection): void;
     Validate(): void;
-} class AutodiscoverResponse {
+}
+ class AutodiscoverResponse {
     ErrorCode: AutodiscoverErrorCode;
     ErrorMessage: string;
     RedirectionUrl: Uri;
     LoadFromJson(obj: any): void;
-} class GetDomainSettingsResponse extends AutodiscoverResponse {
+}
+ class GetDomainSettingsResponse extends AutodiscoverResponse {
     Domain: string;
     RedirectTarget: string;
     Settings: {
@@ -15741,12 +16736,12 @@ export interface IIndexedPropertyDefinition {
     LoadDomainSettingsFromJson(obj: any): void;
     LoadFromJson(obj: any): void;
     ReadSettingFromJson(obj: any): void;
-} class GetDomainSettingsResponseCollection extends AutodiscoverResponseCollection<GetDomainSettingsResponse> {
+}
+ class GetDomainSettingsResponseCollection extends AutodiscoverResponseCollection<GetDomainSettingsResponse> {
     CreateResponseInstance(): GetDomainSettingsResponse;
     GetResponseCollectionXmlElementName(): string;
     GetResponseInstanceXmlElementName(): string;
-}
- class GetUserSettingsResponse extends AutodiscoverResponse {
+} class GetUserSettingsResponse extends AutodiscoverResponse {
     SmtpAddress: string;
     RedirectTarget: string;
     Settings: {
@@ -15759,11 +16754,13 @@ export interface IIndexedPropertyDefinition {
     LoadUserSettingsFromJson(obj: any): void;
     ReadSettingFromJson(obj: any): void;
     GetSettingValue<T>(setting: UserSettingName): T;
-} class GetUserSettingsResponseCollection extends AutodiscoverResponseCollection<GetUserSettingsResponse> {
+}
+ class GetUserSettingsResponseCollection extends AutodiscoverResponseCollection<GetUserSettingsResponse> {
     CreateResponseInstance(): GetUserSettingsResponse;
     GetResponseCollectionXmlElementName(): string;
     GetResponseInstanceXmlElementName(): string;
-}/**
+}
+/**
  * Represents the base abstract class for all item and folder types.
  */
  abstract class ServiceObject {    /** workaround for service variable exposer in console.log */
@@ -15817,7 +16814,8 @@ export interface IIndexedPropertyDefinition {
      * @return  {boolean}                 True if property retrieved, false otherwise.
      */
     TryGetProperty<T>(propertyDefinition: PropertyDefinitionBase, propertyValue: IOutParam<T>): boolean;
-}/**
+}
+/**
  * Moved part of CreateEwsObjectFromXmlElementName to different object type like FolderInfo, itemInfo etc
  */
  class ServiceObjectInfo {
@@ -15829,18 +16827,19 @@ export interface IIndexedPropertyDefinition {
     CreateEwsObjectFromXmlElementName<TServiceObject extends ServiceObject>(service: ExchangeService, xmlElementName: string): TServiceObject;
     CreateItemFromItemClass(itemAttachment: ItemAttachment, itemClass: string, isNew: boolean): Item;
     static IsFolderType(xmlElementName: string): boolean;
-}
- class ArchiveItemResponse extends ServiceResponse {
+} class ArchiveItemResponse extends ServiceResponse {
     Item: Item;    GetObjectInstance(service: ExchangeService, xmlElementName: string): Item;
     ReadElementsFromJson(responseObject: any, service: ExchangeService): any;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-} class AttendeeAvailability extends ServiceResponse {
+}
+ class AttendeeAvailability extends ServiceResponse {
     readonly CalendarEvents: CalendarEvent[];
     readonly ViewType: FreeBusyViewType;
     readonly MergedFreeBusyStatus: LegacyFreeBusyStatus[];
     readonly WorkingHours: WorkingHours;
     LoadFreeBusyViewFromXmlJsObject(jsObject: any, viewType: FreeBusyViewType, service: ExchangeService): void;
-}/**
+}
+/**
  * Represents the response to an individual Id conversion operation.
  *
  * @sealed
@@ -15849,27 +16848,35 @@ export interface IIndexedPropertyDefinition {
      * Gets the converted Id.
      */
     readonly ConvertedId: AlternateIdBase;
-}/**
- * ## *Not Implemented*
+}
+/**
+ * Represents the response to an individual attachment creation operation.
+ * @sealed
  */
- class CreateAttachmentResponse extends ServiceResponse {
-    Attachment: Attachment;    ReadElementsFromJson(responseObject: JsonObject, service: ExchangeService): any;
-} class CreateFolderResponse extends ServiceResponse {    constructor(folder: Folder);
+ class CreateAttachmentResponse extends ServiceResponse {    /**
+     * Gets the attachment that was created.
+     */
+    readonly Attachment: Attachment;
+    /**
+     * Initializes a new instance of the **CreateAttachmentResponse** class.
+     *
+     * @param   {Attachment}   attachment   The attachment.
+     */
+    constructor(attachment: Attachment);
+}
+ class CreateFolderResponse extends ServiceResponse {    constructor(folder: Folder);
     GetObjectInstance(service: ExchangeService, xmlElementName: string): Folder;
     Loaded(): void;
     ReadElementsFromJson(responseObject: JsonObject, service: ExchangeService): any;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}
- class CreateItemResponse extends CreateItemResponseBase {    constructor(item: Item);
+} class CreateItemResponse extends CreateItemResponseBase {    constructor(item: Item);
     GetObjectInstance(service: ExchangeService, xmlElementName: string): Item;
     Loaded(): void;
-}
- class CreateItemResponseBase extends ServiceResponse {    readonly Items: Item[];
+} class CreateItemResponseBase extends ServiceResponse {    readonly Items: Item[];
     GetObjectInstance(service: ExchangeService, xmlElementName: string): Item;
     ReadElementsFromJson(responseObject: any, service: ExchangeService): any;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}
- class CreateResponseObjectResponse extends CreateItemResponseBase {
+} class CreateResponseObjectResponse extends CreateItemResponseBase {
     GetObjectInstance(service: ExchangeService, xmlElementName: string): Item;
 }/**
  * Represents the response to an individual delegate user manipulation (add, remove, update) operation.
@@ -15881,19 +16888,28 @@ export interface IIndexedPropertyDefinition {
      * The delegate user that was involved in the operation.
      */
     readonly DelegateUser: DelegateUser;
-}/**
- * ## *Not Implemented*
+}
+/**
+ * Represents the response to an individual attachment deletion operation.
+ * @sealed
  */
- class DeleteAttachmentResponse extends ServiceResponse {
-    Attachment: Attachment;    ReadElementsFromJson(responseObject: JsonObject, service: ExchangeService): any;
+ class DeleteAttachmentResponse extends ServiceResponse {    /**
+     * Gets the attachment that was deleted.
+     */
+    readonly Attachment: Attachment;
+    /**
+     * Initializes a new instance of the **DeleteAttachmentResponse** class.
+     *
+     * @param   {Attachment}   attachment   The attachment.
+     */
+    constructor(attachment: Attachment);
 }
 /**
  * ## *Not Implemented*
  */
  class ExecuteDiagnosticMethodResponse extends ServiceResponse {
     ReturnValue: any;
-}
- class ExpandGroupResponse extends ServiceResponse {    readonly Members: ExpandGroupResults;
+} class ExpandGroupResponse extends ServiceResponse {    readonly Members: ExpandGroupResults;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
 }
  class FindFolderResponse extends ServiceResponse {
@@ -15902,7 +16918,8 @@ export interface IIndexedPropertyDefinition {
     CreateFolderInstance(service: ExchangeService, xmlElementName: string): Folder;
     ReadElementsFromJson(responseObject: any, service: ExchangeService): any;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-} class FindItemResponse<TItem extends Item> extends ServiceResponse {
+}
+ class FindItemResponse<TItem extends Item> extends ServiceResponse {
     readonly GroupedFindResults: GroupedFindItemsResults<TItem>;
     readonly Results: FindItemsResults<TItem>;
     constructor(isGrouped: boolean, propertySet: PropertySet);
@@ -15911,11 +16928,13 @@ export interface IIndexedPropertyDefinition {
     InternalReadItemsFromXmlJsObject(jsonObject: any, propertySet: PropertySet, service: ExchangeService, destinationList: TItem[]): void;
     ReadElementsFromJson(responseObject: any, service: ExchangeService): void;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}/**
+}
+/**
  * Represents the response to an individual attachment retrieval request.
  */
  class GetAttachmentResponse extends ServiceResponse {    readonly Attachment: Attachment;
-}/**
+}
+/**
  * Represents the response to a GetClientAccessToken operation.
  *
  * @sealed
@@ -15932,13 +16951,15 @@ export interface IIndexedPropertyDefinition {
      * @param   {ClientAccessTokenType}   	tokenType   Token type
      */
     constructor(id: string, tokenType: ClientAccessTokenType);
-}/**
+}
+/**
  * ## *Not Implemented*
  */
  class GetClientExtensionResponse extends ServiceResponse {
     ClientExtensions: ClientExtension[];
     RawMasterTableXml: string;
-}/**
+}
+/**
  * Represents the response to a GetConversationItems operation.
  *
  * @sealed
@@ -15958,8 +16979,7 @@ export interface IIndexedPropertyDefinition {
      * Searchable mailboxes result
      */
     readonly DiscoverySearchConfigurations: DiscoverySearchConfiguration[];
-}
-/**
+}/**
  * ## *Not Implemented*
  */
  class GetEncryptionConfigurationResponse extends ServiceResponse {
@@ -15972,7 +16992,8 @@ export interface IIndexedPropertyDefinition {
     constructor(folder: Folder, propertySet: PropertySet);
     GetObjectInstance(service: ExchangeService, xmlElementName: string): Folder;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}/**
+}
+/**
  * Represents the GetHoldOnMailboxes response.
  *
  * @sealed
@@ -15986,7 +17007,8 @@ export interface IIndexedPropertyDefinition {
     constructor(item: Item, propertySet: PropertySet);
     GetObjectInstance(service: ExchangeService, xmlElementName: string): Item;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}/**
+}
+/**
  * Represents the GetNonIndexableItemDetails response.
  *
  * @sealed
@@ -15998,7 +17020,8 @@ export interface IIndexedPropertyDefinition {
      * internal set
      */
     NonIndexableItemsResult: NonIndexableItemDetailsResult;
-}/**
+}
+/**
  * Represents the GetNonIndexableItemStatistics response.
  *
  * @sealed
@@ -16008,16 +17031,15 @@ export interface IIndexedPropertyDefinition {
      * List of non indexable statistic
      */
     NonIndexableStatistics: NonIndexableItemStatistic[];
-}
- class GetPasswordExpirationDateResponse extends ServiceResponse {    readonly PasswordExpirationDate: DateTime;
+} class GetPasswordExpirationDateResponse extends ServiceResponse {    readonly PasswordExpirationDate: DateTime;
     ReadElementsFromJson(responseObject: any, service: ExchangeService): any;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}/**
+}
+/**
  * ## *Not Implemented*
  */
  class GetPhoneCallResponse extends ServiceResponse {
-    PhoneCall: PhoneCall;}
-/**
+    PhoneCall: PhoneCall;}/**
  * Represents the GetSearchableMailboxes response.
  *
  * @sealed
@@ -16032,10 +17054,14 @@ export interface IIndexedPropertyDefinition {
     FailedMailboxes: FailedSearchMailbox[];
 }
 /**
- * ## *Not Implemented*
+ * internal Represents the response to a GetServerTimeZones request.
  */
- class GetServerTimeZonesResponse extends ServiceResponse {
-    TimeZones: any[];}/**
+ class GetServerTimeZonesResponse extends ServiceResponse {    /**
+     * Gets the time zones returned by the associated GetServerTimeZones request.
+     * @value   The time zones.
+     */
+    readonly TimeZones: TimeZoneInfo[];
+}/**
  * Represents the GetUserRetentionPolicyTagsResponse response.
  *
  * @sealed
@@ -16049,13 +17075,13 @@ export interface IIndexedPropertyDefinition {
     MovedItemId: ItemId;
     constructor();
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}
- class MoveCopyFolderResponse extends ServiceResponse {    readonly Folder: Folder;
+} class MoveCopyFolderResponse extends ServiceResponse {    readonly Folder: Folder;
     constructor();
     GetObjectInstance(service: ExchangeService, xmlElementName: string): Folder;
     ReadElementsFromJson(responseObject: any, service: ExchangeService): any;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}/**
+}
+/**
  * Represents a response to a Move or Copy operation.
  *
  */
@@ -16064,17 +17090,18 @@ export interface IIndexedPropertyDefinition {
      *
      */
     readonly Item: Item;
-}/**
+}
+/**
  * ## *Not Implemented*
  */
  class PlayOnPhoneResponse extends ServiceResponse {
     PhoneCallId: PhoneCallId;    ReadElementsFromJson(responseObject: JsonObject, service: ExchangeService): any;
-}
- class ResolveNamesResponse extends ServiceResponse {    readonly Resolutions: NameResolutionCollection;
+} class ResolveNamesResponse extends ServiceResponse {    readonly Resolutions: NameResolutionCollection;
     constructor(service: ExchangeService);
     InternalThrowIfNecessary(): void;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}/**
+}
+/**
  * Represents the SearchMailboxes response.
  *
  * @sealed
@@ -16084,7 +17111,8 @@ export interface IIndexedPropertyDefinition {
      */
     /**@internal set*/
     SearchResult: SearchMailboxesResult;
-}/**
+}
+/**
  * Represents the standard response to an Exchange Web Services operation.
  */
  class ServiceResponse {    /**
@@ -16120,19 +17148,20 @@ export interface IIndexedPropertyDefinition {
      * @param   {any}   jsObject   The MessageXml Object.
      */
     ParseMessageXml(jsObject: any): void;
-} class ServiceResponseCollection<TResponse extends ServiceResponse> {
+}
+ class ServiceResponseCollection<TResponse extends ServiceResponse> {
     readonly Count: number;
     readonly Responses: TResponse[];
     readonly OverallResult: ServiceResult;
     Add(response: TResponse): void;
     GetEnumerator(): any;
     __thisIndexer(index: number): TResponse;
-}
-/**
+}/**
  * ## *Not Implemented*
  */
  class SetEncryptionConfigurationResponse extends ServiceResponse {
-}/**
+}
+/**
  * Represents the SetHoldOnMailboxes response.
  *
  * @sealed
@@ -16144,21 +17173,20 @@ export interface IIndexedPropertyDefinition {
 }
  class SuggestionsResponse extends ServiceResponse {
     readonly Suggestions: Suggestion[];    LoadSuggestedDaysFromXml(jsonProperty: any, service: ExchangeService): void;
-}
-/**
+}/**
  * Represents the response to a folder synchronization operation.
  *
  * @sealed
  */
  class SyncFolderHierarchyResponse extends SyncResponse<Folder, FolderChange> {
-}
-/**
+}/**
  * Represents the response to a folder items synchronization operation.
  *
  * @sealed
  */
  class SyncFolderItemsResponse extends SyncResponse<Item, ItemChange> {
-}/**
+}
+/**
  * Represents the base response class for synchronuization operations.
  *
  * @sealed
@@ -16182,15 +17210,15 @@ export interface IIndexedPropertyDefinition {
     GetObjectInstance(service: ExchangeService, xmlElementName: string): Item;
     Loaded(): void;
     ReadElementsFromXmlJsObject(responseObject: any, service: ExchangeService): void;
-}
- class CalendarEvent extends ComplexProperty {
+} class CalendarEvent extends ComplexProperty {
     readonly StartTime: DateTime;
     readonly EndTime: DateTime;
     readonly FreeBusyStatus: LegacyFreeBusyStatus;
     readonly Details: CalendarEventDetails;
     LoadFromJson(jsonProperty: any, service: ExchangeService): any;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-} class CalendarEventDetails extends ComplexProperty {
+}
+ class CalendarEventDetails extends ComplexProperty {
     readonly StoreId: string;
     readonly Subject: string;
     readonly Location: string;
@@ -16201,7 +17229,8 @@ export interface IIndexedPropertyDefinition {
     readonly IsPrivate: boolean;
     LoadFromJson(jsonProperty: any, service: ExchangeService): any;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-} class Conflict extends ComplexProperty {
+}
+ class Conflict extends ComplexProperty {
     readonly ConflictType: ConflictType;
     readonly NumberOfMembers: number;
     readonly NumberOfMembersAvailable: number;
@@ -16210,7 +17239,8 @@ export interface IIndexedPropertyDefinition {
     readonly FreeBusyStatus: LegacyFreeBusyStatus;
     constructor(conflictType: ConflictType);
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-}/**
+}
+/**
  * Represents a user's Out of Office (OOF) settings.
  */
  class OofSettings extends ComplexProperty implements ISelfValidate {
@@ -16254,14 +17284,12 @@ export interface IIndexedPropertyDefinition {
      * Validates this instance.
      */
     Validate(): void;
-}
- class Suggestion extends ComplexProperty {    readonly Date: DateTime;
+} class Suggestion extends ComplexProperty {    readonly Date: DateTime;
     readonly Quality: SuggestionQuality;
     readonly TimeSuggestions: TimeSuggestion[];
     constructor();
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-}
- class TimeSuggestion extends ComplexProperty {
+} class TimeSuggestion extends ComplexProperty {
     readonly MeetingTime: DateTime;
     readonly IsWorkTime: boolean;
     readonly Quality: SuggestionQuality;
@@ -16271,21 +17299,21 @@ export interface IIndexedPropertyDefinition {
 }
  class WorkingHours extends ComplexProperty {
     LegacyTimeZone: LegacyAvailabilityTimeZone;
-    readonly TimeZone: moment.Moment;
+    readonly TimeZone: TimeZoneInfo;
     readonly DaysOfTheWeek: DayOfTheWeek[];
     readonly StartTime: TimeSpan;
     readonly EndTime: TimeSpan;
     LoadFromJson(jsonProperty: any, service: ExchangeService): any;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-} class WorkingPeriod extends ComplexProperty {
+}
+ class WorkingPeriod extends ComplexProperty {
     readonly DaysOfWeek: DayOfTheWeek[];
     readonly StartTime: TimeSpan;
     readonly EndTime: TimeSpan;    constructor();
     LoadFromJson(jsonProperty: any, service: ExchangeService): any;
     ReadElementsFromXmlJsObject(reader: any): boolean;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-}
-/**
+}/**
  * Represents a collection of DayOfTheWeek values.
  */
  class DayOfTheWeekCollection extends ComplexProperty implements IEnumerable<DayOfTheWeek> {    readonly Count: number;
@@ -16343,92 +17371,15 @@ export interface IIndexedPropertyDefinition {
      * @return  {string}               String representation of collection.
      */
     ToString(separator: string): string;
-} class AbsoluteDateTransition extends TimeZoneTransition {
-    DateTime: DateTime;
-    constructor(timeZoneDefinition: TimeZoneDefinition);
-    constructor(timeZoneDefinition: any, targetGroup: TimeZoneTransitionGroup);
-    GetXmlElementName(): string;
-    InitializeFromTransitionTime(transitionTime: any): any;
 }
- class AbsoluteDayOfMonthTransition extends AbsoluteMonthTransition {
-    readonly DayOfMonth: number;    constructor(timeZoneDefinition: TimeZoneDefinition);
-    constructor(timeZoneDefinition: any, targetPeriod: TimeZonePeriod);
-    CreateTransitionTime(): any;
-    GetXmlElementName(): string;
-    InitializeFromTransitionTime(transitionTime: any): any;
-} class AbsoluteMonthTransition extends TimeZoneTransition {
-    readonly TimeOffset: TimeSpan;
-    readonly Month: number;
-    constructor(timeZoneDefinition: TimeZoneDefinition);
-    constructor(timeZoneDefinition: any, targetPeriod: TimeZonePeriod);
-    InitializeFromTransitionTime(transitionTime: any): any;
-} class RelativeDayOfMonthTransition extends AbsoluteMonthTransition {
-    readonly DayOfTheWeek: DayOfTheWeek;
-    readonly WeekIndex: number;
-    constructor(timeZoneDefinition: TimeZoneDefinition);
-    constructor(timeZoneDefinition: any, targetPeriod: TimeZonePeriod);
-    CreateTransitionTime(): any;
-    GetXmlElementName(): string;
-    InitializeFromTransitionTime(transitionTime: any): void;
+ module TimeZoneTransition {
+    var AbsoluteDateTransition: any;
+    var AbsoluteDayOfMonthTransition: any;
+    var RelativeDayOfMonthTransition: any;
 }
- class TimeZoneDefinition extends ComplexProperty {    Name: string;
-    Id: string;
-    readonly Periods: Dictionary<string, TimeZonePeriod>;
-    readonly TransitionGroups: Dictionary<string, TimeZoneTransitionGroup>;    constructor();
-    constructor(timezoneInfo: TimeZoneInfo);
-    CompareTransitions(x: TimeZoneTransition, y: TimeZoneTransition): number;
-    CreateTransitionGroupToPeriod(timeZonePeriod: TimeZonePeriod): TimeZoneTransitionGroup;
-    LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-    ToTimeZoneInfo(service?: ExchangeService): any;
-    Validate(): void;
-} class TimeZonePeriod extends ComplexProperty {
-    static StandardPeriodId: string;
-    static StandardPeriodName: string;
-    static DaylightPeriodId: string;
-    static DaylightPeriodName: string;
-    readonly IsStandardPeriod: boolean;
-    Bias: TimeSpan;
-    Name: string;
-    Id: string;
-    constructor();
-    LoadFromXmlJsObject(reader: any): any;
-} class TimeZoneTransition extends ComplexProperty {
-    readonly TargetPeriod: TimeZonePeriod;
-    readonly TargetGroup: TimeZoneTransitionGroup;    constructor(timeZoneDefinition: TimeZoneDefinition);
-    constructor(timeZoneDefinition: any, targetGroup: TimeZoneTransitionGroup);
-    constructor(timeZoneDefinition: any, targetPeriod: TimeZonePeriod);
-    static AbsoluteDateTransition(timeZoneDefinition: TimeZoneDefinition): AbsoluteDateTransition;
-    static RelativeDayOfMonthTransition(timeZoneDefinition: TimeZoneDefinition, targetPeriod?: TimeZonePeriod): RelativeDayOfMonthTransition;
-    static AbsoluteDayOfMonthTransition(timeZoneDefinition: TimeZoneDefinition, targetPeriod?: TimeZonePeriod): AbsoluteDayOfMonthTransition;
-    Create(timeZoneDefinition: TimeZoneDefinition, xmlElementName: string): TimeZoneTransition;
-    CreateTimeZoneTransition(timeZoneDefinition: TimeZoneDefinition, targetPeriod: TimeZonePeriod, transitionTime: any): TimeZoneTransition;
-    CreateTransitionTime(): any;
-    GetXmlElementName(): string;
-    InitializeFromTransitionTime(transitionTime: any): any;
-    LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
+ module TimeZoneTransitionGroup {
 }
- class CustomTimeZoneCreateParams {    BaseOffsetToUtc: TimeSpan;
-    StandardDisplayName: string;
-    DaylightDisplayName: string;
-    readonly HasDaylightPeriod: boolean;
-    constructor();
-}
- class TimeZoneTransitionGroup extends ComplexProperty {
-    readonly SupportsDaylight: boolean;
-    Id: string;
-    readonly Transitions: TimeZoneTransition[];
-    constructor(timeZoneDefinition: TimeZoneDefinition);
-    constructor(timeZoneDefinition: any, id: string);
-    CreateAdjustmentRule(startDate: Date, endDate: Date): any;
-    GetCustomTimeZoneCreationParams(): CustomTimeZoneCreateParams;
-    GetDaylightDelta(): TimeSpan;
-    InitializeFromAdjustmentRule(adjustmentRule: any, standardPeriod: TimeZonePeriod): any;
-    InitializeTransitions(): void;
-    LoadFromXmlJsObject(reader: any): any;
-    ReadAttributesFromXmlJsObject(reader: any): any;
-    ReadElementsFromXmlJsObject(reader: any): boolean;
-    Validate(): void;
-}/**
+/**
  * Represents information about an attendee for which to request availability information.
  *
  * @sealed
@@ -16482,16 +17433,14 @@ export interface IIndexedPropertyDefinition {
     CurrentMeetingTime: DateTime;
     GlobalObjectId: string;
     Validate(timeWindow: TimeSpan): void;
-} class GetUserAvailabilityResults {
+}
+ class GetUserAvailabilityResults {
     SuggestionsResponse: SuggestionsResponse;
     AttendeesAvailability: ServiceResponseCollection<AttendeeAvailability>;
     readonly Suggestions: Suggestion[];
 } class LegacyAvailabilityTimeZone extends ComplexProperty {    constructor();
-    constructor(timeZone: any /** MomentTimezone */);
-    InternalToJson(service: ExchangeService): any;
-    LoadFromJson(jsonProperty: any, service: ExchangeService): any;
-    ToTimeZoneInfo(): any;
-    ReadElementsFromXmlJsObject(reader: any): boolean;
+    constructor(timeZoneInfo: TimeZoneInfo);
+    ToTimeZoneInfo(): TimeZoneInfo;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
 } class LegacyAvailabilityTimeZoneTime extends ComplexProperty {
     readonly HasTransitionTime: boolean;
@@ -16502,12 +17451,10 @@ export interface IIndexedPropertyDefinition {
     DayOfTheWeek: DayOfTheWeek;
     Year: number;
     constructor();
-    InternalToJson(service: ExchangeService): any;
-    LoadFromJson(jsonProperty: any, service: ExchangeService): any;
-    ToTransitionTime(): any;
-    ReadElementsFromXmlJsObject(reader: any): boolean;
+    ToTransitionTime(): TimeZoneInfo.TransitionTime;
     LoadFromXmlJsObject(jsonProperty: any, service: ExchangeService): void;
-}/**
+}
+/**
  * Represents an Out of Office response.
  */
  class OofReply {
@@ -16536,7 +17483,8 @@ export interface IIndexedPropertyDefinition {
      */
     ToString(): string;
     toString(): string;
-}/**
+}
+/**
  * Represents a time period.
  *
  * @sealed
@@ -16570,7 +17518,8 @@ export interface IIndexedPropertyDefinition {
      * @param   {string}                xmlElementName   Name of the XML element.
      * @param   {any}                   startTime        The start time.
      * @param   {any}                   endTime          The end time.
-     */}/**
+     */}
+/**
  * Represents an Id expressed in a specific format.
  */
  class AlternateId extends AlternateIdBase {
@@ -16607,7 +17556,8 @@ export interface IIndexedPropertyDefinition {
      * @param   {boolean}   isArchive   Primary (false) or archive (true) mailbox.
      */
     constructor(format: IdFormat, id: string, mailbox: string, isArchive: boolean);
-}/**
+}
+/**
  * Represents the base class for Id expressed in a specific format.
  */
  abstract class AlternateIdBase implements ISelfValidate {
@@ -16631,7 +17581,8 @@ export interface IIndexedPropertyDefinition {
      *
      */
     Validate(): void;
-}/**
+}
+/**
  * Represents the Id of a public folder expressed in a specific format.
  */
  class AlternatePublicFolderId extends AlternateIdBase {
@@ -16650,7 +17601,8 @@ export interface IIndexedPropertyDefinition {
      * @param   {string}   folderId   The Id of the public folder.
      */
     constructor(format: IdFormat, folderId: string);
-}/**
+}
+/**
  * Represents the Id of a public folder item expressed in a specific format.
  */
  class AlternatePublicFolderItemId extends AlternatePublicFolderId {
@@ -16672,7 +17624,8 @@ export interface IIndexedPropertyDefinition {
      * @param   {string}    itemId     The Id of the public folder item.
      */
     constructor(format: IdFormat, folderId: string, itemId: string);
-}/**
+}
+/**
  * Represents a search filter that checks for the presence of a substring inside a text property. Applications can use ContainsSubstring to define conditions such as "Field CONTAINS Value" or "Field IS PREFIXED WITH Value".
  */
  class ContainsSubstring extends PropertyBasedFilter {    /**
@@ -16712,7 +17665,8 @@ export interface IContainsSubstring {
     new (): ContainsSubstring;
     new (propertyDefinition: PropertyDefinitionBase, value: string): ContainsSubstring;
     new (propertyDefinition: PropertyDefinitionBase, value: string, containmentMode: ContainmentMode, comparisonMode: ComparisonMode): ContainsSubstring;
-}/**
+}
+/**
  * Represents a bitmask exclusion search filter. Applications can use ExcludesBitExcludesBitmaskFilter to define conditions such as "(OrdinalField and 0x0010) != 0x0010"
  */
  class ExcludesBitmask extends PropertyBasedFilter {    /**
@@ -16734,7 +17688,8 @@ export interface IContainsSubstring {
 export interface IExcludesBitmask {
     new (): ExcludesBitmask;
     new (propertyDefinition: PropertyDefinitionBase, bitmask: number): ExcludesBitmask;
-}/**
+}
+/**
  * Represents a search filter checking if a field is set. Applications can use ExistsFilter to define conditions such as "Field IS SET".
  */
  class Exists extends PropertyBasedFilter {
@@ -16752,7 +17707,8 @@ export interface IExcludesBitmask {
 export interface IExists {
     new (): Exists;
     new (propertyDefinition: PropertyDefinitionBase): Exists;
-}/**
+}
+/**
  * Represents a search filter that checks if a property is equal to a given value or other property.
  */
  class IsEqualTo extends RelationalFilter {
@@ -16779,7 +17735,8 @@ export interface IIsEqualTo {
     new (): IsEqualTo;
     new (propertyDefinition: PropertyDefinitionBase, otherPropertyDefinition: PropertyDefinitionBase): IsEqualTo;
     new (propertyDefinition: PropertyDefinitionBase, value: any): IsEqualTo;
-}/**
+}
+/**
  * Represents a search filter that checks if a property is greater than a given value or other property.
  */
  class IsGreaterThan extends RelationalFilter {
@@ -16806,7 +17763,8 @@ export interface IIsGreaterThan {
     new (): IsGreaterThan;
     new (propertyDefinition: PropertyDefinitionBase, otherPropertyDefinition: PropertyDefinitionBase): IsGreaterThan;
     new (propertyDefinition: PropertyDefinitionBase, value: any): IsGreaterThan;
-}/**
+}
+/**
  * Represents a search filter that checks if a property is greater than or equal to a given value or other property.
  */
  class IsGreaterThanOrEqualTo extends RelationalFilter {
@@ -16833,7 +17791,8 @@ export interface IIsGreaterThanOrEqualTo {
     new (): IsGreaterThanOrEqualTo;
     new (propertyDefinition: PropertyDefinitionBase, otherPropertyDefinition: PropertyDefinitionBase): IsGreaterThanOrEqualTo;
     new (propertyDefinition: PropertyDefinitionBase, value: any): IsGreaterThanOrEqualTo;
-}/**
+}
+/**
  * Represents a search filter that checks if a property is less than a given value or other property.
  */
  class IsLessThan extends RelationalFilter {
@@ -16860,7 +17819,8 @@ export interface IIsLessThan {
     new (): IsLessThan;
     new (propertyDefinition: PropertyDefinitionBase, otherPropertyDefinition: PropertyDefinitionBase): IsLessThan;
     new (propertyDefinition: PropertyDefinitionBase, value: any): IsLessThan;
-}/**
+}
+/**
  * Represents a search filter that checks if a property is less than or equal to a given value or other property.
  */
  class IsLessThanOrEqualTo extends RelationalFilter {
@@ -16887,7 +17847,8 @@ export interface IIsLessThanOrEqualTo {
     new (): IsLessThanOrEqualTo;
     new (propertyDefinition: PropertyDefinitionBase, otherPropertyDefinition: PropertyDefinitionBase): IsLessThanOrEqualTo;
     new (propertyDefinition: PropertyDefinitionBase, value: any): IsLessThanOrEqualTo;
-}/**
+}
+/**
  * Represents a search filter that checks if a property is not equal to a given value or other property.
  */
  class IsNotEqualTo extends RelationalFilter {
@@ -16914,7 +17875,8 @@ export interface IIsNotEqualTo {
     new (): IsNotEqualTo;
     new (propertyDefinition: PropertyDefinitionBase, otherPropertyDefinition: PropertyDefinitionBase): IsNotEqualTo;
     new (propertyDefinition: PropertyDefinitionBase, value: any): IsNotEqualTo;
-}/**
+}
+/**
  * Represents a search filter that negates another. Applications can use NotFilter to define conditions such as "NOT(other filter)".
  */
  class Not extends SearchFilter {    /**
@@ -16939,7 +17901,8 @@ export interface IIsNotEqualTo {
 export interface INot {
     new (): Not;
     new (searchFilter: SearchFilter): Not;
-} abstract class PropertyBasedFilter extends SearchFilter {    /**
+}
+ abstract class PropertyBasedFilter extends SearchFilter {    /**
      * Gets or sets the definition of the property that is involved in the search filter. Property definitions are available as static members from schema classes (for example, EmailMessageSchema.Subject, AppointmentSchema.Start, ContactSchema.GivenName, etc.)
      */
     PropertyDefinition: PropertyDefinitionBase;
@@ -16947,7 +17910,8 @@ export interface INot {
 export interface IPropertyBasedFilter {
     new (): PropertyBasedFilter;
     new (propertyDefinition: PropertyDefinitionBase): PropertyBasedFilter;
-}/**
+}
+/**
  * Represents the base class for relational filters (for example, IsEqualTo, IsGreaterThan or IsLessThanOrEqualTo).
  */
  abstract class RelationalFilter extends PropertyBasedFilter {
@@ -16983,8 +17947,7 @@ export interface IRelationalFilter {
     new (): RelationalFilter;
     new (propertyDefinition: PropertyDefinitionBase, otherPropertyDefinition: PropertyDefinitionBase): RelationalFilter;
     new (propertyDefinition: PropertyDefinitionBase, value: any): RelationalFilter;
-}
-/**
+}/**
  * Represents a collection of search filters linked by a logical operator. Applications can use SearchFilterCollection to define complex search filters such as "Condition1 AND Condition2".
  */
  class SearchFilterCollection extends SearchFilter implements IEnumerable<SearchFilter> {
@@ -17082,7 +18045,8 @@ export interface ISearchFilterCollection {
     new (): SearchFilterCollection;
     new (logicalOperator: LogicalOperator): SearchFilterCollection;
     new (logicalOperator: LogicalOperator, searchFilters: SearchFilter[]): SearchFilterCollection;
-}/**
+}
+/**
  * Represents the base search filter class. Use descendant search filter classes such as SearchFilter.IsEqualTo, SearchFilter.ContainsSubstring and SearchFilter.SearchFilterCollection to define search filters.
  */
  abstract class SearchFilter extends ComplexProperty {
@@ -17115,8 +18079,7 @@ export interface ISearchFilterCollection {
 }
  class OutlookUser {
     static AvailableUserSettings: UserSettingName[];    ConvertToUserSettings(requestedSettings: UserSettingName[], response: GetUserSettingsResponse): any;
-}
-/**
+}/**
  * Represents a folder containing appointments.
  */
  class CalendarFolder extends Folder {
@@ -17171,7 +18134,8 @@ export interface ISearchFilterCollection {
      * @return  {FindItemsResults<Appointment>}          An object representing the results of the search operation.
      */
     FindAppointments(view: CalendarView): Promise<FindItemsResults<Appointment>>;
-}/**
+}
+/**
  * Represents a folder containing contacts.
  */
  class ContactsFolder extends Folder {
@@ -17215,8 +18179,7 @@ export interface ISearchFilterCollection {
      * @return  {Promise<ContactsFolder>}      A ContactsFolder instance representing the contacts folder with the specified name :Promise.
      */
     static Bind(service: ExchangeService, name: WellKnownFolderName): Promise<ContactsFolder>;
-}
- class Folder extends ServiceObject {
+} class Folder extends ServiceObject {
     /**
      * Gets the Id of the folder.
      *
@@ -17493,16 +18456,14 @@ export interface ISearchFilterCollection {
      *
      */
     Update(): Promise<void>;
-}
-/**
+}/**
  * this is partial section of CreateEwsObjectFromXmlElementName from serviceobjectinfo, other parts are moved to different object type like itemInfo etc.
  * this to is to avoid circular referencing with requirejs/commonjs/nodejs
  */
  class FolderInfo extends ServiceObjectInfo {
     InitializeServiceObjectClassMap(): any;
     CreateEwsObjectFromXmlElementName<TServiceObject extends ServiceObject>(service: ExchangeService, xmlElementName: string): TServiceObject;
-}
-/**
+}/**
  * Represents a search folder.
  */
  class SearchFolder extends Folder {
@@ -17554,7 +18515,8 @@ export interface ISearchFilterCollection {
      * @return  {Promise<SearchFolder>}            A SearchFolder instance representing the search folder with the specified name.
      */
     static Bind(service: ExchangeService, name: WellKnownFolderName): Promise<SearchFolder>;
-}/**
+}
+/**
  * Represents a folder containing task items.
  */
  class TasksFolder extends Folder {
@@ -17604,6 +18566,2209 @@ export interface ISearchFilterCollection {
     static Bind(service: ExchangeService, name: WellKnownFolderName): Promise<TasksFolder>;
 }
 /**
+ * Represents an **appointment or a meeting**. Properties available on appointments are defined in the *AppointmentSchema* class.
+ */
+ class Appointment extends Item implements ICalendarActionProvider {
+    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute.*/
+    static readonly Attachable: boolean;
+    /**
+     * Gets or sets the start time of the appointment.
+     */
+    Start: DateTime;
+    /**
+     * Gets or sets the end time of the appointment.
+     */
+    End: DateTime;
+    /**
+     * Gets the original start time of this appointment.
+     */
+    readonly OriginalStart: DateTime;
+    /**
+     * Gets or sets a value indicating whether this appointment is an all day event.
+     */
+    IsAllDayEvent: boolean;
+    /**
+     * Gets or sets a value indicating the free/busy status of the owner of this appointment.
+     */
+    LegacyFreeBusyStatus: LegacyFreeBusyStatus;
+    /**
+     * Gets or sets the location of this appointment.
+     */
+    Location: string;
+    /**
+     * Gets a text indicating when this appointment occurs.
+     * The text returned by When is localized using the Exchange Server culture or using the culture specified in the PreferredCulture property of the ExchangeService object this appointment is bound to.
+     */
+    readonly When: string;
+    /**
+     * Gets a value indicating whether the appointment is a meeting.
+     */
+    readonly IsMeeting: boolean;
+    /**
+     * Gets a value indicating whether the appointment has been cancelled.
+     */
+    readonly IsCancelled: boolean;
+    /**
+     * Gets a value indicating whether the appointment is recurring.
+     */
+    readonly IsRecurring: boolean;
+    /**
+     * Gets a value indicating whether the meeting request has already been sent.
+     */
+    readonly MeetingRequestWasSent: boolean;
+    /**
+    * Gets or sets a value indicating whether responses are requested when invitations are sent for this meeting.
+    */
+    IsResponseRequested: boolean;
+    /**
+     * Gets a value indicating the type of this appointment.
+     */
+    readonly AppointmentType: AppointmentType;
+    /**
+     * Gets a value indicating what was the last response of the user that loaded this meeting.
+     */
+    readonly MyResponseType: MeetingResponseType;
+    /**
+     * Gets the organizer of this meeting. The Organizer property is read-only and is only relevant for attendees.
+     * The organizer of a meeting is automatically set to the user that created the meeting.
+     */
+    readonly Organizer: EmailAddress;
+    /**
+     * Gets a list of required attendees for this meeting.
+     */
+    readonly RequiredAttendees: AttendeeCollection;
+    /**
+     * Gets a list of optional attendeed for this meeting.
+     */
+    readonly OptionalAttendees: AttendeeCollection;
+    /**
+     * Gets a list of resources for this meeting.
+     */
+    readonly Resources: AttendeeCollection;
+    /**
+     * Gets the number of calendar entries that conflict with this appointment in the authenticated user's calendar.
+     */
+    readonly ConflictingMeetingCount: number;
+    /**
+     * Gets the number of calendar entries that are adjacent to this appointment in the authenticated user's calendar.
+     */
+    readonly AdjacentMeetingCount: number;
+    /**
+     * Gets a list of meetings that conflict with this appointment in the authenticated user's calendar.
+     */
+    readonly ConflictingMeetings: ItemCollection<Appointment>;
+    /**
+     * Gets a list of meetings that is adjacent to this appointment in the authenticated user's calendar.
+     */
+    readonly AdjacentMeetings: ItemCollection<Appointment>;
+    /**
+     * Gets the duration of this appointment.
+     */
+    readonly Duration: TimeSpan;
+    /**
+     * Gets the name of the time zone this appointment is defined in.
+     */
+    readonly TimeZone: string;
+    /**
+     * Gets the time when the attendee replied to the meeting request.
+     */
+    readonly AppointmentReplyTime: DateTime;
+    /**
+     * Gets the sequence number of this appointment.
+     */
+    readonly AppointmentSequenceNumber: number;
+    /**
+     * Gets the state of this appointment.
+     */
+    readonly AppointmentState: number;
+    /**
+     * Gets or sets the recurrence pattern for this appointment. Available recurrence pattern classes include
+     * Recurrence.DailyPattern, Recurrence.MonthlyPattern and Recurrence.YearlyPattern.
+     */
+    Recurrence: Recurrence;
+    /**
+     * Gets an OccurrenceInfo identifying the first occurrence of this meeting.
+     */
+    readonly FirstOccurrence: OccurrenceInfo;
+    /**
+     * Gets an OccurrenceInfo identifying the last occurrence of this meeting.
+     */
+    readonly LastOccurrence: OccurrenceInfo;
+    /**
+     * Gets a list of modified occurrences for this meeting.
+     */
+    readonly ModifiedOccurrences: OccurrenceInfoCollection;
+    /**
+     * Gets a list of deleted occurrences for this meeting.
+     */
+    readonly DeletedOccurrences: DeletedOccurrenceInfoCollection;
+    /**
+     * Gets or sets time zone of the start property of this appointment.
+     */
+    StartTimeZone: TimeZoneInfo;
+    /**
+     * Gets or sets time zone of the end property of this appointment.
+     */
+    EndTimeZone: TimeZoneInfo;
+    /**
+     * Gets or sets the type of conferencing that will be used during the meeting.
+     */
+    ConferenceType: number;
+    /**
+     * Gets or sets a value indicating whether new time proposals are allowed for attendees of this meeting.
+     */
+    AllowNewTimeProposal: boolean;
+    /**
+     * Gets or sets a value indicating whether this is an online meeting.
+     */
+    IsOnlineMeeting: boolean;
+    /**
+     * Gets or sets the URL of the meeting workspace. A meeting workspace is a shared Web site for planning meetings and tracking results.
+     */
+    MeetingWorkspaceUrl: string;
+    /**
+     * Gets or sets the URL of the Microsoft NetShow online meeting.
+     */
+    NetShowUrl: string;
+    /**
+     * Gets or sets the ICalendar Uid.
+     */
+    ICalUid: string;
+    /**
+     * Gets the ICalendar RecurrenceId.
+     */
+    readonly ICalRecurrenceId: DateTime;
+    /**
+     * Gets the ICalendar DateTimeStamp.
+     */
+    readonly ICalDateTimeStamp: DateTime;
+    /**
+     * Gets or sets the Enhanced location object.
+     */
+    EnhancedLocation: EnhancedLocation;
+    /**
+     * Gets the Url for joining an online meeting
+     */
+    readonly JoinOnlineMeetingUrl: string;
+    /**
+     * Gets the Online Meeting Settings
+     */
+    readonly OnlineMeetingSettings: OnlineMeetingSettings;
+    /**
+     * Initializes an unsaved local instance of . To bind to an existing appointment, use Appointment.Bind() instead.
+     *
+     * @param   {ExchangeService}   service   The ExchangeService instance to which this appointmtnt is bound.
+     */
+    constructor(svc: ExchangeService);
+    /**
+     * Accepts the meeting. Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
+     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation :Promise.
+     */
+    Accept(sendResponse: boolean): Promise<CalendarActionResults>;
+    /**
+     * Tentatively accepts the meeting. Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
+     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation :Promise.
+     */
+    AcceptTentatively(sendResponse: boolean): Promise<CalendarActionResults>;
+    /**
+     * Binds to an existing appointment and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}     service       The service to use to bind to the appointment.
+     * @param   {ItemId}              id            The Id of the appointment to bind to.
+     * @return  {Promise<Appointment>}   An Appointment instance representing the appointment corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<Appointment>;
+    /**
+    * Binds to an existing appointment and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}     service       The service to use to bind to the appointment.
+     * @param   {ItemId}              id            The Id of the appointment to bind to.
+     * @param   {PropertySet}         propertySet   The set of properties to load.
+     * @return  {Promise<Appointment>}   An Appointment instance representing the appointment corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<Appointment>;
+    /**
+     * Binds to an occurence of an existing appointment and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}  service             The service to use to bind to the appointment.
+     * @param   {ItemId}           recurringMasterId   The Id of the recurring master that the index represents an occurrence of.
+     * @param   {number}           occurenceIndex      The index of the occurrence.
+     * @return  {Promise<Appointment>}                 An Appointment instance representing the appointment occurence corresponding to the specified occurence index :Promise.
+     */
+    static BindToOccurrence(service: ExchangeService, recurringMasterId: ItemId, occurenceIndex: number): Promise<Appointment>;
+    /**
+     * Binds to an occurence of an existing appointment and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}  service             The service to use to bind to the appointment.
+     * @param   {ItemId}           recurringMasterId   The Id of the recurring master that the index represents an occurrence of.
+     * @param   {number}           occurenceIndex      The index of the occurrence.
+     * @param   {PropertySet}      propertySet         The set of properties to load.
+     * @return  {Promise<Appointment>}                 An Appointment instance representing the appointment occurence corresponding to the specified occurence index :Promise.
+     */
+    static BindToOccurrence(service: ExchangeService, recurringMasterId: ItemId, occurenceIndex: number, propertySet: PropertySet): Promise<Appointment>;
+    /**
+     * Binds to the master appointment of a recurring series and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}     service        The service to use to bind to the appointment.
+     * @param   {ItemId}              occurrenceId   The Id of one of the occurrences in the series.
+     * @return  {Promise<Appointment>}   An Appointment instance representing the master appointment of the recurring series to which the specified occurrence belongs :Promise.
+     */
+    static BindToRecurringMaster(service: ExchangeService, occurrenceId: ItemId): Promise<Appointment>;
+    /**
+     * Binds to the master appointment of a recurring series and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}     service        The service to use to bind to the appointment.
+     * @param   {ItemId}              occurrenceId   The Id of one of the occurrences in the series.
+     * @param   {PropertySet}         propertySet    The set of properties to load.
+     * @return  {Promise<Appointment>}   An Appointment instance representing the master appointment of the recurring series to which the specified occurrence belongs :Promise.
+     */
+    static BindToRecurringMaster(service: ExchangeService, occurrenceId: ItemId, propertySet: PropertySet): Promise<Appointment>;
+    /**
+     * Cancels the meeting and sends cancellation messages to all attendees. Calling this method results in a call to EWS.
+     *
+     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation :Promise.
+     */
+    CancelMeeting(): Promise<CalendarActionResults>;
+    /**
+     * Cancels the meeting and sends cancellation messages to all attendees. Calling this method results in a call to EWS.
+     *
+     * @param   {string}   cancellationMessageText   Cancellation message text sent to all attendees.
+     * @return  {Promise<CalendarActionResults>}     A CalendarActionResults object containing the various items that were created or modified as a results of this operation :Promise.
+     */
+    CancelMeeting(cancellationMessageText: string): Promise<CalendarActionResults>;
+    /**
+     * Creates a local meeting acceptance message that can be customized and sent.
+     *
+     * @param   {boolean}   tentative   Specifies whether the meeting will be tentatively accepted.
+     * @return  {AcceptMeetingInvitationMessage}  An AcceptMeetingInvitationMessage representing the meeting acceptance message.
+     */
+    CreateAcceptMessage(tentative: boolean): AcceptMeetingInvitationMessage;
+    /**
+     * Creates a local meeting cancellation message that can be customized and sent.
+     *
+     * @return  {CancelMeetingMessage}    A CancelMeetingMessage representing the meeting cancellation message.
+     */
+    CreateCancelMeetingMessage(): CancelMeetingMessage;
+    /**
+     * Creates a local meeting declination message that can be customized and sent.
+     *
+     * @return  {DeclineMeetingInvitationMessage}      A DeclineMeetingInvitation representing the meeting declination message.
+     */
+    CreateDeclineMessage(): DeclineMeetingInvitationMessage;
+    /**
+     * Creates a forward message from this appointment.
+     *
+     * @return  {ResponseMessage} A ResponseMessage representing the forward response that can subsequently be modified and sent.
+     */
+    CreateForward(): ResponseMessage;
+    /**
+     * Creates a reply response to the organizer and/or attendees of the meeting.
+     *
+     * @param   {boolean}   replyAll   Indicates whether the reply should go to the organizer only or to all the attendees.
+     * @return  {ResponseMessage} A ResponseMessage representing the reply response that can subsequently be modified and sent.
+     */
+    CreateReply(replyAll: boolean): ResponseMessage;
+    /**
+     * Declines the meeting invitation. Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
+     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as aresults of this operation :Promise.
+     */
+    Decline(sendResponse: boolean): Promise<CalendarActionResults>;
+    /** ## internal - do not use on Appointment class */
+    Delete(deleteMode: DeleteMode, suppressReadReceipts?: boolean): Promise<void>;
+    /**
+     * Deletes this appointment. Calling this method results in a call to EWS.
+     *
+     * @param   {DeleteMode}   deleteMode              The deletion mode.
+     * @param   {SendCancellationsMode}   sendCancellationsMode   Specifies if and how cancellations should be sent if this appointment is a meeting.
+     */
+    Delete(deleteMode: DeleteMode, sendCancellationsMode: SendCancellationsMode): Promise<void>;
+    /**
+     * Forwards the appointment. Calling this method results in a call to EWS.
+     *
+     * @param   {MessageBody}     bodyPrefix     The prefix to prepend to the original body of the message.
+     * @param   {EmailAddress[]}  toRecipients   The recipients to forward the appointment to.
+     */
+    Forward(bodyPrefix: MessageBody, toRecipients: EmailAddress[]): void;
+    /**
+     * Forwards the appointment. Calling this method results in a call to EWS.
+     *
+     * @param   {MessageBody}     bodyPrefix     The prefix to prepend to the original body of the message.
+     * @param   {EmailAddress[]}  ...toRecipients   The recipients to forward the appointment to.
+     */
+    Forward(bodyPrefix: MessageBody, ...toRecipients: EmailAddress[]): void;
+    /**
+     * Replies to the organizer and/or the attendees of the meeting. Calling this method results in a call to EWS.
+     *
+     * @param   {MessageBody}     bodyPrefix   The prefix to prepend to the body of the meeting.
+     * @param   {boolean}         replyAll     Indicates whether the reply should go to the organizer only or to all the attendees.
+     */
+    Reply(bodyPrefix: MessageBody, replyAll: boolean): Promise<void>;
+    /**
+     * Saves this appointment in the Calendar folder. Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added.
+     * ### sendInvitationsMode not optional, see github issue #52
+     *
+     * @param   {SendInvitationsMode}   sendInvitationsMode   *not Optional* Specifies if and how invitations should be sent if this appointment is a meeting.
+     */
+    Save(sendInvitationsMode?: SendInvitationsMode): Promise<void>;
+    /**
+     * Saves this appointment in the specified folder. Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added.
+     * ### sendInvitationsMode not optional, see github issue #52
+     *
+     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to save this appointment.
+     * @param   {SendInvitationsMode}   sendInvitationsMode     *not Optional* Specifies if and how invitations should be sent if this appointment is a meeting.
+     */
+    Save(destinationFolderName: WellKnownFolderName, sendInvitationsMode?: SendInvitationsMode): Promise<void>;
+    /**
+     * Saves this appointment in the specified folder. Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added.
+     * ### sendInvitationsMode not optional, see github issue #52
+     *
+     * @param   {FolderId}                destinationFolderId   The Id of the folder in which to save this appointment.
+     * @param   {SendInvitationsMode}     sendInvitationsMode   *not Optional* Specifies if and how invitations should be sent if this appointment is a meeting.
+     */
+    Save(destinationFolderId: FolderId, sendInvitationsMode?: SendInvitationsMode): Promise<void>;
+    /** ## internal - do not use on Appointment class */
+    Update(conflictResolutionMode: ConflictResolutionMode): Promise<void>;
+    /**
+     * Applies the local changes that have been made to this appointment. Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added or removed.
+     * ### sendInvitationsOrCancellationsMode not optional, see github issue #52
+     *
+     * @param   {ConflictResolutionMode}   conflictResolutionMode               Specifies how conflicts should be resolved.
+     * @param   {SendInvitationsOrCancellationsMode}   sendInvitationsOrCancellationsMode   Specifies if and how invitations or cancellations should be sent if this appointment is a meeting.
+     */
+    Update(conflictResolutionMode: ConflictResolutionMode, sendInvitationsOrCancellationsMode?: SendInvitationsOrCancellationsMode): Promise<void>;
+}
+/**
+ * Represents a **contact**. Properties available on contacts are defined in the *ContactSchema* class.
+ *
+ */
+ class Contact extends Item {
+    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
+    static readonly Attachable: boolean;    /**
+     * Gets or set the name under which this contact is filed as. FileAs can be manually set or can be automatically calculated based on the value of the FileAsMapping property.
+     *
+     */
+    FileAs: string;
+    /**
+     * Gets or sets a value indicating how the FileAs property should be automatically calculated.
+     *
+     */
+    FileAsMapping: FileAsMapping;
+    /**
+     * Gets or sets the display name of the contact.
+     *
+     */
+    DisplayName: string;
+    /**
+     * Gets or sets the given name of the contact.
+     *
+     */
+    GivenName: string;
+    /**
+     * Gets or sets the initials of the contact.
+     *
+     */
+    Initials: string;
+    /**
+     * Gets or sets the middle mame of the contact.
+     *
+     */
+    MiddleName: string;
+    /**
+     * Gets or sets the nick name of the contact.
+     *
+     */
+    NickName: string;
+    /**
+     * Gets the complete name of the contact.
+     *
+     */
+    readonly CompleteName: CompleteName;
+    /**
+     * Gets or sets the compnay name of the contact.
+     *
+     */
+    CompanyName: string;
+    /**
+     * Gets an indexed list of e-mail addresses for the contact. For example, to set the first e-mail address,
+     * use the following syntax: EmailAddresses[EmailAddressKey.EmailAddress1] = "john.doe@contoso.com"
+     *
+     */
+    readonly EmailAddresses: EmailAddressDictionary;
+    /**
+     * Gets an indexed list of physical addresses for the contact. For example, to set the business address,
+     * use the following syntax: PhysicalAddresses[PhysicalAddressKey.Business] = new PhysicalAddressEntry()
+     *
+     */
+    readonly PhysicalAddresses: PhysicalAddressDictionary;
+    /**
+     * Gets an indexed list of phone numbers for the contact. For example, to set the home phone number,
+     * use the following syntax: PhoneNumbers[PhoneNumberKey.HomePhone] = "phone number"
+     *
+     */
+    readonly PhoneNumbers: PhoneNumberDictionary;
+    /**
+     * Gets or sets the contact's assistant name.
+     *
+     */
+    AssistantName: string;
+    /**
+     * Gets or sets the birthday of the contact.
+     *
+     */
+    Birthday: DateTime;
+    /**
+     * Gets or sets the business home page of the contact.
+     *
+     */
+    BusinessHomePage: string;
+    /**
+     * Gets or sets a list of children for the contact.
+     *
+     */
+    Children: StringList;
+    /**
+     * Gets or sets a list of companies for the contact.
+     *
+     */
+    Companies: StringList;
+    /**
+     * Gets the source of the contact.
+     *
+     */
+    readonly ContactSource: ContactSource;
+    /**
+     * Gets or sets the department of the contact.
+     *
+     */
+    Department: string;
+    /**
+     * Gets or sets the generation of the contact.
+     *
+     */
+    Generation: string;
+    /**
+     * Gets an indexed list of Instant Messaging addresses for the contact.
+     * For example, to set the first IM address, use the following syntax: ImAddresses[ImAddressKey.ImAddress1] = "john.doe@contoso.com"
+     *
+     */
+    readonly ImAddresses: ImAddressDictionary;
+    /**
+     * Gets or sets the contact's job title.
+     *
+     */
+    JobTitle: string;
+    /**
+     * Gets or sets the name of the contact's manager.
+     *
+     */
+    Manager: string;
+    /**
+     * Gets or sets the mileage for the contact.
+     *
+     */
+    Mileage: string;
+    /**
+     * Gets or sets the location of the contact's office.
+     *
+     */
+    OfficeLocation: string;
+    /**
+     * Gets or sets the index of the contact's postal address. When set, PostalAddressIndex refers to an entry in the PhysicalAddresses indexed list.
+     *
+     */
+    PostalAddressIndex: PhysicalAddressIndex;
+    /**
+     * Gets or sets the contact's profession.
+     *
+     */
+    Profession: string;
+    /**
+     * Gets or sets the name of the contact's spouse.
+     *
+     */
+    SpouseName: string;
+    /**
+     * Gets or sets the surname of the contact.
+     *
+     */
+    Surname: string;
+    /**
+     * Gets or sets the date of the contact's wedding anniversary.
+     *
+     */
+    WeddingAnniversary: DateTime;
+    /**
+     * Gets a value indicating whether this contact has a picture associated with it.
+     *
+     */
+    readonly HasPicture: boolean;
+    /**
+     * Gets the full phonetic name from the directory
+     *
+     */
+    readonly PhoneticFullName: string;
+    /**
+     * Gets the phonetic first name from the directory
+     *
+     */
+    readonly PhoneticFirstName: string;
+    /**
+     * Gets the phonetic last name from the directory
+     *
+     */
+    readonly PhoneticLastName: string;
+    /**
+     * Gets the Alias from the directory
+     *
+     */
+    readonly Alias: string;
+    /**
+     * Get the Notes from the directory
+     *
+     */
+    readonly Notes: string;
+    /**
+     * Gets the Photo from the directory **Unstable: needs testing**
+     *
+     */
+    readonly DirectoryPhoto: number[];
+    /**
+     * Gets the User SMIME certificate from the directory **Unstable: needs testing**
+     * //ref: cant use bytearray, using base64 decoded string instead -  number[][]
+     *
+     */
+    readonly UserSMIMECertificate: string[];
+    /**
+     * Gets the MSExchange certificate from the directory **Unstable: needs testing**
+     * //ref: cant use bytearray, using base64 decoded string instead -  number[][]
+     *
+     */
+    readonly MSExchangeCertificate: string[];
+    /**
+     * Gets the DirectoryID as Guid or DN string
+     *
+     */
+    readonly DirectoryId: string;
+    /**
+     * Gets the manager mailbox information
+     *
+     */
+    readonly ManagerMailbox: EmailAddress;
+    /**
+     * Get the direct reports mailbox information
+     *
+     */
+    readonly DirectReports: EmailAddressCollection;
+    /**
+     * Initializes an unsaved local instance of . To bind to an existing contact, use Contact.Bind() instead.
+     *
+     * @param   {ExchangeService}   service   The ExchangeService object to which the contact will be bound.
+     */
+    constructor(service: ExchangeService);
+    /**
+     * Binds to an existing contact and loads the specified set of properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service         The service to use to bind to the contact.
+     * @param   {ItemId}            id              The Id of the contact to bind to.
+     * @return  {Promise<Contact>}                 A Contact instance representing the contact corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<Contact>;
+    /**
+     * Binds to an existing contact and loads the specified set of properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service         The service to use to bind to the contact.
+     * @param   {ItemId}            id              The Id of the contact to bind to.
+     * @param   {PropertySet}       propertySet     The set of properties to load.
+     * @return  {Promise<Contact>}                 A Contact instance representing the contact corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<Contact>;
+    /**
+     * Retrieves the file attachment that holds the contact's picture. **Unstable: needs testing**
+     *
+     * @return  {FileAttachment}      The file attachment that holds the contact's picture.
+     */
+    GetContactPictureAttachment(): FileAttachment;
+    /**
+     * Removes the picture from local attachment collection.     *
+     */    /**
+     * Removes the contact's picture.     *
+     */
+    RemoveContactPicture(): void;
+    /**
+     * Sets the contact's picture using the base64 content of file.
+     *
+     * @param   {string}    base64Content       base64 content of picture attachment.
+     * @param   {string}    attachmentName      name of the picture attachment.
+     *
+     */
+    SetContactPicture(base64Content: string, attachmentName: string): void;
+}
+/**
+ * Represents a Contact Group. Properties available on contact groups are defined in the ContactGroupSchema class.
+ */
+ class ContactGroup extends Item {
+    /**
+     * Gets the name under which this contact group is filed as.
+     *
+     * [RequiredServerVersion(ExchangeVersion.Exchange2010)]
+     */
+    readonly FileAs: string;
+    /**
+     * Gets or sets the display name of the contact group.
+     */
+    DisplayName: string;
+    /**
+     * Gets the members of the contact group.
+     *
+     * [RequiredServerVersion(ExchangeVersion.Exchange2010)]
+     */
+    readonly Members: GroupMemberCollection;
+    /**
+     * Initializes an unsaved local instance of the **ContactGroup** class.
+     *
+     * @param   {ExchangeService}   service   EWS service to which this object belongs.
+     */
+    constructor(service: ExchangeService);
+    /**
+     * Binds to an existing contact group and loads the specified set of properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the contact group.
+     * @param   {ItemId}            id            The Id of the contact group to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<ContactGroup>}    A ContactGroup instance representing the contact group corresponding to the specified Id    :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<ContactGroup>;
+    /**
+     * Binds to an existing contact group and loads its first class properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the contact group.
+     * @param   {ItemId}            id            The Id of the contact group to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<ContactGroup>}    A ContactGroup instance representing the contact group corresponding to the specified Id    :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<ContactGroup>;
+}
+/**
+ * Represents a collection of Conversation related properties.
+ * Properties available on this object are defined in the ConversationSchema class.
+ */
+ class Conversation extends ServiceObject {
+    /**
+     * Gets the Id of this Conversation.
+     */
+    readonly Id: ConversationId;
+    /**
+     * Gets the topic of this Conversation.
+     */
+    readonly Topic: string;
+    /**
+     * Gets a list of all the people who have received messages in this conversation in the current folder only.
+     */
+    readonly UniqueRecipients: StringList;
+    /**
+     * Gets a list of all the people who have received messages in this conversation across all folders in the mailbox.
+     */
+    readonly GlobalUniqueRecipients: StringList;
+    /**
+     * Gets a list of all the people who have sent messages that are currently unread in this conversation in the current folder only.
+     */
+    readonly UniqueUnreadSenders: StringList;
+    /**
+     * Gets a list of all the people who have sent messages that are currently unread in this conversation across all folders in the mailbox.
+     */
+    readonly GlobalUniqueUnreadSenders: StringList;
+    /**
+     * Gets a list of all the people who have sent messages in this conversation in the current folder only.
+     */
+    readonly UniqueSenders: StringList;
+    /**
+     * Gets a list of all the people who have sent messages in this conversation across all folders in the mailbox.
+     */
+    readonly GlobalUniqueSenders: StringList;
+    /**
+     * Gets the delivery time of the message that was last received in this conversation in the current folder only.
+     */
+    readonly LastDeliveryTime: DateTime;
+    /**
+     * Gets the delivery time of the message that was last received in this conversation across all folders in the mailbox.
+     */
+    readonly GlobalLastDeliveryTime: DateTime;
+    /**
+     * Gets a list summarizing the categories stamped on messages in this conversation, in the current folder only.
+     */
+    readonly Categories: StringList;
+    /**
+     * Gets a list summarizing the categories stamped on messages in this conversation, across all folders in the mailbox.
+     */
+    readonly GlobalCategories: StringList;
+    /**
+     * Gets the flag status for this conversation, calculated by aggregating individual messages flag status in the current folder.
+     */
+    readonly FlagStatus: ConversationFlagStatus;
+    /**
+     * Gets the flag status for this conversation, calculated by aggregating individual messages flag status across all folders in the mailbox.
+     */
+    readonly GlobalFlagStatus: ConversationFlagStatus;
+    /**
+     * Gets a value indicating if at least one message in this conversation, in the current folder only, has an attachment.
+     */
+    readonly HasAttachments: boolean;
+    /**
+     * Gets a value indicating if at least one message in this conversation, across all folders in the mailbox, has an attachment.
+     */
+    readonly GlobalHasAttachments: boolean;
+    /**
+     * Gets the total number of messages in this conversation in the current folder only.
+     */
+    readonly MessageCount: number;
+    /**
+     * Gets the total number of messages in this conversation across all folders in the mailbox.
+     */
+    readonly GlobalMessageCount: number;
+    /**
+     * Gets the total number of unread messages in this conversation in the current folder only.
+     */
+    readonly UnreadCount: number;
+    /**
+     * Gets the total number of unread messages in this conversation across all folders in the mailbox.
+     */
+    readonly GlobalUnreadCount: number;
+    /**
+     * Gets the size of this conversation, calculated by adding the sizes of all messages in the conversation in the current folder only.
+     */
+    readonly Size: number;
+    /**
+     * Gets the size of this conversation, calculated by adding the sizes of all messages in the conversation across all folders in the mailbox.
+     */
+    readonly GlobalSize: number;
+    /**
+     * Gets a list summarizing the classes of the items in this conversation, in the current folder only.
+     */
+    readonly ItemClasses: StringList;
+    /**
+     * Gets a list summarizing the classes of the items in this conversation, across all folders in the mailbox.
+     */
+    readonly GlobalItemClasses: StringList;
+    /**
+     * Gets the importance of this conversation, calculated by aggregating individual messages importance in the current folder only.
+     */
+    readonly Importance: Importance;
+    /**
+     * Gets the importance of this conversation, calculated by aggregating individual messages importance across all folders in the mailbox.
+     */
+    readonly GlobalImportance: Importance;
+    /**
+     * Gets the Ids of the messages in this conversation, in the current folder only.
+     */
+    readonly ItemIds: ItemIdCollection;
+    /**
+     * Gets the Ids of the messages in this conversation, across all folders in the mailbox.
+     */
+    readonly GlobalItemIds: ItemIdCollection;
+    /**
+     * Gets the date and time this conversation was last modified.
+     */
+    readonly LastModifiedTime: DateTime;
+    /**
+     * Gets the conversation instance key.
+     */
+    readonly InstanceKey: number[];
+    /**
+     * Gets the conversation Preview.
+     */
+    readonly Preview: string;
+    /**
+     * Gets the conversation IconIndex.
+     */
+    readonly IconIndex: IconIndex;
+    /**
+     * Gets the conversation global IconIndex.
+     */
+    readonly GlobalIconIndex: IconIndex;
+    /**
+     * Gets the draft item ids.
+     */
+    readonly DraftItemIds: ItemIdCollection;
+    /**
+     * Gets a value indicating if at least one message in this conversation, in the current folder only, is an IRM.
+     */
+    readonly HasIrm: boolean;
+    /**
+     * Gets a value indicating if at least one message in this conversation, across all folders in the mailbox, is an IRM.
+     */
+    readonly GlobalHasIrm: boolean;
+    /**
+     * Clear flags for conversation items. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}   contextFolderId   The Id of the folder items must belong to in order to be unflagged. If contextFolderId is null, flags for items in conversation across the entire mailbox are cleared.
+     * @return  {Promise<void>}    Promise
+     */
+    ClearItemFlags(contextFolderId: FolderId): Promise<void>;
+    /**
+     * Copies items in the specified conversation to a specific folder. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}   contextFolderId       The Id of the folder items must belong to in order to be copied. If contextFolderId is null, items across the entire mailbox are copied.
+     * @param   {FolderId}   destinationFolderId   The Id of the destination folder.
+     * @return  {Promise<void>}    Promise
+     */
+    CopyItemsInConversation(contextFolderId: FolderId, destinationFolderId: FolderId): Promise<void>;
+    /**
+     * Deletes items in the specified conversation.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}      contextFolderId   The Id of the folder items must belong to in order to be deleted. If contextFolderId is null, items across the entire mailbox are deleted.
+     * @param   {DeleteMode}    deleteMode        The deletion mode.
+     * @return  {Promise<void>}    Promise
+     */
+    DeleteItems(contextFolderId: FolderId, deleteMode: DeleteMode): Promise<void>;
+    /**
+     * Sets up a conversation so that any item received within that conversation is no longer categorized.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   processSynchronously   **<not used>**Indicates whether the method should return only once disabling this rule and removing the categories from existing items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
+     * @return  {Promise<void>}    Promise
+     */
+    DisableAlwaysCategorizeItems(processSynchronously: boolean): Promise<void>;
+    /**
+     * Sets up a conversation so that any item received within that conversation is no longer moved to Deleted Items folder.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once disabling this rule and restoring the items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
+     * @return  {Promise<void>}    Promise
+     */
+    DisableAlwaysDeleteItems(processSynchronously: boolean): Promise<void>;
+    /**
+     * Sets up a conversation so that any item received within that conversation is no longer moved to a specific folder.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once disabling this rule is completely done. If processSynchronously is false, the method returns immediately.
+     * @return  {Promise<void>}    Promise
+     */
+    DisableAlwaysMoveItemsInConversation(processSynchronously: boolean): Promise<void>;
+    /**
+     * Sets up a conversation so that any item received within that conversation is always categorized.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {string[]}  categories             The categories that should be stamped on items in the conversation.
+     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once enabling this rule and stamping existing items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
+     * @return  {Promise<void>}    Promise
+     */
+    EnableAlwaysCategorizeItems(categories: string[], processSynchronously: boolean): Promise<void>;
+    /**
+     * Sets up a conversation so that any item received within that conversation is always moved to Deleted Items folder.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once enabling this rule and deleting existing items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
+     * @return  {Promise<void>}    Promise
+     */
+    EnableAlwaysDeleteItems(processSynchronously: boolean): Promise<void>;
+    /**
+     * Sets up a conversation so that any item received within that conversation is always moved to a specific folder.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}  destinationFolderId    The Id of the folder to which conversation items should be moved.
+     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once enabling this rule and moving existing items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
+     * @return  {Promise<void>}    Promise
+     */
+    EnableAlwaysMoveItems(destinationFolderId: FolderId, processSynchronously: boolean): Promise<void>;
+    /**
+     * Flags conversation items. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}   contextFolderId   The Id of the folder items must belong to in order to be flagged. If contextFolderId is null, items in conversation across the entire mailbox are flagged.
+     * @param   {DateTime}   startDate         The start date (can be null).
+     * @param   {DateTime}   dueDate           The due date (can be null).
+     * @return  {Promise<void>}    Promise
+     */
+    FlagItems(contextFolderId: FolderId, startDate: DateTime, dueDate: DateTime): Promise<void>;
+    /**
+     * Flag conversation items as complete. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}   contextFolderId   The Id of the folder items must belong to in order to be flagged as complete. If contextFolderId is null, items in conversation across the entire mailbox are marked as complete.
+     * @param   {DateTime}   completeDate      The complete date (can be null).
+     * @return  {Promise<void>}    Promise
+     */
+    FlagItemsComplete(contextFolderId: FolderId, completeDate: DateTime): Promise<void>;
+    /**
+     * The property definition for the Id of this object.
+     *
+     * @return  {PropertyDefinition}      A PropertyDefinition instance.
+     */
+    GetIdPropertyDefinition(): PropertyDefinition;
+    /**
+     * Moves items in the specified conversation to a specific folder.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}   contextFolderId       The Id of the folder items must belong to in order to be moved. If contextFolderId is null, items across the entire mailbox are moved.
+     * @param   {FolderId}   destinationFolderId   The Id of the destination folder.
+     * @return  {Promise<void>}    Promise
+     */
+    MoveItemsInConversation(contextFolderId: FolderId, destinationFolderId: FolderId): Promise<void>;
+    /**
+     * Sets the read state of items in the specified conversation. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}  contextFolderId   The Id of the folder items must belong to in order for their read state to be set. If contextFolderId is null, the read states of items across the entire mailbox are set.
+     * @param   {boolean}   isRead            if set to true, conversation items are marked as read; otherwise they are marked as unread.
+     * @return  {Promise<void>}    Promise
+     */
+    SetReadStateForItemsInConversation(contextFolderId: FolderId, isRead: boolean): Promise<void>;
+    /**
+     * Sets the read state of items in the specified conversation. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}  contextFolderId        The Id of the folder items must belong to in order for their read state to be set. If contextFolderId is null, the read states of items across the entire mailbox are set.
+     * @param   {boolean}   isRead                 if set to true, conversation items are marked as read; otherwise they are marked as unread.
+     * @param   {boolean}   suppressReadReceipts   if set to true read receipts are suppressed.
+     * @return  {Promise<void>}    Promise
+     */
+    SetReadStateForItemsInConversation(contextFolderId: FolderId, isRead: boolean, suppressReadReceipts: boolean): Promise<void>;
+    /**
+     * Sets the retention policy of items in the specified conversation. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}          contextFolderId        The Id of the folder items must belong to in order for their retention policy to be set. If contextFolderId is null, the retention policy of items across the entire mailbox are set.
+     * @param   {RetentionType}     retentionPolicyType    Retention policy type.
+     * @param   {Guid}              retentionPolicyTagId   Retention policy tag id.  Null will clear the policy.
+     * @return  {Promise<void>}    Promise
+     */
+    SetRetentionPolicyForItemsInConversation(contextFolderId: FolderId, retentionPolicyType: RetentionType, retentionPolicyTagId: Guid): Promise<void>;
+}/**
+ * Represents an **e-mail message**. Properties available on e-mail messages are defined in the *EmailMessageSchema* class.
+ *
+ */
+ class EmailMessage extends Item {
+    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
+    static readonly Attachable: boolean;
+    /**
+     * Gets the list of To recipients for the e-mail message.
+     *
+     */
+    readonly ToRecipients: EmailAddressCollection;
+    /**
+     * Gets the list of Bcc recipients for the e-mail message.
+     *
+     */
+    readonly BccRecipients: EmailAddressCollection;
+    /**
+     * Gets the list of Cc recipients for the e-mail message.
+     *
+     */
+    readonly CcRecipients: EmailAddressCollection;
+    /**
+     * Gets the conversation topic of the e-mail message.
+     *
+     */
+    readonly ConversationTopic: string;
+    /**
+     * Gets the conversation index of the e-mail message.
+     *
+     */
+    readonly ConversationIndex: number[];
+    /**
+     * Gets or sets the "on behalf" sender of the e-mail message.
+     *
+     */
+    From: EmailAddress;
+    /**
+     * Gets or sets a value indicating whether this is an associated message.
+     *
+     */
+    IsAssociated: boolean;
+    /**
+     * Gets or sets a value indicating whether a read receipt is requested for the e-mail message.
+     *
+     */
+    IsDeliveryReceiptRequested: boolean;
+    /**
+     * Gets or sets a value indicating whether the e-mail message is read.
+     *
+     */
+    IsRead: boolean;
+    /**
+     * Gets or sets a value indicating whether a read receipt is requested for the e-mail message.
+     *
+     */
+    IsReadReceiptRequested: boolean;
+    /**
+     * Gets or sets a value indicating whether a response is requested for the e-mail message.
+     *
+     */
+    IsResponseRequested: boolean;
+    /**
+     * Gets the Internat Message Id of the e-mail message.
+     *
+     */
+    readonly InternetMessageId: string;
+    /**
+     * Gets or sets the references of the e-mail message.
+     *
+     */
+    References: string;
+    /**
+     * Gets a list of e-mail addresses to which replies should be addressed.
+     *
+     */
+    readonly ReplyTo: EmailAddressCollection;
+    /**
+     * Gets or sets the sender of the e-mail message.
+     *
+     */
+    Sender: EmailAddress;
+    /**
+     * Gets the ReceivedBy property of the e-mail message.
+     *
+     */
+    readonly ReceivedBy: EmailAddress;
+    /**
+     * Gets the ReceivedRepresenting property of the e-mail message.
+     *
+     */
+    readonly ReceivedRepresenting: EmailAddress;
+    /**
+     * Gets the ApprovalRequestData property of the e-mail message.
+     *
+     */
+    readonly ApprovalRequestData: ApprovalRequestData;
+    /**
+     * Gets the VotingInformation property of the e-mail message.
+     *
+     */
+    readonly VotingInformation: VotingInformation;
+    /**
+     * Initializes an unsaved local instance of **EmailMessage**. To bind to an existing e-mail message, use EmailMessage.Bind() instead.
+     *
+     * @param   {ExchangeService}   service   The ExchangeService object to which the e-mail message will be bound.
+     */
+    constructor(service: ExchangeService);
+    /**
+     * Binds to an existing e-mail message and loads its first class properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}         service     The service to use to bind to the e-mail message.
+     * @param   {ItemId}                  id          The Id of the e-mail message to bind to.
+     * @return  {Promise<EmailMessage>}              An EmailMessage instance representing the e-mail message corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<EmailMessage>;
+    /**
+     * Binds to an existing e-mail message and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}         service         The service to use to bind to the e-mail message.
+     * @param   {ItemId}                  id              The Id of the e-mail message to bind to.
+     * @param   {PropertySet}             propertySet     The set of properties to load.
+     * @return  {Promise<EmailMessage>}                  An EmailMessage instance representing the e-mail message corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<EmailMessage>;
+    /**
+     * Creates a forward response to the message.
+     *
+     * @return  {ResponseMessage}      A ResponseMessage representing the forward response that can subsequently be modified and sent.
+     */
+    CreateForward(): ResponseMessage;
+    /**
+     * Creates a reply response to the message.
+     *
+     * @param   {boolean}             replyAll   Indicates whether the reply should go to all of the original recipients of the message.
+     * @return  {ResponseMessage}     A ResponseMessage representing the reply response that can subsequently be modified and sent.
+     */
+    CreateReply(replyAll: boolean): ResponseMessage;
+    /**
+     * Forwards the message. Calling this method results in a call to EWS.
+     *
+     * @param   {MessageBody}   bodyPrefix     The prefix to prepend to the original body of the message.
+     * @param   {EmailAddress[]}   toRecipients   The recipients to forward the message to.
+     */
+    Forward(bodyPrefix: MessageBody, toRecipients: EmailAddress[]): Promise<void>;
+    /**
+     * Send message.
+     *
+     * @param   {FolderId}            parentFolderId       The parent folder id.
+     * @param   {MessageDisposition}  messageDisposition   The message disposition.
+     */    /**
+     * Replies to the message. Calling this method results in a call to EWS.
+     *
+     * @param   {MessageBody}   bodyPrefix   The prefix to prepend to the original body of the message.
+     * @param   {boolean}   replyAll     Indicates whether the reply should be sent to all of the original recipients of the message.
+     */
+    Reply(bodyPrefix: MessageBody, replyAll: boolean): Promise<void>;
+    /**
+     * Sends this e-mail message. Calling this method results in at least one call to EWS.
+     */
+    Send(): Promise<void>;
+    /**
+     * Sends this e-mail message and saves a copy of it in the Sent Items folder. SendAndSaveCopy does not work if the message has unsaved attachments. In that case, the message must first be saved and then sent. Calling this method results in a call to EWS.
+     *
+     */
+    SendAndSaveCopy(): Promise<void>;
+    /**
+     * Sends this e-mail message and saves a copy of it in the specified folder. SendAndSaveCopy does not work if the message has unsaved attachments. In that case, the message must first be saved and then sent. Calling this method results in a call to EWS.
+     *
+     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to save the copy.
+     */
+    SendAndSaveCopy(destinationFolderName: WellKnownFolderName): Promise<void>;
+    /**
+     * Sends this e-mail message and saves a copy of it in the specified folder. SendAndSaveCopy does not work if the
+    message has unsaved attachments. In that case, the message must first be saved and then sent. Calling this method
+    results in a call to EWS.
+     *
+     * @param   {FolderId}   destinationFolderId   The Id of the folder in which to save the copy.
+     */
+    SendAndSaveCopy(destinationFolderId: FolderId): Promise<void>;
+    /**
+     * Suppresses the read receipt on the message. Calling this method results in a call to EWS.
+     *
+     */
+    SuppressReadReceipt(): Promise<void>;
+}/**
+ * Represents a generic **Item**. Properties available on items are defined in the *ItemSchema* class.
+ *
+ */
+ class Item extends ServiceObject {
+    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
+    static readonly Attachable: boolean;    /**
+     * Gets a value indicating whether the item is an attachment.
+     *
+     */
+    readonly IsAttachment: boolean;
+    /**
+     * Gets a value indicating whether this object is a real store item, or if it's a local object that has yet to be saved.
+     *
+     */
+    readonly IsNew: boolean;
+    /**
+     * Gets the Id of this item.
+     *
+     */
+    readonly Id: ItemId;
+    /**
+     * Get or sets the MIME content of this item.
+     *
+     */
+    MimeContent: MimeContent;
+    /**
+     * Gets the Id of the parent folder of this item.
+     *
+     */
+    readonly ParentFolderId: FolderId;
+    /**
+     * Gets or sets the sensitivity of this item.
+     *
+     */
+    Sensitivity: Sensitivity;
+    /**
+     * Gets a list of the attachments to this item.
+     *
+     */
+    readonly Attachments: AttachmentCollection;
+    /**
+     * Gets the time when this item was received.
+     *
+     */
+    readonly DateTimeReceived: DateTime;
+    /**
+     * Gets the size of this item.
+     *
+     */
+    readonly Size: number;
+    /**
+     * Gets or sets the list of categories associated with this item.
+     *
+     */
+    Categories: StringList;
+    /**
+     * Gets or sets the culture associated with this item.
+     *
+     */
+    Culture: string;
+    /**
+     * Gets or sets the importance of this item.
+     *
+     */
+    Importance: Importance;
+    /**
+     * Gets or sets the In-Reply-To reference of this item.
+     *
+     */
+    InReplyTo: string;
+    /**
+     * Gets a value indicating whether the message has been submitted to be sent.
+     *
+     */
+    readonly IsSubmitted: boolean;
+    /**
+     * Gets a value indicating whether this is an associated item.
+     *
+     */
+    readonly IsAssociated: boolean;
+    /**
+     * Gets a value indicating whether the item is is a draft. An item is a draft when it has not yet been sent.
+     *
+     */
+    readonly IsDraft: boolean;
+    /**
+     * Gets a value indicating whether the item has been sent by the current authenticated user.
+     *
+     */
+    readonly IsFromMe: boolean;
+    /**
+     * Gets a value indicating whether the item is a resend of another item.
+     *
+     */
+    readonly IsResend: boolean;
+    /**
+     * Gets a value indicating whether the item has been modified since it was created.
+     *
+     */
+    readonly IsUnmodified: boolean;
+    /**
+     * Gets a list of Internet headers for this item.
+     *
+     */
+    readonly InternetMessageHeaders: InternetMessageHeaderCollection;
+    /**
+     * Gets the date and time this item was sent.
+     *
+     */
+    readonly DateTimeSent: DateTime;
+    /**
+     * Gets the date and time this item was created.
+     *
+     */
+    readonly DateTimeCreated: DateTime;
+    /**
+     * Gets a value indicating which response actions are allowed on this item. Examples of response actions are Reply and Forward.
+     *
+     */
+    readonly AllowedResponseActions: ResponseActions;
+    /**
+     * Gets or sets the date and time when the reminder is due for this item.
+     *
+     */
+    ReminderDueBy: DateTime;
+    /**
+     * Gets or sets a value indicating whether a reminder is set for this item.
+     *
+     */
+    IsReminderSet: boolean;
+    /**
+     * Gets or sets the number of minutes before the start of this item when the reminder should be triggered.
+     *
+     */
+    ReminderMinutesBeforeStart: number;
+    /**
+     * Gets a text summarizing the Cc receipients of this item.
+     *
+     */
+    readonly DisplayCc: string;
+    /**
+     * Gets a text summarizing the To recipients of this item.
+     *
+     */
+    readonly DisplayTo: string;
+    /**
+     * Gets a value indicating whether the item has attachments.
+     *
+     */
+    readonly HasAttachments: boolean;
+    /**
+     * Gets or sets the body of this item.
+     *
+     */
+    Body: MessageBody;
+    /**
+     * Gets or sets the custom class name of this item.
+     *
+     */
+    ItemClass: string;
+    /**
+     * Gets or sets the subject of this item.
+     *
+     */
+    Subject: string;
+    /**
+     * Gets the query string that should be appended to the Exchange Web client URL to open this item using the appropriate read form in a web browser.
+     *
+     */
+    readonly WebClientReadFormQueryString: string;
+    /**
+     * Gets the query string that should be appended to the Exchange Web client URL to open this item using the appropriate edit form in a web browser.
+     *
+     */
+    readonly WebClientEditFormQueryString: string;
+    /**
+     * Gets a list of extended properties defined on this item.
+     *
+     */
+    readonly ExtendedProperties: ExtendedPropertyCollection;
+    /**
+     * Gets a value indicating the effective rights the current authenticated user has on this item.
+     *
+     */
+    readonly EffectiveRights: EffectiveRights;
+    /**
+     * Gets the name of the user who last modified this item.
+     *
+     */
+    readonly LastModifiedName: string;
+    /**
+     * Gets the date and time this item was last modified.
+     *
+     */
+    readonly LastModifiedTime: DateTime;
+    /**
+     * Gets the Id of the conversation this item is part of.
+     *
+     */
+    readonly ConversationId: ConversationId;
+    /**
+     * Gets the body part that is unique to the conversation this item is part of.
+     *
+     */
+    readonly UniqueBody: UniqueBody;
+    /**
+     * Gets the store entry id.
+     *
+     */
+    readonly StoreEntryId: number[];
+    /**
+     * Gets the item instance key.
+     *
+     */
+    readonly InstanceKey: number[];
+    /**
+     * Get or set the Flag value for this item.
+     *
+     */
+    Flag: Flag;
+    /**
+     * Gets the normalized body of the item.
+     *
+     */
+    readonly NormalizedBody: NormalizedBody;
+    /**
+     * Gets the EntityExtractionResult of the item.
+     *
+     */
+    readonly EntityExtractionResult: EntityExtractionResult;
+    /**
+     * Gets or sets the policy tag.
+     *
+     */
+    PolicyTag: PolicyTag;
+    /**
+     * Gets or sets the archive tag.
+     *
+     */
+    ArchiveTag: ArchiveTag;
+    /**
+     * Gets the retention date.
+     *
+     */
+    readonly RetentionDate: DateTime;
+    /**
+     * Gets the item Preview.
+     *
+     */
+    readonly Preview: string;
+    /**
+     * Gets the text body of the item.
+     *
+     */
+    readonly TextBody: TextBody;
+    /**
+     * Gets the icon index.
+     *
+     */
+    readonly IconIndex: IconIndex;
+    /**
+     * Binds to an existing item, whatever its actual type is, and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service         The service to use to bind to the item.
+     * @param   {ItemId}            id              The Id of the item to bind to.
+     * @return  {Promise<Item>}                    An Item instance representing the item corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<Item>;
+    /**
+     * Binds to an existing item, whatever its actual type is, and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service         The service to use to bind to the item.
+     * @param   {ItemId}            id              The Id of the item to bind to.
+     * @param   {PropertySet}       propertySet     The set of properties to load.
+     * @return  {Promise<Item>}                    An Item instance representing the item corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<Item>;
+    /**
+     * Creates a copy of this item in the specified folder. Calling this method results in a call to EWS.
+     *
+     * Copy returns null if the copy operation is across two mailboxes or between a mailbox and a public folder.
+     *
+     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to create a copy of this item.
+     * @return  {Promise<Item>}                                The copy of this item :Promise.
+     */
+    Copy(destinationFolderName: WellKnownFolderName): Promise<Item>;
+    /**
+     * Creates a copy of this item in the specified folder. Calling this method results in a call to EWS.
+     *
+     *  Copy returns null if the copy operation is across two mailboxes or between a mailbox and a public folder.
+     *
+     * @param   {FolderId}          destinationFolderId   The Id of the folder in which to create a copy of this item.
+     * @return  {Promise<Item>}                          The copy of this item :Promise.
+     */
+    Copy(destinationFolderId: FolderId): Promise<Item>;
+    /**
+     * Deletes the item. Calling this method results in a call to EWS.
+     *
+     * @param   {DeleteMode}   deleteMode             The deletion mode.
+     */
+    Delete(deleteMode: DeleteMode): Promise<void>;
+    /**
+     * Deletes the item. Calling this method results in a call to EWS.
+     *
+     * @param   {DeleteMode}   deleteMode             The deletion mode.
+     * @param   {boolean}   suppressReadReceipts   Whether to suppress read receipts
+     */
+    Delete(deleteMode: DeleteMode, suppressReadReceipts: boolean): Promise<void>;
+    /**
+     * @inrtnal The property definition for the Id of this object.
+     *
+     * @return  {PropertyDefinition}      A PropertyDefinition instance.
+     */
+    GetIdPropertyDefinition(): PropertyDefinition;
+    /**
+     * Gets a value indicating whether a time zone SOAP header should be emitted in a CreateItem or UpdateItem request so this item can be property saved or updated.
+     *
+     * @param   {boolean}   isUpdateOperation   Indicates whether the operation being petrformed is an update operation.
+     * @return  {boolean}                       true if a time zone SOAP header should be emitted; otherwise, false.
+     */
+    GetIsTimeZoneHeaderRequired(isUpdateOperation: boolean): boolean;
+    /**
+     * Moves this item to a the specified folder. Calling this method results in a call to EWS.
+     *
+     * Move returns null if the move operation is across two mailboxes or between a mailbox and a public folder.
+     *
+     * @param   {FolderId}   destinationFolderId    The Id of the folder to which to move this item.
+     * @return  {Promise<Item>}                    The moved copy of this item :Promise.
+     */
+    Move(destinationFolderId: FolderId): Promise<Item>;
+    /**
+     * Moves this item to a the specified folder. Calling this method results in a call to EWS.
+     *
+     * Move returns null if the move operation is across two mailboxes or between a mailbox and a public folder.
+     *
+     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder to which to move this item.
+     * @return  {Promise<Item>}        The moved copy of this item :Promise.
+     */
+    Move(destinationFolderName: WellKnownFolderName): Promise<Item>;
+    /**
+     * Removes an extended property.
+     *
+     * @param   {ExtendedPropertyDefinition}    extendedPropertyDefinition   The extended property definition.
+     * @return  {boolean}                       True if property was removed.
+     */
+    RemoveExtendedProperty(extendedPropertyDefinition: ExtendedPropertyDefinition): boolean;
+    /**
+     * Saves this item in the default folder based on the item's type (for example, an e-mail message is saved to the Drafts folder).
+     * Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added.
+     *
+     */
+    Save(): Promise<void>;
+    /**
+     * Saves this item in a specific folder. Calling this method results in at least one call to EWS.
+     * Mutliple calls to EWS might be made if attachments have been added.
+     *
+     * @param   {WellKnownFolderName}   parentFolderName   The name of the folder in which to save this item.
+     */
+    Save(parentFolderName?: WellKnownFolderName): Promise<void>;
+    /**
+     * Saves this item in a specific folder. Calling this method results in at least one call to EWS.
+     * Mutliple calls to EWS might be made if attachments have been added.
+     *
+     * @param   {FolderId}   parentFolderId   The Id of the folder in which to save this item.
+     */
+    Save(parentFolderId?: FolderId): Promise<void>;
+    /**
+     * Sets the extended property.
+     *
+     * @param   {ExtendedPropertyDefinition}    extendedPropertyDefinition   The extended property definition.
+     * @param   {value}                         value                        The value.
+     */
+    SetExtendedProperty(extendedPropertyDefinition: ExtendedPropertyDefinition, value: any): void;
+    /**
+     * Throws exception if this is attachment.
+     *
+     */
+    ThrowIfThisIsAttachment(): void;
+    /**
+     * Applies the local changes that have been made to this item. Calling this method results in at least one call to EWS.
+     * Mutliple calls to EWS might be made if attachments have been added or removed.
+     *
+     * @param   {ConflictResolutionMode}   conflictResolutionMode   The conflict resolution mode.
+     */
+    Update(conflictResolutionMode: ConflictResolutionMode): Promise<void>;
+    /**
+     * Applies the local changes that have been made to this item. Calling this method results in at least one call to EWS.
+     * Mutliple calls to EWS might be made if attachments have been added or removed.
+     *
+     * @param   {ConflictResolutionMode}   conflictResolutionMode   The conflict resolution mode.
+     * @param   {boolean}   suppressReadReceipts     Whether to suppress read receipts
+     */
+    Update(conflictResolutionMode: ConflictResolutionMode, suppressReadReceipts: boolean): Promise<void>;
+}/**
+ ** this is partial section of CreateEwsObjectFromXmlElementName from serviceobjectinfo, other parts are moved to different object type like folderinfo etc.
+ * this to is to avoid circular referencing with requirejs/commonjs/nodejs
+ */
+ class ItemInfo extends ServiceObjectInfo {
+    InitializeServiceObjectClassMap(): any;
+}/**
+ * Represents a meeting cancellation message. Properties available on meeting messages are defined in the MeetingMessageSchema class.
+ */
+ class MeetingCancellation extends MeetingMessage {
+    /**
+     * Gets the start time of the appointment.
+     */
+    readonly Start: DateTime;
+    /**
+     * Gets the end time of the appointment.
+     */
+    readonly End: DateTime;
+    /**
+     * Gets the location of this appointment.
+     */
+    readonly Location: string;
+    /**
+     * Gets the recurrence pattern for this meeting request.
+     */
+    readonly Recurrence: Recurrence;
+    /**
+     * Gets the Enhanced location object.
+     */
+    readonly EnhancedLocation: EnhancedLocation;
+    /**
+     * Binds to an existing meeting cancellation message and loads the specified set of properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the meeting cancellation message.
+     * @param   {ItemId}            id            The Id of the meeting cancellation message to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<MeetingCancellation>}   A MeetingCancellation instance representing the meeting cancellation message corresponding to the specified Id   :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<MeetingCancellation>;
+    /**
+     * Binds to an existing meeting cancellation message and loads its first class properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the meeting cancellation message.
+     * @param   {ItemId}            id            The Id of the meeting cancellation message to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<MeetingCancellation>}   A MeetingCancellation instance representing the meeting cancellation message corresponding to the specified Id   :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<MeetingCancellation>;
+    /**
+     * Removes the meeting associated with the cancellation message from the user's calendar.
+     *
+     * @return  {Promise<CalendarActionResults>}      A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
+     */
+    RemoveMeetingFromCalendar(): Promise<CalendarActionResults>;
+}/**
+ * Represents a meeting-related message. Properties available on meeting messages are defined in the MeetingMessageSchema class.
+ */
+ class MeetingMessage extends EmailMessage {
+    /**
+     * Gets the Id of the appointment associated with the meeting message.
+     */
+    readonly AssociatedAppointmentId: ItemId;
+    /**
+     * Gets a value indicating whether the meeting message is delegated.
+     */
+    readonly IsDelegated: boolean;
+    /**
+     * Gets a value indicating whether the meeting message is out of date.
+     */
+    readonly IsOutOfDate: boolean;
+    /**
+     * Gets a value indicating whether the meeting message has been processed by Exchange (i.e. Exchange has noted the arrival of a meeting request and has created the associated meeting item in the calendar).
+     */
+    readonly HasBeenProcessed: boolean;
+    /**
+     * Gets the isorganizer property for this meeting
+     *
+     * @Nullable
+     */
+    readonly IsOrganizer: boolean;
+    /**
+     * Gets the type of response the meeting message represents.
+     */
+    readonly ResponseType: MeetingResponseType;
+    /**
+     * Gets the ICalendar Uid.
+     */
+    readonly ICalUid: string;
+    /**
+     * Gets the ICalendar RecurrenceId.
+     *
+     * @Nullable
+     */
+    readonly ICalRecurrenceId: DateTime;
+    /**
+     * Gets the ICalendar DateTimeStamp.
+     */
+    readonly ICalDateTimeStamp: DateTime;
+    /**
+     * Binds to an existing meeting message and loads the specified set of properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the meeting message.
+     * @param   {ItemId}            id            The Id of the meeting message to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<MeetingMessage>}  A MeetingMessage instance representing the meeting message corresponding to the specified Id    :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<MeetingMessage>;
+    /**
+     * Binds to an existing meeting message and loads its first class properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the meeting message.
+     * @param   {ItemId}            id            The Id of the meeting message to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<MeetingMessage>}  A MeetingMessage instance representing the meeting message corresponding to the specified Id    :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<MeetingMessage>;
+}
+/**
+ * Represents a meeting request that an attendee can accept or decline. Properties available on meeting requests are defined in the MeetingRequestSchema class.
+ */
+ class MeetingRequest extends MeetingMessage implements ICalendarActionProvider {
+    /**
+     * Gets the type of this meeting request.
+     */
+    readonly MeetingRequestType: MeetingRequestType;
+    /**
+     * Gets the a value representing the intended free/busy status of the meeting.
+     */
+    readonly IntendedFreeBusyStatus: LegacyFreeBusyStatus;
+    /**
+     * Gets the change highlights of the meeting request.
+     */
+    readonly ChangeHighlights: ChangeHighlights;
+    /**
+     * Gets the Enhanced location object.
+     */
+    readonly EnhancedLocation: EnhancedLocation;
+    /**
+     * Gets the start time of the appointment.
+     */
+    readonly Start: DateTime;
+    /**
+     * Gets the end time of the appointment.
+     */
+    readonly End: DateTime;
+    /**
+     * Gets the original start time of this appointment.
+     */
+    readonly OriginalStart: DateTime;
+    /**
+     * Gets a value indicating whether this appointment is an all day event.
+     */
+    readonly IsAllDayEvent: boolean;
+    /**
+     * Gets a value indicating the free/busy status of the owner of this appointment.
+     */
+    readonly LegacyFreeBusyStatus: LegacyFreeBusyStatus;
+    /**
+     * Gets the location of this appointment.
+     */
+    readonly Location: string;
+    /**
+     * Gets a text indicating when this appointment occurs.
+     * The text returned by When is localized using the Exchange Server culture or using the culture specified in the PreferredCulture property of the ExchangeService object this appointment is bound to.
+     */
+    readonly When: string;
+    /**
+     * Gets a value indicating whether the appointment is a meeting.
+     */
+    readonly IsMeeting: boolean;
+    /**
+     * Gets a value indicating whether the appointment has been cancelled.
+     */
+    readonly IsCancelled: boolean;
+    /**
+     * Gets a value indicating whether the appointment is recurring.
+     */
+    readonly IsRecurring: boolean;
+    /**
+     * Gets a value indicating whether the meeting request has already been sent.
+     */
+    readonly MeetingRequestWasSent: boolean;
+    /**
+     * Gets a value indicating the type of this appointment.
+     */
+    readonly AppointmentType: AppointmentType;
+    /**
+     * Gets a value indicating what was the last response of the user that loaded this meeting.
+     */
+    readonly MyResponseType: MeetingResponseType;
+    /**
+     * Gets the organizer of this meeting.
+     */
+    readonly Organizer: EmailAddress;
+    /**
+     * Gets a list of required attendees for this meeting.
+     */
+    readonly RequiredAttendees: AttendeeCollection;
+    /**
+     * Gets a list of optional attendeed for this meeting.
+     */
+    readonly OptionalAttendees: AttendeeCollection;
+    /**
+     * Gets a list of resources for this meeting.
+     */
+    readonly Resources: AttendeeCollection;
+    /**
+     * Gets the number of calendar entries that conflict with this appointment in the authenticated user's calendar.
+     */
+    readonly ConflictingMeetingCount: number;
+    /**
+     * Gets the number of calendar entries that are adjacent to this appointment in the authenticated user's calendar.
+     */
+    readonly AdjacentMeetingCount: number;
+    /**
+     * Gets a list of meetings that conflict with this appointment in the authenticated user's calendar.
+     */
+    readonly ConflictingMeetings: ItemCollection<Appointment>;
+    /**
+     * Gets a list of meetings that are adjucent to this appointment in the authenticated user's calendar.
+     */
+    readonly AdjacentMeetings: ItemCollection<Appointment>;
+    /**
+     * Gets the duration of this appointment.
+     */
+    readonly Duration: TimeSpan;
+    /**
+     * Gets the name of the time zone this appointment is defined in.
+     */
+    readonly TimeZone: string;
+    /**
+     * Gets the time when the attendee replied to the meeting request.
+     */
+    readonly AppointmentReplyTime: DateTime;
+    /**
+     * Gets the sequence number of this appointment.
+     */
+    readonly AppointmentSequenceNumber: number;
+    /**
+     * Gets the state of this appointment.
+     */
+    readonly AppointmentState: number;
+    /**
+     * Gets the recurrence pattern for this meeting request.
+     */
+    readonly Recurrence: Recurrence;
+    /**
+     * Gets an OccurrenceInfo identifying the first occurrence of this meeting.
+     */
+    readonly FirstOccurrence: OccurrenceInfo;
+    /**
+     * Gets an OccurrenceInfo identifying the last occurrence of this meeting.
+     */
+    readonly LastOccurrence: OccurrenceInfo;
+    /**
+     * Gets a list of modified occurrences for this meeting.
+     */
+    readonly ModifiedOccurrences: OccurrenceInfoCollection;
+    /**
+     * Gets a list of deleted occurrences for this meeting.
+     */
+    readonly DeletedOccurrences: DeletedOccurrenceInfoCollection;
+    /**
+     * Gets time zone of the start property of this meeting request.
+     */
+    readonly StartTimeZone: TimeZoneInfo;
+    /**
+     * Gets time zone of the end property of this meeting request.
+     */
+    readonly EndTimeZone: TimeZoneInfo;
+    /**
+     * Gets the type of conferencing that will be used during the meeting.
+     */
+    readonly ConferenceType: number;
+    /**
+     * Gets a value indicating whether new time proposals are allowed for attendees of this meeting.
+     */
+    readonly AllowNewTimeProposal: boolean;
+    /**
+     * Gets a value indicating whether this is an online meeting.
+     */
+    readonly IsOnlineMeeting: boolean;
+    /**
+     * Gets the URL of the meeting workspace. A meeting workspace is a shared Web site for planning meetings and tracking results.
+     */
+    readonly MeetingWorkspaceUrl: string;
+    /**
+     * Gets the URL of the Microsoft NetShow online meeting.
+     */
+    readonly NetShowUrl: string;
+    /**
+     * Accepts the meeting. Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
+     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation    :Promise.
+     */
+    Accept(sendResponse: boolean): Promise<CalendarActionResults>;
+    /**
+     * Tentatively accepts the meeting. Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
+     * @return  {Promise<CalendarActionResults>}       A CalendarActionResults object containing the various items that were created or modified as a results of this operation    :Promise.
+     */
+    AcceptTentatively(sendResponse: boolean): Promise<CalendarActionResults>;
+    /**
+     * Binds to an existing meeting request and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the meeting request.
+     * @param   {ItemId}            id            The Id of the meeting request to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<MeetingRequest>}        A MeetingRequest instance representing the meeting request corresponding to the specified Id  :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<MeetingRequest>;
+    /**
+     * Binds to an existing meeting request and loads its first class properties.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the meeting request.
+     * @param   {ItemId}            id            The Id of the meeting request to bind to.
+     * @return  {Promise<MeetingRequest>}        A MeetingRequest instance representing the meeting request corresponding to the specified Id  :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<MeetingRequest>;
+    /**
+     * Creates a local meeting acceptance message that can be customized and sent.
+     *
+     * @param   {boolean}   tentative   Specifies whether the meeting will be tentatively accepted.
+     * @return  {AcceptMeetingInvitationMessage}        An AcceptMeetingInvitationMessage representing the meeting acceptance message.
+     */
+    CreateAcceptMessage(tentative: boolean): AcceptMeetingInvitationMessage;
+    /**
+     * Creates a local meeting declination message that can be customized and sent.
+     *
+     * @return  {DeclineMeetingInvitationMessage}      A DeclineMeetingInvitation representing the meeting declination message.
+     */
+    CreateDeclineMessage(): DeclineMeetingInvitationMessage;
+    /**
+     * Declines the meeting invitation. Calling this method results in a call to EWS.
+     *
+     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
+     * @return  {Promise<CalendarActionResults>}       A CalendarActionResults object containing the various items that were created or modified as a results of this operation    :Promise.
+     */
+    Decline(sendResponse: boolean): Promise<CalendarActionResults>;
+}
+/**
+ * Represents a response to a meeting request. Properties available on meeting messages are defined in the MeetingMessageSchema class.
+ */
+ class MeetingResponse extends MeetingMessage {
+    /**
+     * Gets the start time of the appointment.
+     */
+    readonly Start: DateTime;
+    /**
+     * Gets the end time of the appointment.
+     */
+    readonly End: DateTime;
+    /**
+     * Gets the location of this appointment.
+     */
+    readonly Location: string;
+    /**
+     * Gets the recurrence pattern for this meeting request.
+     */
+    readonly Recurrence: Recurrence;
+    /**
+     * Gets the proposed start time of the appointment.
+     */
+    readonly ProposedStart: DateTime;
+    /**
+     * Gets the proposed end time of the appointment.
+     */
+    readonly ProposedEnd: DateTime;
+    /**
+     * Gets the Enhanced location object.
+     */
+    readonly EnhancedLocation: EnhancedLocation;
+    /**
+     * Binds to an existing meeting response and loads the specified set of properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the meeting response.
+     * @param   {ItemId}            id            The Id of the meeting response to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<MeetingResponse>}       A MeetingResponse instance representing the meeting response corresponding to the specified Id    :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<MeetingResponse>;
+    /**
+     * Binds to an existing meeting response and loads its first class properties. Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the meeting response.
+     * @param   {ItemId}            id            The Id of the meeting response to bind to.
+     * @return  {Promise<MeetingResponse>}       A MeetingResponse instance representing the meeting response corresponding to the specified Id    :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<MeetingResponse>;
+}
+/**
+ * Represents a post item. Properties available on post items are defined in the PostItemSchema class.
+ *
+ * @sealed
+ */
+ class PostItem extends Item {
+    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
+    static readonly Attachable: boolean;
+    /**
+     * Gets the conversation index of the post item.
+     */
+    readonly ConversationIndex: number[];
+    /**
+     * Gets the conversation topic of the post item.
+     */
+    readonly ConversationTopic: string;
+    /**
+     * Gets or sets the "on behalf" poster of the post item.
+     */
+    From: EmailAddress;
+    /**
+     * Gets the Internet message Id of the post item.
+     */
+    readonly InternetMessageId: string;
+    /**
+     * Gets or sets a value indicating whether the post item is read.
+     */
+    IsRead: boolean;
+    /**
+     * Gets the the date and time when the post item was posted.
+     */
+    readonly PostedTime: DateTime;
+    /**
+     * Gets or sets the references of the post item.
+     */
+    References: string;
+    /**
+     * Gets or sets the sender (poster) of the post item.
+     */
+    Sender: EmailAddress;
+    /**
+     * Initializes an unsaved local instance of **PostItem**. To bind to an existing post item, use PostItem.Bind() instead.
+     *
+     * @param   {ExchangeService}   service   The ExchangeService object to which the e-mail message will be bound.
+     */
+    constructor(service: ExchangeService);
+    /**
+     * Binds to an existing post item and loads the specified set of properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the post item.
+     * @param   {ItemId}            id            The Id of the post item to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<PostItem>}              An PostItem instance representing the post item corresponding to the specified Id  :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<PostItem>;
+    /**
+     * Binds to an existing post item and loads its first class properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the post item.
+     * @param   {ItemId}            id            The Id of the post item to bind to.
+     * @return  {Promise<PostItem>}              An PostItem instance representing the post item corresponding to the specified Id  :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<PostItem>;
+    /**
+     * Creates a forward response to the post item.
+     *
+     * @return  {ResponseMessage}      A ResponseMessage representing the forward response that can subsequently be modified and sent.
+     */
+    CreateForward(): ResponseMessage;
+    /**
+     * Creates a post reply to this post item.
+     *
+     * @return  {PostReply}      A PostReply that can be modified and saved.
+     */
+    CreatePostReply(): PostReply;
+    /**
+     * Creates a e-mail reply response to the post item.
+     *
+     * @param   {boolean}   replyAll   Indicates whether the reply should go to everyone involved in the thread.
+     * @return  {ResponseMessage}      A ResponseMessage representing the e-mail reply response that can subsequently be modified and sent.
+     */
+    CreateReply(replyAll: boolean): ResponseMessage;
+    /**
+     * Forwards the post item. Calling this method results in a call to EWS.
+     *
+     * @param   {MessageBody}           bodyPrefix     The prefix to prepend to the original body of the post item.
+     * @param   {...EmailAddress[]}     toRecipients   The recipients to forward the post item to.
+     * @return  {Promise<void>}        :Promise.
+     */
+    Forward(bodyPrefix: MessageBody, ...toRecipients: EmailAddress[]): Promise<void>;
+    /**
+     * Forwards the post item. Calling this method results in a call to EWS.
+     *
+     * @param   {MessageBody}       bodyPrefix     The prefix to prepend to the original body of the post item.
+     * @param   {EmailAddress[]}    toRecipients   The recipients to forward the post item to.
+     * @return  {Promise<void>}    :Promise.
+     */
+    Forward(bodyPrefix: MessageBody, toRecipients: EmailAddress[]): Promise<void>;
+    /**
+     * Posts a reply to this post item. Calling this method results in a call to EWS.
+     *
+     * @param   {MessageBody}   bodyPrefix   Body prefix.
+     * @return  {Promise<void>}    :Promise.
+     */
+    PostReply(bodyPrefix: MessageBody): Promise<void>;
+    /**
+     * Replies to the post item. Calling this method results in a call to EWS.
+     *
+     * @param   {MessageBody}   bodyPrefix   The prefix to prepend to the original body of the post item.
+     * @param   {boolean}       replyAll     Indicates whether the reply should be sent to everyone involved in the thread.
+     * @return  {Promise<void>}    :Promise.
+     */
+    Reply(bodyPrefix: MessageBody, replyAll: boolean): Promise<void>;
+}/**
+ * Represents a Task item. Properties available on tasks are defined in the TaskSchema class.
+ */
+ class Task extends Item {
+    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
+    static readonly Attachable: boolean;
+    /**
+     * @nullable Gets or sets the actual amount of time that is spent on the task.
+     */
+    ActualWork: number;
+    /**
+     * @nullable Gets the date and time the task was assigned.
+     */
+    readonly AssignedTime: DateTime;
+    /**
+     * Gets or sets the billing information of the task.
+     */
+    BillingInformation: string;
+    /**
+     * Gets the number of times the task has changed since it was created.
+     */
+    readonly ChangeCount: number;
+    /**
+     * Gets or sets a list of companies associated with the task.
+     */
+    Companies: StringList;
+    /**
+     * @nullable Gets or sets the date and time on which the task was completed.
+     */
+    CompleteDate: DateTime;
+    /**
+     * Gets or sets a list of contacts associated with the task.
+     */
+    Contacts: StringList;
+    /**
+     * Gets the current delegation state of the task.
+     */
+    readonly DelegationState: TaskDelegationState;
+    /**
+     * Gets the name of the delegator of this task.
+     */
+    readonly Delegator: string;
+    /**
+     * @nullable    Gets or sets the date and time on which the task is due.
+     */
+    DueDate: DateTime;
+    /**
+     * Gets a value indicating the mode of the task.
+     */
+    readonly Mode: TaskMode;
+    /**
+     * Gets a value indicating whether the task is complete.
+     */
+    readonly IsComplete: boolean;
+    /**
+     * Gets a value indicating whether the task is recurring.
+     */
+    readonly IsRecurring: boolean;
+    /**
+     * Gets a value indicating whether the task is a team task.
+     */
+    readonly IsTeamTask: boolean;
+    /**
+     * Gets or sets the mileage of the task.
+     */
+    Mileage: string;
+    /**
+     * Gets the name of the owner of the task.
+     */
+    readonly Owner: string;
+    /**
+     * Gets or sets the completeion percentage of the task. PercentComplete must be between 0 and 100.
+     */
+    PercentComplete: number;
+    /**
+     * Gets or sets the recurrence pattern for this task. Available recurrence pattern classes include Recurrence.
+     * DailyPattern, Recurrence.MonthlyPattern and Recurrence.YearlyPattern.
+     */
+    Recurrence: Recurrence;
+    /**
+     * @nullable    Gets or sets the date and time on which the task starts.
+     */
+    StartDate: DateTime;
+    /**
+     * Gets or sets the status of the task.
+     */
+    Status: TaskStatus;
+    /**
+     * Gets a string representing the status of the task, localized according to the PreferredCulture property of the ExchangeService object the task is bound to.
+     */
+    readonly StatusDescription: string;
+    /**
+     * @nullable Gets or sets the total amount of work spent on the task.
+     */
+    TotalWork: number;
+    /**
+     * Initializes an unsaved local instance of **Task**. To bind to an existing task, use Task.Bind() instead.
+     *
+     * @param   {ExchangeService}   service   The ExchangeService instance to which this task is bound.
+     */
+    constructor(service: ExchangeService);
+    /**
+     * Binds to an existing task and loads the specified set of properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the task.
+     * @param   {ItemId}            id            The Id of the task to bind to.
+     * @param   {PropertySet}       propertySet   The set of properties to load.
+     * @return  {Promise<Task>}    A Task instance representing the task corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<Task>;
+    /**
+     * Binds to an existing task and loads its first class properties.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {ExchangeService}   service       The service to use to bind to the task.
+     * @param   {ItemId}            id            The Id of the task to bind to.
+     * @return  {Promise<Task>}    A Task instance representing the task corresponding to the specified Id :Promise.
+     */
+    static Bind(service: ExchangeService, id: ItemId): Promise<Task>;
+    /**
+     * Deletes the current occurrence of a recurring task. After the current occurrence isdeleted, the task represents the next occurrence.
+     * Developers should call Load to retrieve the new property values of the task.
+     * Calling this method results in a call to EWS.
+     *
+     * @param   {DeleteMode}   deleteMode   The deletion mode.
+     * @return  {Promise<void>}            :Promise.
+     */
+    DeleteCurrentOccurrence(deleteMode: DeleteMode): Promise<void>;
+    /**
+     * Applies the local changes that have been made to this task. Calling this method results in at least one call to EWS.
+     * Mutliple calls to EWS might be made if attachments have been added or removed.
+     *
+     * @param   {ConflictResolutionMode}    conflictResolutionMode   Specifies how conflicts should be resolved.
+     * @return  {Promise<Task>}            A Task object representing the completed occurrence if the task is recurring and the update marks it as completed; or a Task object representing the current occurrence if the task is recurring and the uypdate changed its recurrence pattern; or null in every other case    :Promise.
+     */
+    Update(conflictResolutionMode: ConflictResolutionMode): Promise<Task>;
+    /** ##internal ~~ workaround GitHub #52 */
+    Update(conflictResolutionMode: ConflictResolutionMode): Promise<any>;
+}/**
  * Represents a meeting acceptance message.
  *
  */
@@ -17619,7 +20784,8 @@ export interface ISearchFilterCollection {
      * @param   {boolean}         tentative       if set to true accept invitation tentatively.
      */
     constructor(referenceItem: Item, tentative: boolean);
-}/**
+}
+/**
  * Represents the base class for accept, tentatively accept and decline response messages.
  *
  * @typeparam   {TMessage}     The type of message that is created when this response message is saved.
@@ -17655,7 +20821,8 @@ export interface ISearchFilterCollection {
      * Gets or sets the sender of this response.
      */
     Sender: EmailAddress;
-}/**
+}
+/**
  * Represents the base class for all calendar-related response messages.
  *
  * @typeparam   {TMessage}     The type of message that is created when this response message is saved.
@@ -17707,7 +20874,8 @@ export interface ISearchFilterCollection {
      * @return  {CalendarActionResults}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
      */
     SendAndSaveCopy(destinationFolderId: FolderId): Promise<CalendarActionResults | any>;
-}/**
+}
+/**
  * Represents a meeting cancellation message.
  *
  */
@@ -17741,8 +20909,7 @@ export interface ISearchFilterCollection {
      * @return  {string} name of elelment
      */
     GetXmlElementName(): string;
-}
-/**
+}/**
  * Represents a meeting declination message.
  */
  class DeclineMeetingInvitationMessage extends CalendarResponseMessage<MeetingResponse> {
@@ -17752,7 +20919,8 @@ export interface ISearchFilterCollection {
      * @param   {Item}   referenceItem   The reference item.
      */
     constructor(referenceItem: Item);
-}/**
+}
+/**
  * Represents a reply to a post item.
  *
  * @sealed
@@ -17858,8 +21026,7 @@ export interface ISearchFilterCollection {
      * @return  {string}      The XML element name associated with this type. If this method returns null or empty, the XML element name associated with this type is determined by the EwsObjectDefinition attribute that decorates the type, if present.
      */
     GetXmlElementNameOverride(): string;
-}
-/**
+}/**
  * Represents the base class for all responses that can be sent.
  *
  * @typeparam   {TMessage}     Type of message.
@@ -17912,8 +21079,7 @@ export interface ISearchFilterCollection {
      * @param   {FolderId}   destinationFolderId   The Id of the folder in which to save the copy of the message.
      */
     SendAndSaveCopy(destinationFolderId: FolderId): Promise<void>;
-}
-/**
+}/**
  * Represents a response object created to supress read receipts for an item.
  *
  */
@@ -17957,7 +21123,8 @@ export interface ISearchFilterCollection {
      * @param   {PropertySet}   propertySet   The properties to load.
      */
     InternalLoad(propertySet: PropertySet): Promise<void>;
-}/**
+}
+/**
  * Represents the schema for appointment and meeting requests.
  */
  class AppointmentSchema extends ItemSchema {
@@ -18345,8 +21512,7 @@ export interface AppointmentSchema {
  * Represents the schema for appointment and meeting requests.
  */
 export interface AppointmentSchemaStatic extends AppointmentSchema {
-}
-/**
+}/**
  * Represents CalendarResponseObject schema definition.
  */
  class CalendarResponseObjectSchema extends ServiceObjectSchema {
@@ -18366,7 +21532,8 @@ export interface CalendarResponseObjectSchema {
  * Represents CalendarResponseObject schema definition.
  */
 export interface CalendarResponseObjectSchemaStatic extends CalendarResponseObjectSchema {
-}/**
+}
+/**
  * Represents CancelMeetingMessage schema definition.
  */
  class CancelMeetingMessageSchema extends ServiceObjectSchema {
@@ -18394,7 +21561,8 @@ export interface CancelMeetingMessageSchema {
  * Represents CancelMeetingMessage schema definition.
  */
 export interface CancelMeetingMessageSchemaStatic extends CancelMeetingMessageSchema {
-}/**
+}
+/**
  * Represents the schema for contact groups.
  */
  class ContactGroupSchema extends ItemSchema {
@@ -18438,8 +21606,7 @@ export interface ContactGroupSchema {
  * Represents the schema for contact groups.
  */
 export interface ContactGroupSchemaStatic extends ContactGroupSchema {
-}
-/**
+}/**
  * Represents the schem for contacts.
  */
  class ContactSchema extends ItemSchema {
@@ -19115,7 +22282,8 @@ export interface ContactSchema {
  * Represents the schem for contacts.
  */
 export interface ContactSchemaStatic extends ContactSchema {
-}/**
+}
+/**
  * Represents the schema for Conversation.
  */
  class ConversationSchema extends ServiceObjectSchema {
@@ -19423,7 +22591,8 @@ export interface ConversationSchema {
  * Represents the schema for Conversation.
  */
 export interface ConversationSchemaStatic extends ConversationSchema {
-}/**
+}
+/**
  * Represents the schema for e-mail messages.
  */
  class EmailMessageSchema extends ItemSchema {
@@ -19587,7 +22756,8 @@ export interface EmailMessageSchema {
  * Represents the schema for e-mail messages.
  */
 export interface EmailMessageSchemaStatic extends EmailMessageSchema {
-}/**
+}
+/**
  * Represents the schema for folders.
  */
  class FolderSchema extends ServiceObjectSchema {
@@ -19711,7 +22881,8 @@ export interface FolderSchema {
  * Represents the schema for folders.
  */
 export interface FolderSchemaStatic extends FolderSchema {
-}/**
+}
+/**
  * Represents the schema for generic items.
  */
  class ItemSchema extends ServiceObjectSchema {
@@ -20115,7 +23286,8 @@ export interface ItemSchema {
  * Represents the schema for generic items.
  */
 export interface ItemSchemaStatic extends ItemSchema {
-}/**
+}
+/**
  * Represents the schema for meeting cancellation.
  */
  class MeetingCancellationSchema extends MeetingMessageSchema {
@@ -20183,7 +23355,8 @@ export interface MeetingCancellationSchema {
  * Represents the schema for meeting cancellation.
  */
 export interface MeetingCancellationSchemaStatic extends MeetingCancellationSchema {
-}/**
+}
+/**
  * Represents the schema for meeting messages.
  */
  class MeetingMessageSchema extends EmailMessageSchema {
@@ -20275,7 +23448,8 @@ export interface MeetingMessageSchema {
  * Represents the schema for meeting messages.
  */
 export interface MeetingMessageSchemaStatic extends MeetingMessageSchema {
-}/**
+}
+/**
  * Represents the schema for meeting requests.
  */
  class MeetingRequestSchema extends MeetingMessageSchema {
@@ -20639,7 +23813,8 @@ export interface MeetingRequestSchema {
  * Represents the schema for meeting requests.
  */
 export interface MeetingRequestSchemaStatic extends MeetingRequestSchema {
-}/**
+}
+/**
  * Represents the schema for meeting response
  */
  class MeetingResponseSchema extends MeetingMessageSchema {
@@ -20723,8 +23898,7 @@ export interface MeetingResponseSchema {
  * Represents the schema for meeting response
  */
 export interface MeetingResponseSchemaStatic extends MeetingResponseSchema {
-}
-/**
+}/**
  * Represents the schema for post items.
  */
  class PostItemSchema extends ItemSchema {
@@ -20808,8 +23982,7 @@ export interface PostItemSchema {
  * Represents the schema for post items.
  */
 export interface PostItemSchemaStatic extends PostItemSchema {
-}
-/**
+}/**
  * Represents PostReply schema definition.
  */
  class PostReplySchema extends ServiceObjectSchema {
@@ -20829,8 +24002,7 @@ export interface PostReplySchema {
  * Represents PostReply schema definition.
  */
 export interface PostReplySchemaStatic extends PostReplySchema {
-}
-/**
+}/**
  * Represents ResponseMessage schema definition.
  */
  class ResponseMessageSchema extends ServiceObjectSchema {
@@ -20850,7 +24022,8 @@ export interface ResponseMessageSchema {
  * Represents ResponseMessage schema definition.
  */
 export interface ResponseMessageSchemaStatic extends ResponseMessageSchema {
-}/**
+}
+/**
  * Represents ResponseObject schema definition.
  */
  class ResponseObjectSchema extends ServiceObjectSchema {
@@ -20886,7 +24059,8 @@ export interface ResponseObjectSchema {
  * Represents ResponseObject schema definition.
  */
 export interface ResponseObjectSchemaStatic extends ResponseObjectSchema {
-}/**
+}
+/**
  * Schemas - container for all schema objects
  */
  class Schemas {
@@ -20909,7 +24083,8 @@ export interface ResponseObjectSchemaStatic extends ResponseObjectSchema {
     static ResponseObjectSchema: ResponseObjectSchema;
     static SearchFolderSchema: SearchFolderSchema;
     static ServiceObjectSchema: ServiceObjectSchema;
-    static TaskSchema: TaskSchema;}/**
+    static TaskSchema: TaskSchema;}
+/**
  * Represents the schema for search folders.
  */
  class SearchFolderSchema extends FolderSchema {
@@ -20937,7 +24112,8 @@ export interface SearchFolderSchema {
  * Represents the schema for search folders.
  */
 export interface SearchFolderSchemaStatic extends SearchFolderSchema {
-}/**
+}
+/**
  * Represents the base class for all item and folder schemas.
  */
  abstract class ServiceObjectSchema implements IEnumerable<PropertyDefinition> {    /**
@@ -20970,7 +24146,8 @@ export interface ServiceObjectSchema {
  * Represents the base class for all item and folder schemas.
  */
 export interface ServiceObjectSchemaStatic extends ServiceObjectSchema {
-}/**
+}
+/**
  * Represents the schema for task items.
  */
  class TaskSchema extends ItemSchema {
@@ -21166,2210 +24343,8 @@ export interface TaskSchema {
  * Represents the schema for task items.
  */
 export interface TaskSchemaStatic extends TaskSchema {
-}/**
- * Represents an **appointment or a meeting**. Properties available on appointments are defined in the *AppointmentSchema* class.
- */
- class Appointment extends Item implements ICalendarActionProvider {
-    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute.*/
-    static readonly Attachable: boolean;
-    /**
-     * Gets or sets the start time of the appointment.
-     */
-    Start: DateTime;
-    /**
-     * Gets or sets the end time of the appointment.
-     */
-    End: DateTime;
-    /**
-     * Gets the original start time of this appointment.
-     */
-    readonly OriginalStart: DateTime;
-    /**
-     * Gets or sets a value indicating whether this appointment is an all day event.
-     */
-    IsAllDayEvent: boolean;
-    /**
-     * Gets or sets a value indicating the free/busy status of the owner of this appointment.
-     */
-    LegacyFreeBusyStatus: LegacyFreeBusyStatus;
-    /**
-     * Gets or sets the location of this appointment.
-     */
-    Location: string;
-    /**
-     * Gets a text indicating when this appointment occurs.
-     * The text returned by When is localized using the Exchange Server culture or using the culture specified in the PreferredCulture property of the ExchangeService object this appointment is bound to.
-     */
-    readonly When: string;
-    /**
-     * Gets a value indicating whether the appointment is a meeting.
-     */
-    readonly IsMeeting: boolean;
-    /**
-     * Gets a value indicating whether the appointment has been cancelled.
-     */
-    readonly IsCancelled: boolean;
-    /**
-     * Gets a value indicating whether the appointment is recurring.
-     */
-    readonly IsRecurring: boolean;
-    /**
-     * Gets a value indicating whether the meeting request has already been sent.
-     */
-    readonly MeetingRequestWasSent: boolean;
-    /**
-    * Gets or sets a value indicating whether responses are requested when invitations are sent for this meeting.
-    */
-    IsResponseRequested: boolean;
-    /**
-     * Gets a value indicating the type of this appointment.
-     */
-    readonly AppointmentType: AppointmentType;
-    /**
-     * Gets a value indicating what was the last response of the user that loaded this meeting.
-     */
-    readonly MyResponseType: MeetingResponseType;
-    /**
-     * Gets the organizer of this meeting. The Organizer property is read-only and is only relevant for attendees.
-     * The organizer of a meeting is automatically set to the user that created the meeting.
-     */
-    readonly Organizer: EmailAddress;
-    /**
-     * Gets a list of required attendees for this meeting.
-     */
-    readonly RequiredAttendees: AttendeeCollection;
-    /**
-     * Gets a list of optional attendeed for this meeting.
-     */
-    readonly OptionalAttendees: AttendeeCollection;
-    /**
-     * Gets a list of resources for this meeting.
-     */
-    readonly Resources: AttendeeCollection;
-    /**
-     * Gets the number of calendar entries that conflict with this appointment in the authenticated user's calendar.
-     */
-    readonly ConflictingMeetingCount: number;
-    /**
-     * Gets the number of calendar entries that are adjacent to this appointment in the authenticated user's calendar.
-     */
-    readonly AdjacentMeetingCount: number;
-    /**
-     * Gets a list of meetings that conflict with this appointment in the authenticated user's calendar.
-     */
-    readonly ConflictingMeetings: ItemCollection<Appointment>;
-    /**
-     * Gets a list of meetings that is adjacent to this appointment in the authenticated user's calendar.
-     */
-    readonly AdjacentMeetings: ItemCollection<Appointment>;
-    /**
-     * Gets the duration of this appointment.
-     */
-    readonly Duration: TimeSpan;
-    /**
-     * Gets the name of the time zone this appointment is defined in.
-     */
-    readonly TimeZone: string;
-    /**
-     * Gets the time when the attendee replied to the meeting request.
-     */
-    readonly AppointmentReplyTime: DateTime;
-    /**
-     * Gets the sequence number of this appointment.
-     */
-    readonly AppointmentSequenceNumber: number;
-    /**
-     * Gets the state of this appointment.
-     */
-    readonly AppointmentState: number;
-    /**
-     * Gets or sets the recurrence pattern for this appointment. Available recurrence pattern classes include
-     * Recurrence.DailyPattern, Recurrence.MonthlyPattern and Recurrence.YearlyPattern.
-     */
-    Recurrence: Recurrence;
-    /**
-     * Gets an OccurrenceInfo identifying the first occurrence of this meeting.
-     */
-    readonly FirstOccurrence: OccurrenceInfo;
-    /**
-     * Gets an OccurrenceInfo identifying the last occurrence of this meeting.
-     */
-    readonly LastOccurrence: OccurrenceInfo;
-    /**
-     * Gets a list of modified occurrences for this meeting.
-     */
-    readonly ModifiedOccurrences: OccurrenceInfoCollection;
-    /**
-     * Gets a list of deleted occurrences for this meeting.
-     */
-    readonly DeletedOccurrences: DeletedOccurrenceInfoCollection;
-    /**
-     * Gets or sets time zone of the start property of this appointment.
-     */
-    StartTimeZone: TimeZoneInfo;
-    /**
-     * Gets or sets time zone of the end property of this appointment.
-     */
-    EndTimeZone: TimeZoneInfo;
-    /**
-     * Gets or sets the type of conferencing that will be used during the meeting.
-     */
-    ConferenceType: number;
-    /**
-     * Gets or sets a value indicating whether new time proposals are allowed for attendees of this meeting.
-     */
-    AllowNewTimeProposal: boolean;
-    /**
-     * Gets or sets a value indicating whether this is an online meeting.
-     */
-    IsOnlineMeeting: boolean;
-    /**
-     * Gets or sets the URL of the meeting workspace. A meeting workspace is a shared Web site for planning meetings and tracking results.
-     */
-    MeetingWorkspaceUrl: string;
-    /**
-     * Gets or sets the URL of the Microsoft NetShow online meeting.
-     */
-    NetShowUrl: string;
-    /**
-     * Gets or sets the ICalendar Uid.
-     */
-    ICalUid: string;
-    /**
-     * Gets the ICalendar RecurrenceId.
-     */
-    readonly ICalRecurrenceId: DateTime;
-    /**
-     * Gets the ICalendar DateTimeStamp.
-     */
-    readonly ICalDateTimeStamp: DateTime;
-    /**
-     * Gets or sets the Enhanced location object.
-     */
-    EnhancedLocation: EnhancedLocation;
-    /**
-     * Gets the Url for joining an online meeting
-     */
-    readonly JoinOnlineMeetingUrl: string;
-    /**
-     * Gets the Online Meeting Settings
-     */
-    readonly OnlineMeetingSettings: OnlineMeetingSettings;
-    /**
-     * Initializes an unsaved local instance of . To bind to an existing appointment, use Appointment.Bind() instead.
-     *
-     * @param   {ExchangeService}   service   The ExchangeService instance to which this appointmtnt is bound.
-     */
-    constructor(svc: ExchangeService);
-    /**
-     * Accepts the meeting. Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
-     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation :Promise.
-     */
-    Accept(sendResponse: boolean): Promise<CalendarActionResults>;
-    /**
-     * Tentatively accepts the meeting. Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
-     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation :Promise.
-     */
-    AcceptTentatively(sendResponse: boolean): Promise<CalendarActionResults>;
-    /**
-     * Binds to an existing appointment and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}     service       The service to use to bind to the appointment.
-     * @param   {ItemId}              id            The Id of the appointment to bind to.
-     * @return  {Promise<Appointment>}   An Appointment instance representing the appointment corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<Appointment>;
-    /**
-    * Binds to an existing appointment and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}     service       The service to use to bind to the appointment.
-     * @param   {ItemId}              id            The Id of the appointment to bind to.
-     * @param   {PropertySet}         propertySet   The set of properties to load.
-     * @return  {Promise<Appointment>}   An Appointment instance representing the appointment corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<Appointment>;
-    /**
-     * Binds to an occurence of an existing appointment and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}  service             The service to use to bind to the appointment.
-     * @param   {ItemId}           recurringMasterId   The Id of the recurring master that the index represents an occurrence of.
-     * @param   {number}           occurenceIndex      The index of the occurrence.
-     * @return  {Promise<Appointment>}                 An Appointment instance representing the appointment occurence corresponding to the specified occurence index :Promise.
-     */
-    static BindToOccurrence(service: ExchangeService, recurringMasterId: ItemId, occurenceIndex: number): Promise<Appointment>;
-    /**
-     * Binds to an occurence of an existing appointment and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}  service             The service to use to bind to the appointment.
-     * @param   {ItemId}           recurringMasterId   The Id of the recurring master that the index represents an occurrence of.
-     * @param   {number}           occurenceIndex      The index of the occurrence.
-     * @param   {PropertySet}      propertySet         The set of properties to load.
-     * @return  {Promise<Appointment>}                 An Appointment instance representing the appointment occurence corresponding to the specified occurence index :Promise.
-     */
-    static BindToOccurrence(service: ExchangeService, recurringMasterId: ItemId, occurenceIndex: number, propertySet: PropertySet): Promise<Appointment>;
-    /**
-     * Binds to the master appointment of a recurring series and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}     service        The service to use to bind to the appointment.
-     * @param   {ItemId}              occurrenceId   The Id of one of the occurrences in the series.
-     * @return  {Promise<Appointment>}   An Appointment instance representing the master appointment of the recurring series to which the specified occurrence belongs :Promise.
-     */
-    static BindToRecurringMaster(service: ExchangeService, occurrenceId: ItemId): Promise<Appointment>;
-    /**
-     * Binds to the master appointment of a recurring series and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}     service        The service to use to bind to the appointment.
-     * @param   {ItemId}              occurrenceId   The Id of one of the occurrences in the series.
-     * @param   {PropertySet}         propertySet    The set of properties to load.
-     * @return  {Promise<Appointment>}   An Appointment instance representing the master appointment of the recurring series to which the specified occurrence belongs :Promise.
-     */
-    static BindToRecurringMaster(service: ExchangeService, occurrenceId: ItemId, propertySet: PropertySet): Promise<Appointment>;
-    /**
-     * Cancels the meeting and sends cancellation messages to all attendees. Calling this method results in a call to EWS.
-     *
-     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation :Promise.
-     */
-    CancelMeeting(): Promise<CalendarActionResults>;
-    /**
-     * Cancels the meeting and sends cancellation messages to all attendees. Calling this method results in a call to EWS.
-     *
-     * @param   {string}   cancellationMessageText   Cancellation message text sent to all attendees.
-     * @return  {Promise<CalendarActionResults>}     A CalendarActionResults object containing the various items that were created or modified as a results of this operation :Promise.
-     */
-    CancelMeeting(cancellationMessageText: string): Promise<CalendarActionResults>;
-    /**
-     * Creates a local meeting acceptance message that can be customized and sent.
-     *
-     * @param   {boolean}   tentative   Specifies whether the meeting will be tentatively accepted.
-     * @return  {AcceptMeetingInvitationMessage}  An AcceptMeetingInvitationMessage representing the meeting acceptance message.
-     */
-    CreateAcceptMessage(tentative: boolean): AcceptMeetingInvitationMessage;
-    /**
-     * Creates a local meeting cancellation message that can be customized and sent.
-     *
-     * @return  {CancelMeetingMessage}    A CancelMeetingMessage representing the meeting cancellation message.
-     */
-    CreateCancelMeetingMessage(): CancelMeetingMessage;
-    /**
-     * Creates a local meeting declination message that can be customized and sent.
-     *
-     * @return  {DeclineMeetingInvitationMessage}      A DeclineMeetingInvitation representing the meeting declination message.
-     */
-    CreateDeclineMessage(): DeclineMeetingInvitationMessage;
-    /**
-     * Creates a forward message from this appointment.
-     *
-     * @return  {ResponseMessage} A ResponseMessage representing the forward response that can subsequently be modified and sent.
-     */
-    CreateForward(): ResponseMessage;
-    /**
-     * Creates a reply response to the organizer and/or attendees of the meeting.
-     *
-     * @param   {boolean}   replyAll   Indicates whether the reply should go to the organizer only or to all the attendees.
-     * @return  {ResponseMessage} A ResponseMessage representing the reply response that can subsequently be modified and sent.
-     */
-    CreateReply(replyAll: boolean): ResponseMessage;
-    /**
-     * Declines the meeting invitation. Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
-     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as aresults of this operation :Promise.
-     */
-    Decline(sendResponse: boolean): Promise<CalendarActionResults>;
-    /** ## internal - do not use on Appointment class */
-    Delete(deleteMode: DeleteMode, suppressReadReceipts?: boolean): Promise<void>;
-    /**
-     * Deletes this appointment. Calling this method results in a call to EWS.
-     *
-     * @param   {DeleteMode}   deleteMode              The deletion mode.
-     * @param   {SendCancellationsMode}   sendCancellationsMode   Specifies if and how cancellations should be sent if this appointment is a meeting.
-     */
-    Delete(deleteMode: DeleteMode, sendCancellationsMode: SendCancellationsMode): Promise<void>;
-    /**
-     * Forwards the appointment. Calling this method results in a call to EWS.
-     *
-     * @param   {MessageBody}     bodyPrefix     The prefix to prepend to the original body of the message.
-     * @param   {EmailAddress[]}  toRecipients   The recipients to forward the appointment to.
-     */
-    Forward(bodyPrefix: MessageBody, toRecipients: EmailAddress[]): void;
-    /**
-     * Forwards the appointment. Calling this method results in a call to EWS.
-     *
-     * @param   {MessageBody}     bodyPrefix     The prefix to prepend to the original body of the message.
-     * @param   {EmailAddress[]}  ...toRecipients   The recipients to forward the appointment to.
-     */
-    Forward(bodyPrefix: MessageBody, ...toRecipients: EmailAddress[]): void;
-    /**
-     * Replies to the organizer and/or the attendees of the meeting. Calling this method results in a call to EWS.
-     *
-     * @param   {MessageBody}     bodyPrefix   The prefix to prepend to the body of the meeting.
-     * @param   {boolean}         replyAll     Indicates whether the reply should go to the organizer only or to all the attendees.
-     */
-    Reply(bodyPrefix: MessageBody, replyAll: boolean): Promise<void>;
-    /**
-     * Saves this appointment in the Calendar folder. Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added.
-     * ### sendInvitationsMode not optional, see github issue #52
-     *
-     * @param   {SendInvitationsMode}   sendInvitationsMode   *not Optional* Specifies if and how invitations should be sent if this appointment is a meeting.
-     */
-    Save(sendInvitationsMode?: SendInvitationsMode): Promise<void>;
-    /**
-     * Saves this appointment in the specified folder. Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added.
-     * ### sendInvitationsMode not optional, see github issue #52
-     *
-     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to save this appointment.
-     * @param   {SendInvitationsMode}   sendInvitationsMode     *not Optional* Specifies if and how invitations should be sent if this appointment is a meeting.
-     */
-    Save(destinationFolderName: WellKnownFolderName, sendInvitationsMode?: SendInvitationsMode): Promise<void>;
-    /**
-     * Saves this appointment in the specified folder. Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added.
-     * ### sendInvitationsMode not optional, see github issue #52
-     *
-     * @param   {FolderId}                destinationFolderId   The Id of the folder in which to save this appointment.
-     * @param   {SendInvitationsMode}     sendInvitationsMode   *not Optional* Specifies if and how invitations should be sent if this appointment is a meeting.
-     */
-    Save(destinationFolderId: FolderId, sendInvitationsMode?: SendInvitationsMode): Promise<void>;
-    /** ## internal - do not use on Appointment class */
-    Update(conflictResolutionMode: ConflictResolutionMode): Promise<void>;
-    /**
-     * Applies the local changes that have been made to this appointment. Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added or removed.
-     * ### sendInvitationsOrCancellationsMode not optional, see github issue #52
-     *
-     * @param   {ConflictResolutionMode}   conflictResolutionMode               Specifies how conflicts should be resolved.
-     * @param   {SendInvitationsOrCancellationsMode}   sendInvitationsOrCancellationsMode   Specifies if and how invitations or cancellations should be sent if this appointment is a meeting.
-     */
-    Update(conflictResolutionMode: ConflictResolutionMode, sendInvitationsOrCancellationsMode?: SendInvitationsOrCancellationsMode): Promise<void>;
-}/**
- * Represents a **contact**. Properties available on contacts are defined in the *ContactSchema* class.
- *
- */
- class Contact extends Item {
-    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
-    static readonly Attachable: boolean;    /**
-     * Gets or set the name under which this contact is filed as. FileAs can be manually set or can be automatically calculated based on the value of the FileAsMapping property.
-     *
-     */
-    FileAs: string;
-    /**
-     * Gets or sets a value indicating how the FileAs property should be automatically calculated.
-     *
-     */
-    FileAsMapping: FileAsMapping;
-    /**
-     * Gets or sets the display name of the contact.
-     *
-     */
-    DisplayName: string;
-    /**
-     * Gets or sets the given name of the contact.
-     *
-     */
-    GivenName: string;
-    /**
-     * Gets or sets the initials of the contact.
-     *
-     */
-    Initials: string;
-    /**
-     * Gets or sets the middle mame of the contact.
-     *
-     */
-    MiddleName: string;
-    /**
-     * Gets or sets the nick name of the contact.
-     *
-     */
-    NickName: string;
-    /**
-     * Gets the complete name of the contact.
-     *
-     */
-    readonly CompleteName: CompleteName;
-    /**
-     * Gets or sets the compnay name of the contact.
-     *
-     */
-    CompanyName: string;
-    /**
-     * Gets an indexed list of e-mail addresses for the contact. For example, to set the first e-mail address,
-     * use the following syntax: EmailAddresses[EmailAddressKey.EmailAddress1] = "john.doe@contoso.com"
-     *
-     */
-    readonly EmailAddresses: EmailAddressDictionary;
-    /**
-     * Gets an indexed list of physical addresses for the contact. For example, to set the business address,
-     * use the following syntax: PhysicalAddresses[PhysicalAddressKey.Business] = new PhysicalAddressEntry()
-     *
-     */
-    readonly PhysicalAddresses: PhysicalAddressDictionary;
-    /**
-     * Gets an indexed list of phone numbers for the contact. For example, to set the home phone number,
-     * use the following syntax: PhoneNumbers[PhoneNumberKey.HomePhone] = "phone number"
-     *
-     */
-    readonly PhoneNumbers: PhoneNumberDictionary;
-    /**
-     * Gets or sets the contact's assistant name.
-     *
-     */
-    AssistantName: string;
-    /**
-     * Gets or sets the birthday of the contact.
-     *
-     */
-    Birthday: DateTime;
-    /**
-     * Gets or sets the business home page of the contact.
-     *
-     */
-    BusinessHomePage: string;
-    /**
-     * Gets or sets a list of children for the contact.
-     *
-     */
-    Children: StringList;
-    /**
-     * Gets or sets a list of companies for the contact.
-     *
-     */
-    Companies: StringList;
-    /**
-     * Gets the source of the contact.
-     *
-     */
-    readonly ContactSource: ContactSource;
-    /**
-     * Gets or sets the department of the contact.
-     *
-     */
-    Department: string;
-    /**
-     * Gets or sets the generation of the contact.
-     *
-     */
-    Generation: string;
-    /**
-     * Gets an indexed list of Instant Messaging addresses for the contact.
-     * For example, to set the first IM address, use the following syntax: ImAddresses[ImAddressKey.ImAddress1] = "john.doe@contoso.com"
-     *
-     */
-    readonly ImAddresses: ImAddressDictionary;
-    /**
-     * Gets or sets the contact's job title.
-     *
-     */
-    JobTitle: string;
-    /**
-     * Gets or sets the name of the contact's manager.
-     *
-     */
-    Manager: string;
-    /**
-     * Gets or sets the mileage for the contact.
-     *
-     */
-    Mileage: string;
-    /**
-     * Gets or sets the location of the contact's office.
-     *
-     */
-    OfficeLocation: string;
-    /**
-     * Gets or sets the index of the contact's postal address. When set, PostalAddressIndex refers to an entry in the PhysicalAddresses indexed list.
-     *
-     */
-    PostalAddressIndex: PhysicalAddressIndex;
-    /**
-     * Gets or sets the contact's profession.
-     *
-     */
-    Profession: string;
-    /**
-     * Gets or sets the name of the contact's spouse.
-     *
-     */
-    SpouseName: string;
-    /**
-     * Gets or sets the surname of the contact.
-     *
-     */
-    Surname: string;
-    /**
-     * Gets or sets the date of the contact's wedding anniversary.
-     *
-     */
-    WeddingAnniversary: DateTime;
-    /**
-     * Gets a value indicating whether this contact has a picture associated with it.
-     *
-     */
-    readonly HasPicture: boolean;
-    /**
-     * Gets the full phonetic name from the directory
-     *
-     */
-    readonly PhoneticFullName: string;
-    /**
-     * Gets the phonetic first name from the directory
-     *
-     */
-    readonly PhoneticFirstName: string;
-    /**
-     * Gets the phonetic last name from the directory
-     *
-     */
-    readonly PhoneticLastName: string;
-    /**
-     * Gets the Alias from the directory
-     *
-     */
-    readonly Alias: string;
-    /**
-     * Get the Notes from the directory
-     *
-     */
-    readonly Notes: string;
-    /**
-     * Gets the Photo from the directory **Unstable: needs testing**
-     *
-     */
-    readonly DirectoryPhoto: number[];
-    /**
-     * Gets the User SMIME certificate from the directory **Unstable: needs testing**
-     * //ref: cant use bytearray, using base64 decoded string instead -  number[][]
-     *
-     */
-    readonly UserSMIMECertificate: string[];
-    /**
-     * Gets the MSExchange certificate from the directory **Unstable: needs testing**
-     * //ref: cant use bytearray, using base64 decoded string instead -  number[][]
-     *
-     */
-    readonly MSExchangeCertificate: string[];
-    /**
-     * Gets the DirectoryID as Guid or DN string
-     *
-     */
-    readonly DirectoryId: string;
-    /**
-     * Gets the manager mailbox information
-     *
-     */
-    readonly ManagerMailbox: EmailAddress;
-    /**
-     * Get the direct reports mailbox information
-     *
-     */
-    readonly DirectReports: EmailAddressCollection;
-    /**
-     * Initializes an unsaved local instance of . To bind to an existing contact, use Contact.Bind() instead.
-     *
-     * @param   {ExchangeService}   service   The ExchangeService object to which the contact will be bound.
-     */
-    constructor(service: ExchangeService);
-    /**
-     * Binds to an existing contact and loads the specified set of properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service         The service to use to bind to the contact.
-     * @param   {ItemId}            id              The Id of the contact to bind to.
-     * @return  {Promise<Contact>}                 A Contact instance representing the contact corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<Contact>;
-    /**
-     * Binds to an existing contact and loads the specified set of properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service         The service to use to bind to the contact.
-     * @param   {ItemId}            id              The Id of the contact to bind to.
-     * @param   {PropertySet}       propertySet     The set of properties to load.
-     * @return  {Promise<Contact>}                 A Contact instance representing the contact corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<Contact>;
-    /**
-     * Retrieves the file attachment that holds the contact's picture. **Unstable: needs testing**
-     *
-     * @return  {FileAttachment}      The file attachment that holds the contact's picture.
-     */
-    GetContactPictureAttachment(): FileAttachment;
-    /**
-     * Removes the picture from local attachment collection.     *
-     */    /**
-     * Removes the contact's picture.     *
-     */
-    RemoveContactPicture(): void;
-    /**
-     * Sets the contact's picture using the base64 content of file.
-     *
-     * @param   {string}    base64Content       base64 content of picture attachment.
-     * @param   {string}    attachmentName      name of the picture attachment.
-     *
-     */
-    SetContactPicture(base64Content: string, attachmentName: string): void;
-}/**
- * Represents a Contact Group. Properties available on contact groups are defined in the ContactGroupSchema class.
- */
- class ContactGroup extends Item {
-    /**
-     * Gets the name under which this contact group is filed as.
-     *
-     * [RequiredServerVersion(ExchangeVersion.Exchange2010)]
-     */
-    readonly FileAs: string;
-    /**
-     * Gets or sets the display name of the contact group.
-     */
-    DisplayName: string;
-    /**
-     * Gets the members of the contact group.
-     *
-     * [RequiredServerVersion(ExchangeVersion.Exchange2010)]
-     */
-    readonly Members: GroupMemberCollection;
-    /**
-     * Initializes an unsaved local instance of the **ContactGroup** class.
-     *
-     * @param   {ExchangeService}   service   EWS service to which this object belongs.
-     */
-    constructor(service: ExchangeService);
-    /**
-     * Binds to an existing contact group and loads the specified set of properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the contact group.
-     * @param   {ItemId}            id            The Id of the contact group to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<ContactGroup>}    A ContactGroup instance representing the contact group corresponding to the specified Id    :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<ContactGroup>;
-    /**
-     * Binds to an existing contact group and loads its first class properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the contact group.
-     * @param   {ItemId}            id            The Id of the contact group to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<ContactGroup>}    A ContactGroup instance representing the contact group corresponding to the specified Id    :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<ContactGroup>;
-}/**
- * Represents a collection of Conversation related properties.
- * Properties available on this object are defined in the ConversationSchema class.
- */
- class Conversation extends ServiceObject {
-    /**
-     * Gets the Id of this Conversation.
-     */
-    readonly Id: ConversationId;
-    /**
-     * Gets the topic of this Conversation.
-     */
-    readonly Topic: string;
-    /**
-     * Gets a list of all the people who have received messages in this conversation in the current folder only.
-     */
-    readonly UniqueRecipients: StringList;
-    /**
-     * Gets a list of all the people who have received messages in this conversation across all folders in the mailbox.
-     */
-    readonly GlobalUniqueRecipients: StringList;
-    /**
-     * Gets a list of all the people who have sent messages that are currently unread in this conversation in the current folder only.
-     */
-    readonly UniqueUnreadSenders: StringList;
-    /**
-     * Gets a list of all the people who have sent messages that are currently unread in this conversation across all folders in the mailbox.
-     */
-    readonly GlobalUniqueUnreadSenders: StringList;
-    /**
-     * Gets a list of all the people who have sent messages in this conversation in the current folder only.
-     */
-    readonly UniqueSenders: StringList;
-    /**
-     * Gets a list of all the people who have sent messages in this conversation across all folders in the mailbox.
-     */
-    readonly GlobalUniqueSenders: StringList;
-    /**
-     * Gets the delivery time of the message that was last received in this conversation in the current folder only.
-     */
-    readonly LastDeliveryTime: DateTime;
-    /**
-     * Gets the delivery time of the message that was last received in this conversation across all folders in the mailbox.
-     */
-    readonly GlobalLastDeliveryTime: DateTime;
-    /**
-     * Gets a list summarizing the categories stamped on messages in this conversation, in the current folder only.
-     */
-    readonly Categories: StringList;
-    /**
-     * Gets a list summarizing the categories stamped on messages in this conversation, across all folders in the mailbox.
-     */
-    readonly GlobalCategories: StringList;
-    /**
-     * Gets the flag status for this conversation, calculated by aggregating individual messages flag status in the current folder.
-     */
-    readonly FlagStatus: ConversationFlagStatus;
-    /**
-     * Gets the flag status for this conversation, calculated by aggregating individual messages flag status across all folders in the mailbox.
-     */
-    readonly GlobalFlagStatus: ConversationFlagStatus;
-    /**
-     * Gets a value indicating if at least one message in this conversation, in the current folder only, has an attachment.
-     */
-    readonly HasAttachments: boolean;
-    /**
-     * Gets a value indicating if at least one message in this conversation, across all folders in the mailbox, has an attachment.
-     */
-    readonly GlobalHasAttachments: boolean;
-    /**
-     * Gets the total number of messages in this conversation in the current folder only.
-     */
-    readonly MessageCount: number;
-    /**
-     * Gets the total number of messages in this conversation across all folders in the mailbox.
-     */
-    readonly GlobalMessageCount: number;
-    /**
-     * Gets the total number of unread messages in this conversation in the current folder only.
-     */
-    readonly UnreadCount: number;
-    /**
-     * Gets the total number of unread messages in this conversation across all folders in the mailbox.
-     */
-    readonly GlobalUnreadCount: number;
-    /**
-     * Gets the size of this conversation, calculated by adding the sizes of all messages in the conversation in the current folder only.
-     */
-    readonly Size: number;
-    /**
-     * Gets the size of this conversation, calculated by adding the sizes of all messages in the conversation across all folders in the mailbox.
-     */
-    readonly GlobalSize: number;
-    /**
-     * Gets a list summarizing the classes of the items in this conversation, in the current folder only.
-     */
-    readonly ItemClasses: StringList;
-    /**
-     * Gets a list summarizing the classes of the items in this conversation, across all folders in the mailbox.
-     */
-    readonly GlobalItemClasses: StringList;
-    /**
-     * Gets the importance of this conversation, calculated by aggregating individual messages importance in the current folder only.
-     */
-    readonly Importance: Importance;
-    /**
-     * Gets the importance of this conversation, calculated by aggregating individual messages importance across all folders in the mailbox.
-     */
-    readonly GlobalImportance: Importance;
-    /**
-     * Gets the Ids of the messages in this conversation, in the current folder only.
-     */
-    readonly ItemIds: ItemIdCollection;
-    /**
-     * Gets the Ids of the messages in this conversation, across all folders in the mailbox.
-     */
-    readonly GlobalItemIds: ItemIdCollection;
-    /**
-     * Gets the date and time this conversation was last modified.
-     */
-    readonly LastModifiedTime: DateTime;
-    /**
-     * Gets the conversation instance key.
-     */
-    readonly InstanceKey: number[];
-    /**
-     * Gets the conversation Preview.
-     */
-    readonly Preview: string;
-    /**
-     * Gets the conversation IconIndex.
-     */
-    readonly IconIndex: IconIndex;
-    /**
-     * Gets the conversation global IconIndex.
-     */
-    readonly GlobalIconIndex: IconIndex;
-    /**
-     * Gets the draft item ids.
-     */
-    readonly DraftItemIds: ItemIdCollection;
-    /**
-     * Gets a value indicating if at least one message in this conversation, in the current folder only, is an IRM.
-     */
-    readonly HasIrm: boolean;
-    /**
-     * Gets a value indicating if at least one message in this conversation, across all folders in the mailbox, is an IRM.
-     */
-    readonly GlobalHasIrm: boolean;
-    /**
-     * Clear flags for conversation items. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}   contextFolderId   The Id of the folder items must belong to in order to be unflagged. If contextFolderId is null, flags for items in conversation across the entire mailbox are cleared.
-     * @return  {Promise<void>}    Promise
-     */
-    ClearItemFlags(contextFolderId: FolderId): Promise<void>;
-    /**
-     * Copies items in the specified conversation to a specific folder. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}   contextFolderId       The Id of the folder items must belong to in order to be copied. If contextFolderId is null, items across the entire mailbox are copied.
-     * @param   {FolderId}   destinationFolderId   The Id of the destination folder.
-     * @return  {Promise<void>}    Promise
-     */
-    CopyItemsInConversation(contextFolderId: FolderId, destinationFolderId: FolderId): Promise<void>;
-    /**
-     * Deletes items in the specified conversation.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}      contextFolderId   The Id of the folder items must belong to in order to be deleted. If contextFolderId is null, items across the entire mailbox are deleted.
-     * @param   {DeleteMode}    deleteMode        The deletion mode.
-     * @return  {Promise<void>}    Promise
-     */
-    DeleteItems(contextFolderId: FolderId, deleteMode: DeleteMode): Promise<void>;
-    /**
-     * Sets up a conversation so that any item received within that conversation is no longer categorized.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   processSynchronously   **<not used>**Indicates whether the method should return only once disabling this rule and removing the categories from existing items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
-     * @return  {Promise<void>}    Promise
-     */
-    DisableAlwaysCategorizeItems(processSynchronously: boolean): Promise<void>;
-    /**
-     * Sets up a conversation so that any item received within that conversation is no longer moved to Deleted Items folder.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once disabling this rule and restoring the items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
-     * @return  {Promise<void>}    Promise
-     */
-    DisableAlwaysDeleteItems(processSynchronously: boolean): Promise<void>;
-    /**
-     * Sets up a conversation so that any item received within that conversation is no longer moved to a specific folder.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once disabling this rule is completely done. If processSynchronously is false, the method returns immediately.
-     * @return  {Promise<void>}    Promise
-     */
-    DisableAlwaysMoveItemsInConversation(processSynchronously: boolean): Promise<void>;
-    /**
-     * Sets up a conversation so that any item received within that conversation is always categorized.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {string[]}  categories             The categories that should be stamped on items in the conversation.
-     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once enabling this rule and stamping existing items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
-     * @return  {Promise<void>}    Promise
-     */
-    EnableAlwaysCategorizeItems(categories: string[], processSynchronously: boolean): Promise<void>;
-    /**
-     * Sets up a conversation so that any item received within that conversation is always moved to Deleted Items folder.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once enabling this rule and deleting existing items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
-     * @return  {Promise<void>}    Promise
-     */
-    EnableAlwaysDeleteItems(processSynchronously: boolean): Promise<void>;
-    /**
-     * Sets up a conversation so that any item received within that conversation is always moved to a specific folder.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}  destinationFolderId    The Id of the folder to which conversation items should be moved.
-     * @param   {boolean}   processSynchronously   Indicates whether the method should return only once enabling this rule and moving existing items in the conversation is completely done. If processSynchronously is false, the method returns immediately.
-     * @return  {Promise<void>}    Promise
-     */
-    EnableAlwaysMoveItems(destinationFolderId: FolderId, processSynchronously: boolean): Promise<void>;
-    /**
-     * Flags conversation items. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}   contextFolderId   The Id of the folder items must belong to in order to be flagged. If contextFolderId is null, items in conversation across the entire mailbox are flagged.
-     * @param   {DateTime}   startDate         The start date (can be null).
-     * @param   {DateTime}   dueDate           The due date (can be null).
-     * @return  {Promise<void>}    Promise
-     */
-    FlagItems(contextFolderId: FolderId, startDate: DateTime, dueDate: DateTime): Promise<void>;
-    /**
-     * Flag conversation items as complete. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}   contextFolderId   The Id of the folder items must belong to in order to be flagged as complete. If contextFolderId is null, items in conversation across the entire mailbox are marked as complete.
-     * @param   {DateTime}   completeDate      The complete date (can be null).
-     * @return  {Promise<void>}    Promise
-     */
-    FlagItemsComplete(contextFolderId: FolderId, completeDate: DateTime): Promise<void>;
-    /**
-     * The property definition for the Id of this object.
-     *
-     * @return  {PropertyDefinition}      A PropertyDefinition instance.
-     */
-    GetIdPropertyDefinition(): PropertyDefinition;
-    /**
-     * Moves items in the specified conversation to a specific folder.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}   contextFolderId       The Id of the folder items must belong to in order to be moved. If contextFolderId is null, items across the entire mailbox are moved.
-     * @param   {FolderId}   destinationFolderId   The Id of the destination folder.
-     * @return  {Promise<void>}    Promise
-     */
-    MoveItemsInConversation(contextFolderId: FolderId, destinationFolderId: FolderId): Promise<void>;
-    /**
-     * Sets the read state of items in the specified conversation. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}  contextFolderId   The Id of the folder items must belong to in order for their read state to be set. If contextFolderId is null, the read states of items across the entire mailbox are set.
-     * @param   {boolean}   isRead            if set to true, conversation items are marked as read; otherwise they are marked as unread.
-     * @return  {Promise<void>}    Promise
-     */
-    SetReadStateForItemsInConversation(contextFolderId: FolderId, isRead: boolean): Promise<void>;
-    /**
-     * Sets the read state of items in the specified conversation. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}  contextFolderId        The Id of the folder items must belong to in order for their read state to be set. If contextFolderId is null, the read states of items across the entire mailbox are set.
-     * @param   {boolean}   isRead                 if set to true, conversation items are marked as read; otherwise they are marked as unread.
-     * @param   {boolean}   suppressReadReceipts   if set to true read receipts are suppressed.
-     * @return  {Promise<void>}    Promise
-     */
-    SetReadStateForItemsInConversation(contextFolderId: FolderId, isRead: boolean, suppressReadReceipts: boolean): Promise<void>;
-    /**
-     * Sets the retention policy of items in the specified conversation. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}          contextFolderId        The Id of the folder items must belong to in order for their retention policy to be set. If contextFolderId is null, the retention policy of items across the entire mailbox are set.
-     * @param   {RetentionType}     retentionPolicyType    Retention policy type.
-     * @param   {Guid}              retentionPolicyTagId   Retention policy tag id.  Null will clear the policy.
-     * @return  {Promise<void>}    Promise
-     */
-    SetRetentionPolicyForItemsInConversation(contextFolderId: FolderId, retentionPolicyType: RetentionType, retentionPolicyTagId: Guid): Promise<void>;
 }
 /**
- * Represents an **e-mail message**. Properties available on e-mail messages are defined in the *EmailMessageSchema* class.
- *
- */
- class EmailMessage extends Item {
-    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
-    static readonly Attachable: boolean;
-    /**
-     * Gets the list of To recipients for the e-mail message.
-     *
-     */
-    readonly ToRecipients: EmailAddressCollection;
-    /**
-     * Gets the list of Bcc recipients for the e-mail message.
-     *
-     */
-    readonly BccRecipients: EmailAddressCollection;
-    /**
-     * Gets the list of Cc recipients for the e-mail message.
-     *
-     */
-    readonly CcRecipients: EmailAddressCollection;
-    /**
-     * Gets the conversation topic of the e-mail message.
-     *
-     */
-    readonly ConversationTopic: string;
-    /**
-     * Gets the conversation index of the e-mail message.
-     *
-     */
-    readonly ConversationIndex: number[];
-    /**
-     * Gets or sets the "on behalf" sender of the e-mail message.
-     *
-     */
-    From: EmailAddress;
-    /**
-     * Gets or sets a value indicating whether this is an associated message.
-     *
-     */
-    IsAssociated: boolean;
-    /**
-     * Gets or sets a value indicating whether a read receipt is requested for the e-mail message.
-     *
-     */
-    IsDeliveryReceiptRequested: boolean;
-    /**
-     * Gets or sets a value indicating whether the e-mail message is read.
-     *
-     */
-    IsRead: boolean;
-    /**
-     * Gets or sets a value indicating whether a read receipt is requested for the e-mail message.
-     *
-     */
-    IsReadReceiptRequested: boolean;
-    /**
-     * Gets or sets a value indicating whether a response is requested for the e-mail message.
-     *
-     */
-    IsResponseRequested: boolean;
-    /**
-     * Gets the Internat Message Id of the e-mail message.
-     *
-     */
-    readonly InternetMessageId: string;
-    /**
-     * Gets or sets the references of the e-mail message.
-     *
-     */
-    References: string;
-    /**
-     * Gets a list of e-mail addresses to which replies should be addressed.
-     *
-     */
-    readonly ReplyTo: EmailAddressCollection;
-    /**
-     * Gets or sets the sender of the e-mail message.
-     *
-     */
-    Sender: EmailAddress;
-    /**
-     * Gets the ReceivedBy property of the e-mail message.
-     *
-     */
-    readonly ReceivedBy: EmailAddress;
-    /**
-     * Gets the ReceivedRepresenting property of the e-mail message.
-     *
-     */
-    readonly ReceivedRepresenting: EmailAddress;
-    /**
-     * Gets the ApprovalRequestData property of the e-mail message.
-     *
-     */
-    readonly ApprovalRequestData: ApprovalRequestData;
-    /**
-     * Gets the VotingInformation property of the e-mail message.
-     *
-     */
-    readonly VotingInformation: VotingInformation;
-    /**
-     * Initializes an unsaved local instance of **EmailMessage**. To bind to an existing e-mail message, use EmailMessage.Bind() instead.
-     *
-     * @param   {ExchangeService}   service   The ExchangeService object to which the e-mail message will be bound.
-     */
-    constructor(service: ExchangeService);
-    /**
-     * Binds to an existing e-mail message and loads its first class properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}         service     The service to use to bind to the e-mail message.
-     * @param   {ItemId}                  id          The Id of the e-mail message to bind to.
-     * @return  {Promise<EmailMessage>}              An EmailMessage instance representing the e-mail message corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<EmailMessage>;
-    /**
-     * Binds to an existing e-mail message and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}         service         The service to use to bind to the e-mail message.
-     * @param   {ItemId}                  id              The Id of the e-mail message to bind to.
-     * @param   {PropertySet}             propertySet     The set of properties to load.
-     * @return  {Promise<EmailMessage>}                  An EmailMessage instance representing the e-mail message corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<EmailMessage>;
-    /**
-     * Creates a forward response to the message.
-     *
-     * @return  {ResponseMessage}      A ResponseMessage representing the forward response that can subsequently be modified and sent.
-     */
-    CreateForward(): ResponseMessage;
-    /**
-     * Creates a reply response to the message.
-     *
-     * @param   {boolean}             replyAll   Indicates whether the reply should go to all of the original recipients of the message.
-     * @return  {ResponseMessage}     A ResponseMessage representing the reply response that can subsequently be modified and sent.
-     */
-    CreateReply(replyAll: boolean): ResponseMessage;
-    /**
-     * Forwards the message. Calling this method results in a call to EWS.
-     *
-     * @param   {MessageBody}   bodyPrefix     The prefix to prepend to the original body of the message.
-     * @param   {EmailAddress[]}   toRecipients   The recipients to forward the message to.
-     */
-    Forward(bodyPrefix: MessageBody, toRecipients: EmailAddress[]): Promise<void>;
-    /**
-     * Send message.
-     *
-     * @param   {FolderId}            parentFolderId       The parent folder id.
-     * @param   {MessageDisposition}  messageDisposition   The message disposition.
-     */    /**
-     * Replies to the message. Calling this method results in a call to EWS.
-     *
-     * @param   {MessageBody}   bodyPrefix   The prefix to prepend to the original body of the message.
-     * @param   {boolean}   replyAll     Indicates whether the reply should be sent to all of the original recipients of the message.
-     */
-    Reply(bodyPrefix: MessageBody, replyAll: boolean): Promise<void>;
-    /**
-     * Sends this e-mail message. Calling this method results in at least one call to EWS.
-     */
-    Send(): Promise<void>;
-    /**
-     * Sends this e-mail message and saves a copy of it in the Sent Items folder. SendAndSaveCopy does not work if the message has unsaved attachments. In that case, the message must first be saved and then sent. Calling this method results in a call to EWS.
-     *
-     */
-    SendAndSaveCopy(): Promise<void>;
-    /**
-     * Sends this e-mail message and saves a copy of it in the specified folder. SendAndSaveCopy does not work if the message has unsaved attachments. In that case, the message must first be saved and then sent. Calling this method results in a call to EWS.
-     *
-     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to save the copy.
-     */
-    SendAndSaveCopy(destinationFolderName: WellKnownFolderName): Promise<void>;
-    /**
-     * Sends this e-mail message and saves a copy of it in the specified folder. SendAndSaveCopy does not work if the
-    message has unsaved attachments. In that case, the message must first be saved and then sent. Calling this method
-    results in a call to EWS.
-     *
-     * @param   {FolderId}   destinationFolderId   The Id of the folder in which to save the copy.
-     */
-    SendAndSaveCopy(destinationFolderId: FolderId): Promise<void>;
-    /**
-     * Suppresses the read receipt on the message. Calling this method results in a call to EWS.
-     *
-     */
-    SuppressReadReceipt(): Promise<void>;
-}
-/**
- * Represents a generic **Item**. Properties available on items are defined in the *ItemSchema* class.
- *
- */
- class Item extends ServiceObject {
-    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
-    static readonly Attachable: boolean;    /**
-     * Gets a value indicating whether the item is an attachment.
-     *
-     */
-    readonly IsAttachment: boolean;
-    /**
-     * Gets a value indicating whether this object is a real store item, or if it's a local object that has yet to be saved.
-     *
-     */
-    readonly IsNew: boolean;
-    /**
-     * Gets the Id of this item.
-     *
-     */
-    readonly Id: ItemId;
-    /**
-     * Get or sets the MIME content of this item.
-     *
-     */
-    MimeContent: MimeContent;
-    /**
-     * Gets the Id of the parent folder of this item.
-     *
-     */
-    readonly ParentFolderId: FolderId;
-    /**
-     * Gets or sets the sensitivity of this item.
-     *
-     */
-    Sensitivity: Sensitivity;
-    /**
-     * Gets a list of the attachments to this item.
-     *
-     */
-    readonly Attachments: AttachmentCollection;
-    /**
-     * Gets the time when this item was received.
-     *
-     */
-    readonly DateTimeReceived: DateTime;
-    /**
-     * Gets the size of this item.
-     *
-     */
-    readonly Size: number;
-    /**
-     * Gets or sets the list of categories associated with this item.
-     *
-     */
-    Categories: StringList;
-    /**
-     * Gets or sets the culture associated with this item.
-     *
-     */
-    Culture: string;
-    /**
-     * Gets or sets the importance of this item.
-     *
-     */
-    Importance: Importance;
-    /**
-     * Gets or sets the In-Reply-To reference of this item.
-     *
-     */
-    InReplyTo: string;
-    /**
-     * Gets a value indicating whether the message has been submitted to be sent.
-     *
-     */
-    readonly IsSubmitted: boolean;
-    /**
-     * Gets a value indicating whether this is an associated item.
-     *
-     */
-    readonly IsAssociated: boolean;
-    /**
-     * Gets a value indicating whether the item is is a draft. An item is a draft when it has not yet been sent.
-     *
-     */
-    readonly IsDraft: boolean;
-    /**
-     * Gets a value indicating whether the item has been sent by the current authenticated user.
-     *
-     */
-    readonly IsFromMe: boolean;
-    /**
-     * Gets a value indicating whether the item is a resend of another item.
-     *
-     */
-    readonly IsResend: boolean;
-    /**
-     * Gets a value indicating whether the item has been modified since it was created.
-     *
-     */
-    readonly IsUnmodified: boolean;
-    /**
-     * Gets a list of Internet headers for this item.
-     *
-     */
-    readonly InternetMessageHeaders: InternetMessageHeaderCollection;
-    /**
-     * Gets the date and time this item was sent.
-     *
-     */
-    readonly DateTimeSent: DateTime;
-    /**
-     * Gets the date and time this item was created.
-     *
-     */
-    readonly DateTimeCreated: DateTime;
-    /**
-     * Gets a value indicating which response actions are allowed on this item. Examples of response actions are Reply and Forward.
-     *
-     */
-    readonly AllowedResponseActions: ResponseActions;
-    /**
-     * Gets or sets the date and time when the reminder is due for this item.
-     *
-     */
-    ReminderDueBy: DateTime;
-    /**
-     * Gets or sets a value indicating whether a reminder is set for this item.
-     *
-     */
-    IsReminderSet: boolean;
-    /**
-     * Gets or sets the number of minutes before the start of this item when the reminder should be triggered.
-     *
-     */
-    ReminderMinutesBeforeStart: number;
-    /**
-     * Gets a text summarizing the Cc receipients of this item.
-     *
-     */
-    readonly DisplayCc: string;
-    /**
-     * Gets a text summarizing the To recipients of this item.
-     *
-     */
-    readonly DisplayTo: string;
-    /**
-     * Gets a value indicating whether the item has attachments.
-     *
-     */
-    readonly HasAttachments: boolean;
-    /**
-     * Gets or sets the body of this item.
-     *
-     */
-    Body: MessageBody;
-    /**
-     * Gets or sets the custom class name of this item.
-     *
-     */
-    ItemClass: string;
-    /**
-     * Gets or sets the subject of this item.
-     *
-     */
-    Subject: string;
-    /**
-     * Gets the query string that should be appended to the Exchange Web client URL to open this item using the appropriate read form in a web browser.
-     *
-     */
-    readonly WebClientReadFormQueryString: string;
-    /**
-     * Gets the query string that should be appended to the Exchange Web client URL to open this item using the appropriate edit form in a web browser.
-     *
-     */
-    readonly WebClientEditFormQueryString: string;
-    /**
-     * Gets a list of extended properties defined on this item.
-     *
-     */
-    readonly ExtendedProperties: ExtendedPropertyCollection;
-    /**
-     * Gets a value indicating the effective rights the current authenticated user has on this item.
-     *
-     */
-    readonly EffectiveRights: EffectiveRights;
-    /**
-     * Gets the name of the user who last modified this item.
-     *
-     */
-    readonly LastModifiedName: string;
-    /**
-     * Gets the date and time this item was last modified.
-     *
-     */
-    readonly LastModifiedTime: DateTime;
-    /**
-     * Gets the Id of the conversation this item is part of.
-     *
-     */
-    readonly ConversationId: ConversationId;
-    /**
-     * Gets the body part that is unique to the conversation this item is part of.
-     *
-     */
-    readonly UniqueBody: UniqueBody;
-    /**
-     * Gets the store entry id.
-     *
-     */
-    readonly StoreEntryId: number[];
-    /**
-     * Gets the item instance key.
-     *
-     */
-    readonly InstanceKey: number[];
-    /**
-     * Get or set the Flag value for this item.
-     *
-     */
-    Flag: Flag;
-    /**
-     * Gets the normalized body of the item.
-     *
-     */
-    readonly NormalizedBody: NormalizedBody;
-    /**
-     * Gets the EntityExtractionResult of the item.
-     *
-     */
-    readonly EntityExtractionResult: EntityExtractionResult;
-    /**
-     * Gets or sets the policy tag.
-     *
-     */
-    PolicyTag: PolicyTag;
-    /**
-     * Gets or sets the archive tag.
-     *
-     */
-    ArchiveTag: ArchiveTag;
-    /**
-     * Gets the retention date.
-     *
-     */
-    readonly RetentionDate: DateTime;
-    /**
-     * Gets the item Preview.
-     *
-     */
-    readonly Preview: string;
-    /**
-     * Gets the text body of the item.
-     *
-     */
-    readonly TextBody: TextBody;
-    /**
-     * Gets the icon index.
-     *
-     */
-    readonly IconIndex: IconIndex;
-    /**
-     * Binds to an existing item, whatever its actual type is, and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service         The service to use to bind to the item.
-     * @param   {ItemId}            id              The Id of the item to bind to.
-     * @return  {Promise<Item>}                    An Item instance representing the item corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<Item>;
-    /**
-     * Binds to an existing item, whatever its actual type is, and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service         The service to use to bind to the item.
-     * @param   {ItemId}            id              The Id of the item to bind to.
-     * @param   {PropertySet}       propertySet     The set of properties to load.
-     * @return  {Promise<Item>}                    An Item instance representing the item corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<Item>;
-    /**
-     * Creates a copy of this item in the specified folder. Calling this method results in a call to EWS.
-     *
-     * Copy returns null if the copy operation is across two mailboxes or between a mailbox and a public folder.
-     *
-     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to create a copy of this item.
-     * @return  {Promise<Item>}                                The copy of this item :Promise.
-     */
-    Copy(destinationFolderName: WellKnownFolderName): Promise<Item>;
-    /**
-     * Creates a copy of this item in the specified folder. Calling this method results in a call to EWS.
-     *
-     *  Copy returns null if the copy operation is across two mailboxes or between a mailbox and a public folder.
-     *
-     * @param   {FolderId}          destinationFolderId   The Id of the folder in which to create a copy of this item.
-     * @return  {Promise<Item>}                          The copy of this item :Promise.
-     */
-    Copy(destinationFolderId: FolderId): Promise<Item>;
-    /**
-     * Deletes the item. Calling this method results in a call to EWS.
-     *
-     * @param   {DeleteMode}   deleteMode             The deletion mode.
-     */
-    Delete(deleteMode: DeleteMode): Promise<void>;
-    /**
-     * Deletes the item. Calling this method results in a call to EWS.
-     *
-     * @param   {DeleteMode}   deleteMode             The deletion mode.
-     * @param   {boolean}   suppressReadReceipts   Whether to suppress read receipts
-     */
-    Delete(deleteMode: DeleteMode, suppressReadReceipts: boolean): Promise<void>;
-    /**
-     * @inrtnal The property definition for the Id of this object.
-     *
-     * @return  {PropertyDefinition}      A PropertyDefinition instance.
-     */
-    GetIdPropertyDefinition(): PropertyDefinition;
-    /**
-     * Gets a value indicating whether a time zone SOAP header should be emitted in a CreateItem or UpdateItem request so this item can be property saved or updated.
-     *
-     * @param   {boolean}   isUpdateOperation   Indicates whether the operation being petrformed is an update operation.
-     * @return  {boolean}                       true if a time zone SOAP header should be emitted; otherwise, false.
-     */
-    GetIsTimeZoneHeaderRequired(isUpdateOperation: boolean): boolean;
-    /**
-     * Moves this item to a the specified folder. Calling this method results in a call to EWS.
-     *
-     * Move returns null if the move operation is across two mailboxes or between a mailbox and a public folder.
-     *
-     * @param   {FolderId}   destinationFolderId    The Id of the folder to which to move this item.
-     * @return  {Promise<Item>}                    The moved copy of this item :Promise.
-     */
-    Move(destinationFolderId: FolderId): Promise<Item>;
-    /**
-     * Moves this item to a the specified folder. Calling this method results in a call to EWS.
-     *
-     * Move returns null if the move operation is across two mailboxes or between a mailbox and a public folder.
-     *
-     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder to which to move this item.
-     * @return  {Promise<Item>}        The moved copy of this item :Promise.
-     */
-    Move(destinationFolderName: WellKnownFolderName): Promise<Item>;
-    /**
-     * Removes an extended property.
-     *
-     * @param   {ExtendedPropertyDefinition}    extendedPropertyDefinition   The extended property definition.
-     * @return  {boolean}                       True if property was removed.
-     */
-    RemoveExtendedProperty(extendedPropertyDefinition: ExtendedPropertyDefinition): boolean;
-    /**
-     * Saves this item in the default folder based on the item's type (for example, an e-mail message is saved to the Drafts folder).
-     * Calling this method results in at least one call to EWS. Mutliple calls to EWS might be made if attachments have been added.
-     *
-     */
-    Save(): Promise<void>;
-    /**
-     * Saves this item in a specific folder. Calling this method results in at least one call to EWS.
-     * Mutliple calls to EWS might be made if attachments have been added.
-     *
-     * @param   {WellKnownFolderName}   parentFolderName   The name of the folder in which to save this item.
-     */
-    Save(parentFolderName?: WellKnownFolderName): Promise<void>;
-    /**
-     * Saves this item in a specific folder. Calling this method results in at least one call to EWS.
-     * Mutliple calls to EWS might be made if attachments have been added.
-     *
-     * @param   {FolderId}   parentFolderId   The Id of the folder in which to save this item.
-     */
-    Save(parentFolderId?: FolderId): Promise<void>;
-    /**
-     * Sets the extended property.
-     *
-     * @param   {ExtendedPropertyDefinition}    extendedPropertyDefinition   The extended property definition.
-     * @param   {value}                         value                        The value.
-     */
-    SetExtendedProperty(extendedPropertyDefinition: ExtendedPropertyDefinition, value: any): void;
-    /**
-     * Throws exception if this is attachment.
-     *
-     */
-    ThrowIfThisIsAttachment(): void;
-    /**
-     * Applies the local changes that have been made to this item. Calling this method results in at least one call to EWS.
-     * Mutliple calls to EWS might be made if attachments have been added or removed.
-     *
-     * @param   {ConflictResolutionMode}   conflictResolutionMode   The conflict resolution mode.
-     */
-    Update(conflictResolutionMode: ConflictResolutionMode): Promise<void>;
-    /**
-     * Applies the local changes that have been made to this item. Calling this method results in at least one call to EWS.
-     * Mutliple calls to EWS might be made if attachments have been added or removed.
-     *
-     * @param   {ConflictResolutionMode}   conflictResolutionMode   The conflict resolution mode.
-     * @param   {boolean}   suppressReadReceipts     Whether to suppress read receipts
-     */
-    Update(conflictResolutionMode: ConflictResolutionMode, suppressReadReceipts: boolean): Promise<void>;
-}
-/**
- ** this is partial section of CreateEwsObjectFromXmlElementName from serviceobjectinfo, other parts are moved to different object type like folderinfo etc.
- * this to is to avoid circular referencing with requirejs/commonjs/nodejs
- */
- class ItemInfo extends ServiceObjectInfo {
-    InitializeServiceObjectClassMap(): any;
-}
-/**
- * Represents a meeting cancellation message. Properties available on meeting messages are defined in the MeetingMessageSchema class.
- */
- class MeetingCancellation extends MeetingMessage {
-    /**
-     * Gets the start time of the appointment.
-     */
-    readonly Start: DateTime;
-    /**
-     * Gets the end time of the appointment.
-     */
-    readonly End: DateTime;
-    /**
-     * Gets the location of this appointment.
-     */
-    readonly Location: string;
-    /**
-     * Gets the recurrence pattern for this meeting request.
-     */
-    readonly Recurrence: Recurrence;
-    /**
-     * Gets the Enhanced location object.
-     */
-    readonly EnhancedLocation: EnhancedLocation;
-    /**
-     * Binds to an existing meeting cancellation message and loads the specified set of properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the meeting cancellation message.
-     * @param   {ItemId}            id            The Id of the meeting cancellation message to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<MeetingCancellation>}   A MeetingCancellation instance representing the meeting cancellation message corresponding to the specified Id   :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<MeetingCancellation>;
-    /**
-     * Binds to an existing meeting cancellation message and loads its first class properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the meeting cancellation message.
-     * @param   {ItemId}            id            The Id of the meeting cancellation message to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<MeetingCancellation>}   A MeetingCancellation instance representing the meeting cancellation message corresponding to the specified Id   :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<MeetingCancellation>;
-    /**
-     * Removes the meeting associated with the cancellation message from the user's calendar.
-     *
-     * @return  {Promise<CalendarActionResults>}      A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
-     */
-    RemoveMeetingFromCalendar(): Promise<CalendarActionResults>;
-}
-/**
- * Represents a meeting-related message. Properties available on meeting messages are defined in the MeetingMessageSchema class.
- */
- class MeetingMessage extends EmailMessage {
-    /**
-     * Gets the Id of the appointment associated with the meeting message.
-     */
-    readonly AssociatedAppointmentId: ItemId;
-    /**
-     * Gets a value indicating whether the meeting message is delegated.
-     */
-    readonly IsDelegated: boolean;
-    /**
-     * Gets a value indicating whether the meeting message is out of date.
-     */
-    readonly IsOutOfDate: boolean;
-    /**
-     * Gets a value indicating whether the meeting message has been processed by Exchange (i.e. Exchange has noted the arrival of a meeting request and has created the associated meeting item in the calendar).
-     */
-    readonly HasBeenProcessed: boolean;
-    /**
-     * Gets the isorganizer property for this meeting
-     *
-     * @Nullable
-     */
-    readonly IsOrganizer: boolean;
-    /**
-     * Gets the type of response the meeting message represents.
-     */
-    readonly ResponseType: MeetingResponseType;
-    /**
-     * Gets the ICalendar Uid.
-     */
-    readonly ICalUid: string;
-    /**
-     * Gets the ICalendar RecurrenceId.
-     *
-     * @Nullable
-     */
-    readonly ICalRecurrenceId: DateTime;
-    /**
-     * Gets the ICalendar DateTimeStamp.
-     */
-    readonly ICalDateTimeStamp: DateTime;
-    /**
-     * Binds to an existing meeting message and loads the specified set of properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the meeting message.
-     * @param   {ItemId}            id            The Id of the meeting message to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<MeetingMessage>}  A MeetingMessage instance representing the meeting message corresponding to the specified Id    :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<MeetingMessage>;
-    /**
-     * Binds to an existing meeting message and loads its first class properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the meeting message.
-     * @param   {ItemId}            id            The Id of the meeting message to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<MeetingMessage>}  A MeetingMessage instance representing the meeting message corresponding to the specified Id    :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<MeetingMessage>;
-}/**
- * Represents a meeting request that an attendee can accept or decline. Properties available on meeting requests are defined in the MeetingRequestSchema class.
- */
- class MeetingRequest extends MeetingMessage implements ICalendarActionProvider {
-    /**
-     * Gets the type of this meeting request.
-     */
-    readonly MeetingRequestType: MeetingRequestType;
-    /**
-     * Gets the a value representing the intended free/busy status of the meeting.
-     */
-    readonly IntendedFreeBusyStatus: LegacyFreeBusyStatus;
-    /**
-     * Gets the change highlights of the meeting request.
-     */
-    readonly ChangeHighlights: ChangeHighlights;
-    /**
-     * Gets the Enhanced location object.
-     */
-    readonly EnhancedLocation: EnhancedLocation;
-    /**
-     * Gets the start time of the appointment.
-     */
-    readonly Start: DateTime;
-    /**
-     * Gets the end time of the appointment.
-     */
-    readonly End: DateTime;
-    /**
-     * Gets the original start time of this appointment.
-     */
-    readonly OriginalStart: DateTime;
-    /**
-     * Gets a value indicating whether this appointment is an all day event.
-     */
-    readonly IsAllDayEvent: boolean;
-    /**
-     * Gets a value indicating the free/busy status of the owner of this appointment.
-     */
-    readonly LegacyFreeBusyStatus: LegacyFreeBusyStatus;
-    /**
-     * Gets the location of this appointment.
-     */
-    readonly Location: string;
-    /**
-     * Gets a text indicating when this appointment occurs.
-     * The text returned by When is localized using the Exchange Server culture or using the culture specified in the PreferredCulture property of the ExchangeService object this appointment is bound to.
-     */
-    readonly When: string;
-    /**
-     * Gets a value indicating whether the appointment is a meeting.
-     */
-    readonly IsMeeting: boolean;
-    /**
-     * Gets a value indicating whether the appointment has been cancelled.
-     */
-    readonly IsCancelled: boolean;
-    /**
-     * Gets a value indicating whether the appointment is recurring.
-     */
-    readonly IsRecurring: boolean;
-    /**
-     * Gets a value indicating whether the meeting request has already been sent.
-     */
-    readonly MeetingRequestWasSent: boolean;
-    /**
-     * Gets a value indicating the type of this appointment.
-     */
-    readonly AppointmentType: AppointmentType;
-    /**
-     * Gets a value indicating what was the last response of the user that loaded this meeting.
-     */
-    readonly MyResponseType: MeetingResponseType;
-    /**
-     * Gets the organizer of this meeting.
-     */
-    readonly Organizer: EmailAddress;
-    /**
-     * Gets a list of required attendees for this meeting.
-     */
-    readonly RequiredAttendees: AttendeeCollection;
-    /**
-     * Gets a list of optional attendeed for this meeting.
-     */
-    readonly OptionalAttendees: AttendeeCollection;
-    /**
-     * Gets a list of resources for this meeting.
-     */
-    readonly Resources: AttendeeCollection;
-    /**
-     * Gets the number of calendar entries that conflict with this appointment in the authenticated user's calendar.
-     */
-    readonly ConflictingMeetingCount: number;
-    /**
-     * Gets the number of calendar entries that are adjacent to this appointment in the authenticated user's calendar.
-     */
-    readonly AdjacentMeetingCount: number;
-    /**
-     * Gets a list of meetings that conflict with this appointment in the authenticated user's calendar.
-     */
-    readonly ConflictingMeetings: ItemCollection<Appointment>;
-    /**
-     * Gets a list of meetings that are adjucent to this appointment in the authenticated user's calendar.
-     */
-    readonly AdjacentMeetings: ItemCollection<Appointment>;
-    /**
-     * Gets the duration of this appointment.
-     */
-    readonly Duration: TimeSpan;
-    /**
-     * Gets the name of the time zone this appointment is defined in.
-     */
-    readonly TimeZone: string;
-    /**
-     * Gets the time when the attendee replied to the meeting request.
-     */
-    readonly AppointmentReplyTime: DateTime;
-    /**
-     * Gets the sequence number of this appointment.
-     */
-    readonly AppointmentSequenceNumber: number;
-    /**
-     * Gets the state of this appointment.
-     */
-    readonly AppointmentState: number;
-    /**
-     * Gets the recurrence pattern for this meeting request.
-     */
-    readonly Recurrence: Recurrence;
-    /**
-     * Gets an OccurrenceInfo identifying the first occurrence of this meeting.
-     */
-    readonly FirstOccurrence: OccurrenceInfo;
-    /**
-     * Gets an OccurrenceInfo identifying the last occurrence of this meeting.
-     */
-    readonly LastOccurrence: OccurrenceInfo;
-    /**
-     * Gets a list of modified occurrences for this meeting.
-     */
-    readonly ModifiedOccurrences: OccurrenceInfoCollection;
-    /**
-     * Gets a list of deleted occurrences for this meeting.
-     */
-    readonly DeletedOccurrences: DeletedOccurrenceInfoCollection;
-    /**
-     * Gets time zone of the start property of this meeting request.
-     */
-    readonly StartTimeZone: TimeZoneInfo;
-    /**
-     * Gets time zone of the end property of this meeting request.
-     */
-    readonly EndTimeZone: TimeZoneInfo;
-    /**
-     * Gets the type of conferencing that will be used during the meeting.
-     */
-    readonly ConferenceType: number;
-    /**
-     * Gets a value indicating whether new time proposals are allowed for attendees of this meeting.
-     */
-    readonly AllowNewTimeProposal: boolean;
-    /**
-     * Gets a value indicating whether this is an online meeting.
-     */
-    readonly IsOnlineMeeting: boolean;
-    /**
-     * Gets the URL of the meeting workspace. A meeting workspace is a shared Web site for planning meetings and tracking results.
-     */
-    readonly MeetingWorkspaceUrl: string;
-    /**
-     * Gets the URL of the Microsoft NetShow online meeting.
-     */
-    readonly NetShowUrl: string;
-    /**
-     * Accepts the meeting. Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
-     * @return  {Promise<CalendarActionResults>}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation    :Promise.
-     */
-    Accept(sendResponse: boolean): Promise<CalendarActionResults>;
-    /**
-     * Tentatively accepts the meeting. Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
-     * @return  {Promise<CalendarActionResults>}       A CalendarActionResults object containing the various items that were created or modified as a results of this operation    :Promise.
-     */
-    AcceptTentatively(sendResponse: boolean): Promise<CalendarActionResults>;
-    /**
-     * Binds to an existing meeting request and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the meeting request.
-     * @param   {ItemId}            id            The Id of the meeting request to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<MeetingRequest>}        A MeetingRequest instance representing the meeting request corresponding to the specified Id  :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<MeetingRequest>;
-    /**
-     * Binds to an existing meeting request and loads its first class properties.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the meeting request.
-     * @param   {ItemId}            id            The Id of the meeting request to bind to.
-     * @return  {Promise<MeetingRequest>}        A MeetingRequest instance representing the meeting request corresponding to the specified Id  :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<MeetingRequest>;
-    /**
-     * Creates a local meeting acceptance message that can be customized and sent.
-     *
-     * @param   {boolean}   tentative   Specifies whether the meeting will be tentatively accepted.
-     * @return  {AcceptMeetingInvitationMessage}        An AcceptMeetingInvitationMessage representing the meeting acceptance message.
-     */
-    CreateAcceptMessage(tentative: boolean): AcceptMeetingInvitationMessage;
-    /**
-     * Creates a local meeting declination message that can be customized and sent.
-     *
-     * @return  {DeclineMeetingInvitationMessage}      A DeclineMeetingInvitation representing the meeting declination message.
-     */
-    CreateDeclineMessage(): DeclineMeetingInvitationMessage;
-    /**
-     * Declines the meeting invitation. Calling this method results in a call to EWS.
-     *
-     * @param   {boolean}   sendResponse   Indicates whether to send a response to the organizer.
-     * @return  {Promise<CalendarActionResults>}       A CalendarActionResults object containing the various items that were created or modified as a results of this operation    :Promise.
-     */
-    Decline(sendResponse: boolean): Promise<CalendarActionResults>;
-}/**
- * Represents a response to a meeting request. Properties available on meeting messages are defined in the MeetingMessageSchema class.
- */
- class MeetingResponse extends MeetingMessage {
-    /**
-     * Gets the start time of the appointment.
-     */
-    readonly Start: DateTime;
-    /**
-     * Gets the end time of the appointment.
-     */
-    readonly End: DateTime;
-    /**
-     * Gets the location of this appointment.
-     */
-    readonly Location: string;
-    /**
-     * Gets the recurrence pattern for this meeting request.
-     */
-    readonly Recurrence: Recurrence;
-    /**
-     * Gets the proposed start time of the appointment.
-     */
-    readonly ProposedStart: DateTime;
-    /**
-     * Gets the proposed end time of the appointment.
-     */
-    readonly ProposedEnd: DateTime;
-    /**
-     * Gets the Enhanced location object.
-     */
-    readonly EnhancedLocation: EnhancedLocation;
-    /**
-     * Binds to an existing meeting response and loads the specified set of properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the meeting response.
-     * @param   {ItemId}            id            The Id of the meeting response to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<MeetingResponse>}       A MeetingResponse instance representing the meeting response corresponding to the specified Id    :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<MeetingResponse>;
-    /**
-     * Binds to an existing meeting response and loads its first class properties. Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the meeting response.
-     * @param   {ItemId}            id            The Id of the meeting response to bind to.
-     * @return  {Promise<MeetingResponse>}       A MeetingResponse instance representing the meeting response corresponding to the specified Id    :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<MeetingResponse>;
-}/**
- * Represents a post item. Properties available on post items are defined in the PostItemSchema class.
- *
- * @sealed
- */
- class PostItem extends Item {
-    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
-    static readonly Attachable: boolean;
-    /**
-     * Gets the conversation index of the post item.
-     */
-    readonly ConversationIndex: number[];
-    /**
-     * Gets the conversation topic of the post item.
-     */
-    readonly ConversationTopic: string;
-    /**
-     * Gets or sets the "on behalf" poster of the post item.
-     */
-    From: EmailAddress;
-    /**
-     * Gets the Internet message Id of the post item.
-     */
-    readonly InternetMessageId: string;
-    /**
-     * Gets or sets a value indicating whether the post item is read.
-     */
-    IsRead: boolean;
-    /**
-     * Gets the the date and time when the post item was posted.
-     */
-    readonly PostedTime: DateTime;
-    /**
-     * Gets or sets the references of the post item.
-     */
-    References: string;
-    /**
-     * Gets or sets the sender (poster) of the post item.
-     */
-    Sender: EmailAddress;
-    /**
-     * Initializes an unsaved local instance of **PostItem**. To bind to an existing post item, use PostItem.Bind() instead.
-     *
-     * @param   {ExchangeService}   service   The ExchangeService object to which the e-mail message will be bound.
-     */
-    constructor(service: ExchangeService);
-    /**
-     * Binds to an existing post item and loads the specified set of properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the post item.
-     * @param   {ItemId}            id            The Id of the post item to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<PostItem>}              An PostItem instance representing the post item corresponding to the specified Id  :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<PostItem>;
-    /**
-     * Binds to an existing post item and loads its first class properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the post item.
-     * @param   {ItemId}            id            The Id of the post item to bind to.
-     * @return  {Promise<PostItem>}              An PostItem instance representing the post item corresponding to the specified Id  :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<PostItem>;
-    /**
-     * Creates a forward response to the post item.
-     *
-     * @return  {ResponseMessage}      A ResponseMessage representing the forward response that can subsequently be modified and sent.
-     */
-    CreateForward(): ResponseMessage;
-    /**
-     * Creates a post reply to this post item.
-     *
-     * @return  {PostReply}      A PostReply that can be modified and saved.
-     */
-    CreatePostReply(): PostReply;
-    /**
-     * Creates a e-mail reply response to the post item.
-     *
-     * @param   {boolean}   replyAll   Indicates whether the reply should go to everyone involved in the thread.
-     * @return  {ResponseMessage}      A ResponseMessage representing the e-mail reply response that can subsequently be modified and sent.
-     */
-    CreateReply(replyAll: boolean): ResponseMessage;
-    /**
-     * Forwards the post item. Calling this method results in a call to EWS.
-     *
-     * @param   {MessageBody}           bodyPrefix     The prefix to prepend to the original body of the post item.
-     * @param   {...EmailAddress[]}     toRecipients   The recipients to forward the post item to.
-     * @return  {Promise<void>}        :Promise.
-     */
-    Forward(bodyPrefix: MessageBody, ...toRecipients: EmailAddress[]): Promise<void>;
-    /**
-     * Forwards the post item. Calling this method results in a call to EWS.
-     *
-     * @param   {MessageBody}       bodyPrefix     The prefix to prepend to the original body of the post item.
-     * @param   {EmailAddress[]}    toRecipients   The recipients to forward the post item to.
-     * @return  {Promise<void>}    :Promise.
-     */
-    Forward(bodyPrefix: MessageBody, toRecipients: EmailAddress[]): Promise<void>;
-    /**
-     * Posts a reply to this post item. Calling this method results in a call to EWS.
-     *
-     * @param   {MessageBody}   bodyPrefix   Body prefix.
-     * @return  {Promise<void>}    :Promise.
-     */
-    PostReply(bodyPrefix: MessageBody): Promise<void>;
-    /**
-     * Replies to the post item. Calling this method results in a call to EWS.
-     *
-     * @param   {MessageBody}   bodyPrefix   The prefix to prepend to the original body of the post item.
-     * @param   {boolean}       replyAll     Indicates whether the reply should be sent to everyone involved in the thread.
-     * @return  {Promise<void>}    :Promise.
-     */
-    Reply(bodyPrefix: MessageBody, replyAll: boolean): Promise<void>;
-}
-/**
- * Represents a Task item. Properties available on tasks are defined in the TaskSchema class.
- */
- class Task extends Item {
-    /** required to check [Attachable] attribute, AttachmentCollection.AddItemAttachment<TItem>() checks for non inherited [Attachable] attribute. */
-    static readonly Attachable: boolean;
-    /**
-     * @nullable Gets or sets the actual amount of time that is spent on the task.
-     */
-    ActualWork: number;
-    /**
-     * @nullable Gets the date and time the task was assigned.
-     */
-    readonly AssignedTime: DateTime;
-    /**
-     * Gets or sets the billing information of the task.
-     */
-    BillingInformation: string;
-    /**
-     * Gets the number of times the task has changed since it was created.
-     */
-    readonly ChangeCount: number;
-    /**
-     * Gets or sets a list of companies associated with the task.
-     */
-    Companies: StringList;
-    /**
-     * @nullable Gets or sets the date and time on which the task was completed.
-     */
-    CompleteDate: DateTime;
-    /**
-     * Gets or sets a list of contacts associated with the task.
-     */
-    Contacts: StringList;
-    /**
-     * Gets the current delegation state of the task.
-     */
-    readonly DelegationState: TaskDelegationState;
-    /**
-     * Gets the name of the delegator of this task.
-     */
-    readonly Delegator: string;
-    /**
-     * @nullable    Gets or sets the date and time on which the task is due.
-     */
-    DueDate: DateTime;
-    /**
-     * Gets a value indicating the mode of the task.
-     */
-    readonly Mode: TaskMode;
-    /**
-     * Gets a value indicating whether the task is complete.
-     */
-    readonly IsComplete: boolean;
-    /**
-     * Gets a value indicating whether the task is recurring.
-     */
-    readonly IsRecurring: boolean;
-    /**
-     * Gets a value indicating whether the task is a team task.
-     */
-    readonly IsTeamTask: boolean;
-    /**
-     * Gets or sets the mileage of the task.
-     */
-    Mileage: string;
-    /**
-     * Gets the name of the owner of the task.
-     */
-    readonly Owner: string;
-    /**
-     * Gets or sets the completeion percentage of the task. PercentComplete must be between 0 and 100.
-     */
-    PercentComplete: number;
-    /**
-     * Gets or sets the recurrence pattern for this task. Available recurrence pattern classes include Recurrence.
-     * DailyPattern, Recurrence.MonthlyPattern and Recurrence.YearlyPattern.
-     */
-    Recurrence: Recurrence;
-    /**
-     * @nullable    Gets or sets the date and time on which the task starts.
-     */
-    StartDate: DateTime;
-    /**
-     * Gets or sets the status of the task.
-     */
-    Status: TaskStatus;
-    /**
-     * Gets a string representing the status of the task, localized according to the PreferredCulture property of the ExchangeService object the task is bound to.
-     */
-    readonly StatusDescription: string;
-    /**
-     * @nullable Gets or sets the total amount of work spent on the task.
-     */
-    TotalWork: number;
-    /**
-     * Initializes an unsaved local instance of **Task**. To bind to an existing task, use Task.Bind() instead.
-     *
-     * @param   {ExchangeService}   service   The ExchangeService instance to which this task is bound.
-     */
-    constructor(service: ExchangeService);
-    /**
-     * Binds to an existing task and loads the specified set of properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the task.
-     * @param   {ItemId}            id            The Id of the task to bind to.
-     * @param   {PropertySet}       propertySet   The set of properties to load.
-     * @return  {Promise<Task>}    A Task instance representing the task corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId, propertySet: PropertySet): Promise<Task>;
-    /**
-     * Binds to an existing task and loads its first class properties.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {ExchangeService}   service       The service to use to bind to the task.
-     * @param   {ItemId}            id            The Id of the task to bind to.
-     * @return  {Promise<Task>}    A Task instance representing the task corresponding to the specified Id :Promise.
-     */
-    static Bind(service: ExchangeService, id: ItemId): Promise<Task>;
-    /**
-     * Deletes the current occurrence of a recurring task. After the current occurrence isdeleted, the task represents the next occurrence.
-     * Developers should call Load to retrieve the new property values of the task.
-     * Calling this method results in a call to EWS.
-     *
-     * @param   {DeleteMode}   deleteMode   The deletion mode.
-     * @return  {Promise<void>}            :Promise.
-     */
-    DeleteCurrentOccurrence(deleteMode: DeleteMode): Promise<void>;
-    /**
-     * Applies the local changes that have been made to this task. Calling this method results in at least one call to EWS.
-     * Mutliple calls to EWS might be made if attachments have been added or removed.
-     *
-     * @param   {ConflictResolutionMode}    conflictResolutionMode   Specifies how conflicts should be resolved.
-     * @return  {Promise<Task>}            A Task object representing the completed occurrence if the task is recurring and the update marks it as completed; or a Task object representing the current occurrence if the task is recurring and the uypdate changed its recurrence pattern; or null in every other case    :Promise.
-     */
-    Update(conflictResolutionMode: ConflictResolutionMode): Promise<Task>;
-    /** ##internal ~~ workaround GitHub #52 */
-    Update(conflictResolutionMode: ConflictResolutionMode): Promise<any>;
-}/**
  * Represents a recurrence pattern where each occurrence happens a specific number of days after the previous one.
  */
  class DailyPattern extends IntervalPattern {
@@ -23384,7 +24359,8 @@ export interface TaskSchemaStatic extends TaskSchema {
      * @param   {number}    interval    The number of days between each occurrence.
      */
     constructor(startDate: DateTime, interval: number);
-}/**
+}
+/**
  * Represents a regeneration pattern, as used with recurring tasks, where each occurrence happens a specified number of days after the previous one is completed.
  */
  class DailyRegenerationPattern extends IntervalPattern {
@@ -23405,15 +24381,15 @@ export interface TaskSchemaStatic extends TaskSchema {
      * @param   {number}   interval    The number of days between the current occurrence and the next, after the current occurrence is completed.
      */
     constructor(startDate: DateTime, interval: number);
-}
-/**
+}/**
  * Represents a recurrence pattern where each occurrence happens at a specific interval after the previous one.
  */
  abstract class IntervalPattern extends Recurrence {    /**
      * Gets or sets the interval between occurrences.
      */
     Interval: number;
-}/**
+}
+/**
  * Represents a recurrence pattern where each occurrence happens on a specific day a specific number of months after the previous one.
  */
  class MonthlyPattern extends IntervalPattern {    /**
@@ -23432,7 +24408,8 @@ export interface TaskSchemaStatic extends TaskSchema {
      * @param   {number}    dayOfMonth   The day of the month when each occurrence happens.
      */
     constructor(startDate: DateTime, interval: number, dayOfMonth: number);
-}/**
+}
+/**
  * Represents a regeneration pattern, as used with recurring tasks, where each occurrence happens a specified number of months after the previous one is completed.
  */
  class MonthlyRegenerationPattern extends IntervalPattern {
@@ -23453,7 +24430,8 @@ export interface TaskSchemaStatic extends TaskSchema {
      * @param   {number}   interval    The number of days between the current occurrence and the next, after the current occurrence is completed.
      */
     constructor(startDate: DateTime, interval: number);
-}/**
+}
+/**
  * Represents a recurrence pattern where each occurrence happens on a relative day a specific number of months after the previous one.
 */
  class RelativeMonthlyPattern extends IntervalPattern {
@@ -23478,8 +24456,7 @@ export interface TaskSchemaStatic extends TaskSchema {
      * @param   {DayOfTheWeekIndex}   dayOfTheWeekIndex   The relative position of the day within the month.
      */
     constructor(startDate: DateTime, interval: number, dayOfTheWeek: DayOfTheWeek, dayOfTheWeekIndex: DayOfTheWeekIndex);
-}
-/**
+}/**
  * Represents a recurrence pattern where each occurrence happens on a relative day every year.
  */
  class RelativeYearlyPattern extends Recurrence {    /**
@@ -23507,8 +24484,7 @@ export interface TaskSchemaStatic extends TaskSchema {
      * @param   {DayOfTheWeekIndex}     dayOfTheWeekIndex   The relative position of the day within the month.
      */
     constructor(startDate: DateTime, month: Month, dayOfTheWeek: DayOfTheWeek, dayOfTheWeekIndex: DayOfTheWeekIndex);
-}
-/**
+}/**
  * Represents a recurrence pattern where each occurrence happens on specific days a specific number of weeks after the previous one.
  */
  class WeeklyPattern extends IntervalPattern {
@@ -23536,7 +24512,8 @@ export interface TaskSchemaStatic extends TaskSchema {
      * Change event handler.
      *
      * @param   {ComplexProperty}   complexProperty   The complex property.
-     */}/**
+     */}
+/**
  * Represents a regeneration pattern, as used with recurring tasks, where each occurrence happens a specified number of weeks after the previous one is completed.
  */
  class WeeklyRegenerationPattern extends IntervalPattern {
@@ -23547,18 +24524,17 @@ export interface TaskSchemaStatic extends TaskSchema {
      */
     readonly IsRegenerationPattern: boolean;
     /**
-     * Initializes a new instance of the  class.
+     * Initializes a new instance of the **WeeklyRegenerationPattern** class.
      */
     constructor();
     /**
-     * Initializes a new instance of the  class.
+     * Initializes a new instance of the **WeeklyRegenerationPattern** class.
      *
      * @param   {DateTime}   startDate   The date and time when the recurrence starts.
      * @param   {interval}   interval    The number of weeks between the current occurrence and the next, after the current occurrence is completed.
      */
     constructor(startDate: DateTime, interval: number);
-}
-/**
+}/**
  * Represents a recurrence pattern where each occurrence happens on a specific day every year.
  */
  class YearlyPattern extends Recurrence {
@@ -23582,7 +24558,8 @@ export interface TaskSchemaStatic extends TaskSchema {
      * @param   {number}    dayOfMonth   The day of the month each occurrence happens.
      */
     constructor(startDate: DateTime, month: Month, dayOfMonth: number);
-}/**
+}
+/**
  * Represents a regeneration pattern, as used with recurring tasks, where each occurrence happens a specified number of years after the previous one is completed.
  */
  class YearlyRegenerationPattern extends IntervalPattern {
@@ -23603,8 +24580,7 @@ export interface TaskSchemaStatic extends TaskSchema {
      * @param   {number}   interval    The number of years between the current occurrence and the next, after the current occurrence is completed.
      */
     constructor(startDate: DateTime, interval: number);
-}
-/**
+}/**
  * Represents a recurrence pattern, as used by Appointment and Task items.
  */
  class Recurrence extends ComplexProperty {
@@ -23661,5 +24637,4 @@ export interface TaskSchemaStatic extends TaskSchema {
     var YearlyPattern: new () => YearlyPattern;
     var YearlyRegenerationPattern: new () => YearlyRegenerationPattern;
 }
-
 }

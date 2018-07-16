@@ -62,10 +62,10 @@ var SimpleServiceRequestBase = /** @class */ (function (_super) {
                 }
                 else {
                     if (errorDelegate)
-                        errorDelegate(_this.ProcessWebException(serviceResponse || xhrResponse.responseText || xhrResponse.response) || serviceResponse);
+                        errorDelegate(_this.ProcessWebException(xhrResponse) || xhrResponse);
                 }
             }, function (resperr) {
-                EwsLogging_1.EwsLogging.Log("Error in calling service, error code:" + resperr.status + "\r\n" + resperr.getAllResponseHeaders());
+                EwsLogging_1.EwsLogging.Log("Error in calling service, error code:" + resperr.status + "\r\n" + ((resperr.getAllResponseHeaders) ? resperr.getAllResponseHeaders() : ""));
                 if (errorDelegate)
                     errorDelegate(_this.ProcessWebException(resperr) || resperr);
             });

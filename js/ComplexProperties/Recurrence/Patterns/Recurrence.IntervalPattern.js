@@ -47,7 +47,7 @@ var IntervalPattern = /** @class */ (function (_super) {
             if (value < 1) {
                 throw new ArgumentException_1.ArgumentOutOfRangeException("value", Strings_1.Strings.IntervalMustBeGreaterOrEqualToOne);
             }
-            this.SetFieldValue({ getValue: function () { return _this.numberOfOccurrences; }, setValue: function (updateValue) { _this.numberOfOccurrences = updateValue; } }, value);
+            this.SetFieldValue({ getValue: function () { return _this.interval; }, setValue: function (updateValue) { _this.interval = updateValue; } }, value);
         },
         enumerable: true,
         configurable: true

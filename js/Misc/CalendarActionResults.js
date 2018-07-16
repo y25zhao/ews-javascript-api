@@ -9,7 +9,7 @@ var TypeContainer_1 = require("../TypeContainer");
  */
 var CalendarActionResults = /** @class */ (function () {
     /**
-     * @internal Initializes a new instance of the  class.
+     * @internal Initializes a new instance of the **CalendarActionResults** class.
      *
      * @param   {Item[]}   items   Collection of items that were created or modified as a result of a calendar action.
      */

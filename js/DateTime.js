@@ -1,8 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ArgumentException_1 = require("./Exceptions/ArgumentException");
 var moment = require("moment-timezone");
-exports.moment = moment;
+var ArgumentException_1 = require("./Exceptions/ArgumentException");
+var TimeSpan_1 = require("./TimeSpan");
+var ticksToEpoch = 621355968000000000; //can be used when calculating ticks/ms from Windows date to unix date
+exports.msToEpoch = 62135596800000;
+var invalidDateTimeMessage = {
+    "years": "year is less than 1 or greater than 9999.",
+    "months": "month is less than 1 or greater than 12.",
+    "days": "day is less than 1 or greater than the number of days in month.",
+    "hours": "hour is less than 0 or greater than 23.",
+    "minutes": "minute is less than 0 or greater than 59.",
+    "seconds": "second is less than 0 or greater than 59.",
+    "milliseconds": "millisecond is less than 0 or greater than 999."
+};
 var DateTimeKind;
 (function (DateTimeKind) {
     DateTimeKind[DateTimeKind["Unspecified"] = 0] = "Unspecified";
@@ -13,24 +24,66 @@ var DateTimeKind;
  * DateTime - basic date time based on moment.js
  */
 var DateTime = /** @class */ (function () {
-    function DateTime(date, kind) {
-        if (kind === void 0) { kind = DateTimeKind.Local; }
+    function DateTime(msOrDateOrMomentOrYear, monthOrKind, day, hour, minute, second, millisecond, kind) {
+        if (kind === void 0) { kind = DateTimeKind.Unspecified; }
         this.kind = DateTimeKind.Unspecified;
-        this.momentDate = moment();
-        if (date instanceof DateTime) {
-            this.momentDate = date.Date.clone();
+        this.originalDateInput = null;
+        var argsLength = arguments.length;
+        var momentdate = moment();
+        this.kind = kind;
+        if (argsLength === 1) {
+            if (msOrDateOrMomentOrYear instanceof DateTime) {
+                momentdate = msOrDateOrMomentOrYear.MomentDate.clone();
+                this.kind = msOrDateOrMomentOrYear.kind;
+            }
+            else {
+                momentdate = moment(msOrDateOrMomentOrYear);
+                this.originalDateInput = msOrDateOrMomentOrYear;
+            }
+        }
+        else if (argsLength === 2) {
+            if (monthOrKind === DateTimeKind.Utc && !(msOrDateOrMomentOrYear instanceof moment)) {
+                momentdate = moment.utc(msOrDateOrMomentOrYear);
+            }
+            else {
+                momentdate = moment(msOrDateOrMomentOrYear);
+            }
+            this.kind = monthOrKind;
+            if (this.kind === DateTimeKind.Unspecified && !(msOrDateOrMomentOrYear instanceof moment)) {
+                this.originalDateInput = msOrDateOrMomentOrYear;
+            }
         }
         else {
-            this.momentDate = moment(date);
+            var momentInput = {};
+            if (argsLength >= 3) {
+                momentInput.year = msOrDateOrMomentOrYear;
+                momentInput.month = monthOrKind - 1;
+                momentInput.day = day;
+            }
+            if (argsLength >= 6) {
+                momentInput.hour = hour;
+                momentInput.minute = minute;
+                momentInput.second = second;
+            }
+            if (argsLength >= 7) {
+                momentInput.millisecond = millisecond;
+            }
+            momentdate = moment(momentInput);
         }
-        this.kind = kind;
+        if (momentdate && !momentdate.isValid()) {
+            var invalid = momentdate.invalidAt();
+            throw new ArgumentException_1.ArgumentOutOfRangeException(momentValidity[invalid], invalidDateTimeMessage[momentValidity[invalid]]);
+        }
+        // if (momentdate.isUtc()) {
+        //     this.kind = DateTimeKind.Utc
+        // }
+        // else if (momentdate.isLocal()) {
+        //     this.kind = DateTimeKind.Local;
+        // }
+        this.getMomentDate = function () { return momentdate; };
+        this.setMomentDate = function (value) { return momentdate = value; };
     }
-    Object.defineProperty(DateTime.prototype, "Kind", {
-        get: function () { return this.kind; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DateTime.prototype, "Date", {
+    Object.defineProperty(DateTime.prototype, "MomentDate", {
         get: function () { return this.momentDate; },
         enumerable: true,
         configurable: true
@@ -40,17 +93,38 @@ var DateTime = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(DateTime.prototype, "momentDate", {
+        get: function () { return this.getMomentDate(); },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(DateTime, "Now", {
-        get: function () { return new DateTime(moment()); },
+        get: function () {
+            return new DateTime(moment());
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime, "UtcNow", {
+        get: function () {
+            return new DateTime(moment.utc());
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DateTime.prototype, "TotalMilliSeconds", {
-        get: function () { return this.momentDate.valueOf(); },
+        get: function () {
+            return this.momentDate.valueOf();
+        },
         enumerable: true,
         configurable: true
     });
     DateTime.prototype.Add = function (quantity, unit) {
+        if (unit === void 0) { unit = "ms"; }
+        if (typeof quantity !== 'number') {
+            quantity = quantity.TotalMilliseconds;
+            unit = "ms";
+        }
         var date = moment(this.momentDate);
         date.add(quantity, unit);
         return new DateTime(date);
@@ -67,18 +141,57 @@ var DateTime = /** @class */ (function () {
         return DateTime.Compare(this, toDate);
     };
     DateTime.prototype.Difference = function (toDate) {
-        return new TimeSpan(this.momentDate.diff(toDate.momentDate));
+        return new TimeSpan_1.TimeSpan(toDate.momentDate.diff(this.momentDate));
     };
     DateTime.prototype.Format = function (formatting) {
         return this.momentDate.format(formatting);
     };
+    DateTime.getKindfromMoment = function (m) {
+        if (m.isUTC()) {
+            return DateTimeKind.Utc;
+        }
+        if (m.isLocal()) {
+            return DateTimeKind.Local;
+        }
+        return DateTimeKind.Unspecified;
+    };
     DateTime.Parse = function (value, kind) {
         if (kind === void 0) { kind = DateTimeKind.Unspecified; }
-        return new DateTime(value, kind);
+        var mdate = moment(value);
+        var tempDate = null;
+        if (mdate.isValid()) {
+            switch (kind) {
+                case DateTimeKind.Local:
+                    tempDate = new DateTime(mdate.local());
+                    tempDate.kind = kind;
+                    return tempDate;
+                case DateTimeKind.Utc:
+                    tempDate = new DateTime(moment.utc(value));
+                    tempDate.kind = kind;
+                    return tempDate;
+                default:
+                    tempDate = new DateTime(mdate);
+                    tempDate.originalDateInput = value;
+                    tempDate.kind = kind;
+                    return tempDate;
+            }
+        }
+        else {
+            throw new ArgumentException_1.ArgumentException("invalid date value");
+        }
     };
-    DateTime.prototype.ToISOString = function () { return this.momentDate.toISOString(); };
-    DateTime.prototype.toString = function () { return this.ToISOString(); };
-    DateTime.prototype.utcOffset = function (value) { this.momentDate.utcOffset(value); };
+    DateTime.prototype.ToISOString = function () {
+        return this.momentDate.toISOString();
+    };
+    DateTime.prototype.toString = function () {
+        return this.momentDate.toString();
+    };
+    DateTime.prototype.utcOffset = function (value) {
+        this.momentDate.utcOffset(value);
+    };
+    DateTime.DateimeStringToTimeZone = function (dtStr, zoneStr) {
+        return new DateTime(moment.tz(dtStr, zoneStr));
+    };
     DateTime.DateTimeToXSDateTime = function (dateTime) {
         var format = 'YYYY-MM-DDTHH:mm:ss.SSSZ'; //using moment format for c#->"yyyy-MM-ddTHH:mm:ss.fff";
         // switch (dateTime.Kind) {
@@ -115,352 +228,223 @@ var DateTime = /** @class */ (function () {
         // ensure this.
         return date.Format(format); //, CultureInfo.InvariantCulture);
     };
+    Object.defineProperty(DateTime.prototype, "Date", {
+        /* c# DateTime properties */
+        get: function () {
+            if (this === DateTime.MaxValue || this === DateTime.MinValue) {
+                return new DateTime(this.momentDate.utc().format("YYYY-MM-DD"));
+            }
+            return new DateTime(this.momentDate.format("YYYY-MM-DD"));
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Day", {
+        get: function () {
+            return this.momentDate.date();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "DayOfWeek", {
+        get: function () {
+            return this.momentDate.day();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "DayOfYear", {
+        get: function () {
+            return this.momentDate.dayOfYear();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Hour", {
+        get: function () {
+            return this.momentDate.hour();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Kind", {
+        get: function () {
+            return this.kind;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Millisecond", {
+        get: function () {
+            return this.momentDate.millisecond();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Minute", {
+        get: function () {
+            return this.momentDate.minute();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Month", {
+        get: function () {
+            return this.momentDate.month() + 1;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Second", {
+        get: function () {
+            return this.momentDate.second();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "TimeOfDay", {
+        //  public get Ticks(): {
+        //      return this.
+        //  }
+        get: function () {
+            return TimeSpan_1.TimeSpan.FromMilliseconds(this.momentDate.millisecond());
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Today", {
+        get: function () {
+            return new DateTime(moment(this.momentDate.format("LL"), "LL"));
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DateTime.prototype, "Year", {
+        get: function () {
+            return this.momentDate.year();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /* c# DateTime Methods */
+    //CompareTo
+    DateTime.prototype.AddDays = function (days) {
+        return this.Add(days, exports.unitOfTime.days);
+    };
+    DateTime.prototype.AddHours = function (hours) {
+        return this.Add(hours, exports.unitOfTime.hours);
+    };
+    DateTime.prototype.AddMilliseconds = function (ms) {
+        return this.Add(ms, exports.unitOfTime.ms);
+    };
+    DateTime.prototype.AddMinutes = function (minutes) {
+        return this.Add(minutes, exports.unitOfTime.minutes);
+    };
+    DateTime.prototype.AddMonths = function (months) {
+        return this.Add(months, exports.unitOfTime.months);
+    };
+    DateTime.prototype.AddSeconds = function (seconds) {
+        return this.Add(seconds, exports.unitOfTime.seconds);
+    };
+    // public AddTicks(ticks: number): DateTime {
+    //     return this.Add(ticks, unitOfTime.);
+    // }
+    DateTime.prototype.AddYears = function (years) {
+        return this.Add(years, exports.unitOfTime.years);
+    };
+    DateTime.DaysInMonth = function (year, month) {
+        if (month < 1 || month > 12)
+            throw new ArgumentException_1.ArgumentOutOfRangeException("month", invalidDateTimeMessage["months"]);
+        // IsLeapYear checks the year argument
+        var days = DateTime.IsLeapYear(year) ? DateTime.DaysToMonth366 : DateTime.DaysToMonth365;
+        return days[month] - days[month - 1];
+    };
+    DateTime.prototype.Equals = function (value) {
+        if (value instanceof DateTime) {
+            return value.TotalMilliSeconds === this.TotalMilliSeconds;
+        }
+        return false;
+    };
+    DateTime.Equals = function (t1, t2) {
+        return t1.TotalMilliSeconds === t2.TotalMilliSeconds;
+    };
+    // FromBinary
+    // FromFileTime
+    // FromFileTimeUtc
+    // FromOADate
+    // GetHashCode
+    DateTime.prototype.IsDaylightSavingTime = function () {
+        return this.momentDate.isDST();
+    };
+    /**
+     *  Checks whether a given year is a leap year. This method returns true if year is a leap year, or false if not.
+     * @param {number}  year
+     */
+    DateTime.IsLeapYear = function (year) {
+        if (year < 1 || year > 9999) {
+            throw new ArgumentException_1.ArgumentOutOfRangeException("year", invalidDateTimeMessage["years"]);
+        }
+        return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+    };
+    // ParseExact
+    DateTime.SpecifyKind = function (value, kind) {
+        return new DateTime(value.TotalMilliSeconds, kind);
+    };
+    DateTime.prototype.Subtract = function (dateTime) {
+        if (dateTime instanceof DateTime) {
+            return new TimeSpan_1.TimeSpan(this.TotalMilliSeconds - dateTime.TotalMilliSeconds);
+        }
+        else {
+            return new DateTime(this.TotalMilliSeconds - dateTime.TotalMilliseconds);
+        }
+    };
+    // ToBinary
+    // ToFileTime
+    // ToFileTimeUtc
+    DateTime.prototype.ToLocalTime = function () {
+        return new DateTime(this.momentDate.local());
+    };
+    DateTime.prototype.ToLongDateString = function () {
+        return this.momentDate.format("dddd, MMMM D, YYYY");
+    };
+    DateTime.prototype.ToLongTimeString = function () {
+        return this.momentDate.format("LTS");
+    };
+    // ToOADate
+    DateTime.prototype.ToShortDateString = function () {
+        return this.MomentDate.format("l");
+    };
+    DateTime.prototype.ToShortTimeString = function () {
+        return this.MomentDate.format("LT");
+    };
+    DateTime.prototype.ToString = function () {
+        return this.toString();
+    };
+    DateTime.prototype.ToUniversalTime = function () {
+        return new DateTime(this.MomentDate.utc());
+    };
+    DateTime.TryParse = function (s, outDate) {
+        try {
+            outDate.outValue = DateTime.Parse(s);
+            outDate.outValue.kind = this.getKindfromMoment(outDate.outValue.momentDate);
+            return true;
+        }
+        catch (error) {
+            outDate.exception = error;
+        }
+        return false;
+    };
+    // TryParseExact
+    DateTime.prototype.valueOf = function () {
+        return this.TotalMilliSeconds;
+    };
+    DateTime.DaysToMonth365 = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365];
+    DateTime.DaysToMonth366 = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366];
     DateTime.MinValue = new DateTime('0001-01-01T00:00:00+00:00');
     DateTime.MaxValue = new DateTime("9999-12-31T23:59:59.9999999+00:00");
     return DateTime;
 }());
 exports.DateTime = DateTime;
-/**
-* TimeZoneInfo
-*/
-var TimeZoneInfo = /** @class */ (function () {
-    function TimeZoneInfo(offset) {
-        this.offset = offset;
-    }
-    Object.defineProperty(TimeZoneInfo, "Utc", {
-        get: function () { return this.utc; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeZoneInfo, "Local", {
-        get: function () { return this.local; },
-        enumerable: true,
-        configurable: true
-    });
-    TimeZoneInfo.IsLocalTimeZone = function (timeZone) {
-        return timeZone.offset === this.local.offset;
-    };
-    Object.defineProperty(TimeZoneInfo.prototype, "DisplayName", {
-        get: function () { return this.offset.toString(); },
-        enumerable: true,
-        configurable: true
-    });
-    TimeZoneInfo.ConvertTime = function (dateTime, sourceTZ, destinationTZ) {
-        var returnDate = new DateTime(dateTime);
-        //var offset = returnDate.currentUtcOffset + destinationTZ.offset - sourceTZ.offset 
-        returnDate.utcOffset(destinationTZ.offset);
-        return returnDate;
-    };
-    TimeZoneInfo.utc = new TimeZoneInfo(0);
-    TimeZoneInfo.local = new TimeZoneInfo(moment().local().utcOffset());
-    return TimeZoneInfo;
-}());
-exports.TimeZoneInfo = TimeZoneInfo;
-var TimeSpan = /** @class */ (function () {
-    function TimeSpan(args) {
-        this.duration = moment.duration(args);
-    }
-    TimeSpan.prototype.humanize = function (withSuffix) { return this.duration.humanize(withSuffix); };
-    TimeSpan.prototype.as = function (units) { return this.duration.as(units); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.milliseconds = function () { return this.duration.milliseconds(); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.asMilliseconds = function () { return this.duration.asMilliseconds(); };
-    TimeSpan.prototype.Milliseconds = function () { return this.duration.milliseconds(); };
-    Object.defineProperty(TimeSpan.prototype, "TotalMilliseconds", {
-        get: function () { return this.duration.asMilliseconds(); },
-        enumerable: true,
-        configurable: true
-    });
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.seconds = function () { return this.duration.seconds(); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.asSeconds = function () { return this.duration.asSeconds(); };
-    TimeSpan.prototype.Seconds = function () { return this.duration.seconds(); };
-    Object.defineProperty(TimeSpan.prototype, "TotalSeconds", {
-        get: function () { return this.duration.asSeconds(); },
-        enumerable: true,
-        configurable: true
-    });
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.minutes = function () { return this.duration.minutes(); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.asMinutes = function () { return this.duration.asMinutes(); };
-    TimeSpan.prototype.Minutes = function () { return this.duration.minutes(); };
-    Object.defineProperty(TimeSpan.prototype, "TotalMinutes", {
-        get: function () { return this.duration.asMinutes(); },
-        enumerable: true,
-        configurable: true
-    });
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.hours = function () { return this.duration.hours(); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.asHours = function () { return this.duration.asHours(); };
-    TimeSpan.prototype.Hours = function () { return this.duration.hours(); };
-    Object.defineProperty(TimeSpan.prototype, "TotalHours", {
-        get: function () { return this.duration.asHours(); },
-        enumerable: true,
-        configurable: true
-    });
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.days = function () { return this.duration.days(); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.asDays = function () { return this.duration.asDays(); };
-    TimeSpan.prototype.Days = function () { return this.duration.days(); };
-    Object.defineProperty(TimeSpan.prototype, "TotalDays", {
-        get: function () { return this.duration.asDays(); },
-        enumerable: true,
-        configurable: true
-    });
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.months = function () { return this.duration.months(); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.asMonths = function () { return this.duration.asMonths(); };
-    TimeSpan.prototype.Months = function () { return this.duration.months(); };
-    Object.defineProperty(TimeSpan.prototype, "TotalMonths", {
-        get: function () { return this.duration.asMonths(); },
-        enumerable: true,
-        configurable: true
-    });
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.years = function () { return this.duration.years(); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.asYears = function () { return this.duration.asYears(); };
-    TimeSpan.prototype.Years = function () { return this.duration.years(); };
-    Object.defineProperty(TimeSpan.prototype, "TotalYears", {
-        get: function () { return this.duration.asYears(); },
-        enumerable: true,
-        configurable: true
-    });
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.weeks = function () { return this.duration.weeks(); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.asWeeks = function () { return this.duration.asWeeks(); };
-    TimeSpan.prototype.Weeks = function () { return this.duration.weeks(); };
-    Object.defineProperty(TimeSpan.prototype, "Totalweeks", {
-        get: function () { return this.duration.asWeeks(); },
-        enumerable: true,
-        configurable: true
-    });
-    TimeSpan.prototype.add = function (a, p) {
-        if (arguments.length === 1) {
-            return new TimeSpan(this.duration.add(a));
-        }
-        else {
-            return new TimeSpan(this.duration.add(a, p));
-        }
-    };
-    TimeSpan.prototype.Add = function (a, p) {
-        if (arguments.length === 1) {
-            return new TimeSpan(this.duration.add(a));
-        }
-        else {
-            return new TimeSpan(this.duration.add(a, p));
-        }
-    };
-    TimeSpan.prototype.subtract = function (a, p) {
-        if (arguments.length === 1) {
-            return new TimeSpan(this.duration.subtract(a));
-        }
-        else {
-            return new TimeSpan(this.duration.subtract(a, p));
-        }
-    };
-    TimeSpan.prototype.Subtract = function (a, p) {
-        if (arguments.length === 1) {
-            return new TimeSpan(this.duration.subtract(a));
-        }
-        else {
-            return new TimeSpan(this.duration.subtract(a, p));
-        }
-    };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.toISOString = function () { return this.duration.toISOString(); };
-    TimeSpan.prototype.ToISOString = function () { return this.duration.toISOString(); };
-    /** @internal TODO: to be removed in 0.7. */
-    TimeSpan.prototype.toJSON = function () { return this.duration.toJSON(); };
-    TimeSpan.prototype.ToJSON = function () { return this.duration.toJSON(); };
-    TimeSpan.FromDays = function (value) { return new TimeSpan(value * TimeSpan.MillisPerDay); };
-    TimeSpan.FromHours = function (value) { return new TimeSpan(value * TimeSpan.MillisPerHour); };
-    TimeSpan.FromMilliseconds = function (value) { return new TimeSpan(value); };
-    TimeSpan.FromMinutes = function (value) { return new TimeSpan(value * TimeSpan.MillisPerMinute); };
-    TimeSpan.FromSeconds = function (value) { return new TimeSpan(value * TimeSpan.MillisPerSecond); };
-    TimeSpan.MillisPerSecond = 1000; //const
-    TimeSpan.MillisPerMinute = TimeSpan.MillisPerSecond * 60; //     60,000 //const
-    TimeSpan.MillisPerHour = TimeSpan.MillisPerMinute * 60; //  3,600,000 //const
-    TimeSpan.MillisPerDay = TimeSpan.MillisPerHour * 24; // 86,400,000 //const
-    TimeSpan.MaxSeconds = Number.MAX_VALUE / TimeSpan.MillisPerSecond; // TimeSpan.TicksPerSecond; //const
-    TimeSpan.MinSeconds = Number.MIN_VALUE / TimeSpan.MillisPerSecond; // TimeSpan.TicksPerSecond; //const
-    TimeSpan.MaxMilliSeconds = Number.MAX_VALUE; /// TimeSpan.TicksPerMillisecond; //const
-    TimeSpan.MinMilliSeconds = Number.MIN_VALUE; /// TimeSpan.TicksPerMillisecond; //const
-    //private static  TicksPerTenthSecond:number = TimeSpan.TicksPerMillisecond * 100; //const
-    TimeSpan.Zero = new TimeSpan(0); //readonly
-    TimeSpan.MaxValueTimeSpan = new TimeSpan(Number.MAX_VALUE); //readonly
-    TimeSpan.MinValueTimeSpan = new TimeSpan(Number.MIN_VALUE); //readonly
-    return TimeSpan;
-}());
-exports.TimeSpan = TimeSpan;
-var TimeSpan2;
-(function (TimeSpan2) {
-    /** TimeSpan basics from c# using momentjs */
-    var TimeSpan = /** @class */ (function () {
-        function TimeSpan(millisOrHrsOrDays, minsOrHrs, secsOrMins, seconds, milliseconds) {
-            this._millis = 0;
-            var argsLength = arguments.length;
-            var millis = 0;
-            if (typeof milliseconds !== 'undefined')
-                millis = milliseconds;
-            switch (argsLength) {
-                case 1:
-                    this._millis = millisOrHrsOrDays;
-                    break;
-                case 3:
-                    this._millis = TimeSpan.TimeToTicks(millisOrHrsOrDays, minsOrHrs, secsOrMins);
-                    break;
-                case 4:
-                case 5:
-                    var totalSeconds = millisOrHrsOrDays * 24 * 3600 + minsOrHrs * 3600 + secsOrMins * 60 + seconds;
-                    if (totalSeconds > TimeSpan.MaxSeconds || totalSeconds < TimeSpan.MinSeconds)
-                        throw new ArgumentException_1.ArgumentOutOfRangeException("DateTime.ts - TimeSpan.ctor - Overflow_TimeSpanTooLong");
-                    this._millis = totalSeconds * TimeSpan.MillisPerSecond + millis;
-                    break;
-                default:
-                    throw new Error("DateTime.ts - TimeSpan.ctor - invalid number of arguments");
-            }
-        }
-        TimeSpan.TimeToTicks = function (hour, minute, second) {
-            // totalSeconds is bounded by 2^31 * 2^12 + 2^31 * 2^8 + 2^31,
-            // which is less than 2^44, meaning we won't overflow totalSeconds.
-            var totalSeconds = hour * 3600 + minute * 60 + second;
-            if (totalSeconds > this.MaxSeconds || totalSeconds < this.MinSeconds)
-                throw new ArgumentException_1.ArgumentOutOfRangeException("DateTime.ts - TimeSpan.TimeToTicks - Overflow_TimeSpanTooLong");
-            return totalSeconds * this.MillisPerSecond;
-        };
-        Object.defineProperty(TimeSpan.prototype, "Days", {
-            get: function () { return Math.floor(this._millis / TimeSpan.MillisPerDay); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TimeSpan.prototype, "Hours", {
-            get: function () { return Math.floor(this._millis / TimeSpan.MillisPerHour); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TimeSpan.prototype, "Milliseconds", {
-            get: function () { return Math.floor(this._millis); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TimeSpan.prototype, "Minutes", {
-            get: function () { return Math.floor(this._millis / TimeSpan.MillisPerMinute); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TimeSpan.prototype, "Seconds", {
-            get: function () { return Math.floor(this._millis / TimeSpan.MillisPerSecond); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TimeSpan.prototype, "TotalDays", {
-            //public get Ticks(): number { return Math.floor( this._millis / TimeSpan.); }
-            get: function () { return this._millis / TimeSpan.MillisPerDay; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TimeSpan.prototype, "TotalHours", {
-            get: function () { return this._millis / TimeSpan.MillisPerHour; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TimeSpan.prototype, "TotalMilliseconds", {
-            get: function () { return this._millis; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TimeSpan.prototype, "TotalMinutes", {
-            get: function () { return this._millis / TimeSpan.MillisPerMinute; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TimeSpan.prototype, "TotalSeconds", {
-            get: function () { return this._millis / TimeSpan.MillisPerSecond; },
-            enumerable: true,
-            configurable: true
-        });
-        // Compares two TimeSpan values, returning an integer that indicates their
-        // relationship.
-        //
-        TimeSpan.Compare = function (t1, t2) {
-            if (t1._millis > t2._millis)
-                return 1;
-            if (t1._millis < t2._millis)
-                return -1;
-            return 0;
-        };
-        TimeSpan.Equals = function (t1, t2) { return t1._millis === t2._millis; };
-        TimeSpan.FromDays = function (value) { return new TimeSpan(value * TimeSpan.MillisPerDay); };
-        TimeSpan.FromHours = function (value) { return new TimeSpan(value * TimeSpan.MillisPerHour); };
-        TimeSpan.FromMilliseconds = function (value) { return new TimeSpan(value); };
-        TimeSpan.FromMinutes = function (value) { return new TimeSpan(value * TimeSpan.MillisPerMinute); };
-        TimeSpan.FromSeconds = function (value) { return new TimeSpan(value * TimeSpan.MillisPerSecond); };
-        //public static FromTicks(value: number): TimeSpan{ return new TimeSpan(value * TimeSpan.MillisPerDay); }
-        TimeSpan.Parse = function (s) {
-            return null;
-        };
-        //public static Parse(input: string, formatProvider: IFormatProvider): TimeSpan;
-        //public static ParseExact(string input, string[] formats, IFormatProvider formatProvider): TimeSpan;
-        //public static ParseExact(string input, string format, IFormatProvider formatProvider): TimeSpan;
-        //public static ParseExact(string input, string[] formats, IFormatProvider formatProvider, TimeSpanStyles styles): TimeSpan;
-        //public static ParseExact(string input, string format, IFormatProvider formatProvider, TimeSpanStyles styles): TimeSpan;
-        //public static TryParse(string s, out TimeSpan result): boolean;
-        //public static TryParse(string input, IFormatProvider formatProvider, out TimeSpan result): boolean;
-        //public static TryParseExact(string input, string[] formats, IFormatProvider formatProvider, out TimeSpan result): boolean;
-        //public static TryParseExact(string input, string format, IFormatProvider formatProvider, out TimeSpan result): boolean;
-        //public static TryParseExact(string input, string[] formats, IFormatProvider formatProvider, TimeSpanStyles styles, out TimeSpan result): boolean;
-        //public static TryParseExact(string input, string format, IFormatProvider formatProvider, TimeSpanStyles styles, out TimeSpan result): boolean { }
-        TimeSpan.prototype.Add = function (ts) {
-            var result = this._millis + ts._millis;
-            // Overflow if signs of operands was identical and result's sign was opposite.
-            // >> 63 gives the sign bit (either 64 1's or 64 0's).
-            if ((this._millis >>> 63 === ts._millis >> 63) && (this.Milliseconds >>> 63 !== result >> 63))
-                throw new Error("Overflow_TimeSpanTooLong"); //OverflowException
-            return new TimeSpan(result);
-        };
-        TimeSpan.prototype.CompareTo = function (value) {
-            if (!(value instanceof TimeSpan))
-                throw new Error("Arg_MustBeTimeSpan"); //ArgumentException
-            var m = value._millis;
-            if (this._millis > m)
-                return 1;
-            if (this._millis < m)
-                return -1;
-            return 0;
-        };
-        // non ticks use in js - public static     TicksPerMillisecond:number =  10000; //const
-        // non ticks use in js - private static  MillisecondsPerTick:number = 1.0 / TimeSpan.TicksPerMillisecond; //const
-        // non ticks use in js - public static  TicksPerSecond:number = TimeSpan.TicksPerMillisecond * 1000;   // 10,000,000 //const
-        // non ticks use in js - private static  SecondsPerTick:number =  1.0 / TimeSpan.TicksPerSecond;         // 0.0001 //const
-        // non ticks use in js - public static  TicksPerMinute:number = TimeSpan.TicksPerSecond * 60;         // 600,000,000 //const
-        // non ticks use in js - private static  MinutesPerTick:number = 1.0 / TimeSpan.TicksPerMinute; // 1.6666666666667e-9 //const
-        // non ticks use in js - public static  TicksPerHour:number = TimeSpan.TicksPerMinute * 60;        // 36,000,000,000 //const
-        // non ticks use in js - private static  HoursPerTick:number = 1.0 / TimeSpan.TicksPerHour; // 2.77777777777777778e-11 //const
-        // non ticks use in js - public static  TicksPerDay:number = TimeSpan.TicksPerHour * 24;          // 864,000,000,000 //const
-        // non ticks use in js - private static  DaysPerTick:number = 1.0 / TimeSpan.TicksPerDay; // 1.1574074074074074074e-12 //const
-        TimeSpan.MillisPerSecond = 1000; //const
-        TimeSpan.MillisPerMinute = TimeSpan.MillisPerSecond * 60; //     60,000 //const
-        TimeSpan.MillisPerHour = TimeSpan.MillisPerMinute * 60; //  3,600,000 //const
-        TimeSpan.MillisPerDay = TimeSpan.MillisPerHour * 24; // 86,400,000 //const
-        TimeSpan.MaxSeconds = Number.MAX_VALUE / TimeSpan.MillisPerSecond; // TimeSpan.TicksPerSecond; //const
-        TimeSpan.MinSeconds = Number.MIN_VALUE / TimeSpan.MillisPerSecond; // TimeSpan.TicksPerSecond; //const
-        TimeSpan.MaxMilliSeconds = Number.MAX_VALUE; /// TimeSpan.TicksPerMillisecond; //const
-        TimeSpan.MinMilliSeconds = Number.MIN_VALUE; /// TimeSpan.TicksPerMillisecond; //const
-        //private static  TicksPerTenthSecond:number = TimeSpan.TicksPerMillisecond * 100; //const
-        TimeSpan.Zero = new TimeSpan(0); //readonly
-        TimeSpan.MaxValueTimeSpan = new TimeSpan(Number.MAX_VALUE); //readonly
-        TimeSpan.MinValueTimeSpan = new TimeSpan(Number.MIN_VALUE); //readonly
-        return TimeSpan;
-    }());
-})(TimeSpan2 || (TimeSpan2 = {}));
 //
 // Summary:
 //     Defines the formatting options that customize string parsing for some date and
@@ -531,3 +515,39 @@ var DateTimeStyles;
     //     the string is then converted back to a System.DateTime object.
     DateTimeStyles[DateTimeStyles["RoundtripKind"] = 128] = "RoundtripKind";
 })(DateTimeStyles = exports.DateTimeStyles || (exports.DateTimeStyles = {}));
+exports.unitOfTime = {
+    "year": "year",
+    "years": "years",
+    "y": "y",
+    "month": "month",
+    "months": "months",
+    "M": "M",
+    "week": "week",
+    "weeks": "weeks",
+    "w": "w",
+    "day": "day",
+    "days": "days",
+    "d": "d",
+    "hour": "hour",
+    "hours": "hours",
+    "h": "h",
+    "minute": "minute",
+    "minutes": "minutes",
+    "m": "m",
+    "second": "second",
+    "seconds": "seconds",
+    "s": "s",
+    "millisecond": "millisecond",
+    "milliseconds": "milliseconds",
+    "ms": "ms",
+};
+var momentValidity;
+(function (momentValidity) {
+    momentValidity[momentValidity["years"] = 0] = "years";
+    momentValidity[momentValidity["months"] = 1] = "months";
+    momentValidity[momentValidity["days"] = 2] = "days";
+    momentValidity[momentValidity["hours"] = 3] = "hours";
+    momentValidity[momentValidity["minutes"] = 4] = "minutes";
+    momentValidity[momentValidity["seconds"] = 5] = "seconds";
+    momentValidity[momentValidity["milliseconds"] = 6] = "milliseconds";
+})(momentValidity || (momentValidity = {}));

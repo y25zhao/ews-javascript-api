@@ -227,7 +227,7 @@ var Folder = /** @class */ (function (_super) {
             throw new Error("invalid arguments, check documentation and try again.");
         }
         if (viewOrSearchFilter instanceof FolderView_1.FolderView) {
-            return this.Service.FindFolders(this.Id, view);
+            return this.Service.FindFolders(this.Id, viewOrSearchFilter);
         }
         else if (viewOrSearchFilter instanceof SearchFilter_1.SearchFilter) {
             if (typeof view === 'undefined' || !(view instanceof FolderView_1.FolderView)) {

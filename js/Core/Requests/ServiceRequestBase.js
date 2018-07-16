@@ -171,11 +171,11 @@ var ServiceRequestBase = /** @class */ (function () {
             //{
             //    requestObject.SerializeToJson(serviceRequestStream);
             //}
-            debugger;
+            //debugger;
         }
     };
     //EndGetEwsHttpWebResponse(request: IEwsHttpWebRequest, asyncResult: any /*System.IAsyncResult*/): IEwsHttpWebResponse { throw new Error("Could not implemented."); }
-    ServiceRequestBase.prototype.GetEwsHttpWebResponse = function (request /*IEwsHttpWebRequest*/) { return this.service.GetXHRApi.xhr(request); };
+    ServiceRequestBase.prototype.GetEwsHttpWebResponse = function (request /*IEwsHttpWebRequest*/) { return this.service.XHRApi.xhr(request); };
     /**
      * Gets string representation of requested server version.
      *
@@ -294,8 +294,10 @@ var ServiceRequestBase = /** @class */ (function () {
                 }
             }
             else {
-                soapFaultDetails = new SoapFaultDetails_1.SoapFaultDetails();
+                soapFaultDetails = new SoapFaultDetails_1.SoapFaultDetails(webException && webException.message ? webException.message : '');
                 soapFaultDetails.HttpStatusCode = webException.status;
+                if (webException.stack)
+                    soapFaultDetails.stack = webException.stack;
                 this.Service.ProcessHttpErrorResponse(webException, soapFaultDetails);
             }
             return soapFaultDetails;
@@ -403,7 +405,7 @@ var ServiceRequestBase = /** @class */ (function () {
         //var response = XHR(request);
         EwsLogging_1.EwsLogging.DebugLog("sending ews request");
         EwsLogging_1.EwsLogging.DebugLog(request, true);
-        return this.service.GetXHRApi.xhr(request);
+        return this.service.XHRApi.xhr(request);
         //try
         //{
         //    var response = this.GetEwsHttpWebResponse(request);
