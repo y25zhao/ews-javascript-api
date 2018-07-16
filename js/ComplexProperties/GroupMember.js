@@ -23,11 +23,43 @@ var GroupMember = /** @class */ (function (_super) {
      */
     function GroupMember() {
         var _this = _super.call(this) || this;
-        _this.AddressInformation = new EmailAddress_1.EmailAddress();
         _this.addressInformation = new EmailAddress_1.EmailAddress();
         _this.Namespace = XmlNamespace_1.XmlNamespace.Types;
         return _this;
     }
+    Object.defineProperty(GroupMember.prototype, "Key", {
+        get: function () {
+            return this.key;
+        },
+        set: function (value) {
+            var _this = this;
+            this.SetFieldValue({ getValue: function () { return _this.key; }, setValue: function (updateValue) { _this.key = updateValue; } }, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(GroupMember.prototype, "AddressInformation", {
+        get: function () {
+            return this.addressInformation;
+        },
+        set: function (value) {
+            var _this = this;
+            this.SetFieldValue({ getValue: function () { return _this.addressInformation; }, setValue: function (updateValue) { _this.addressInformation = updateValue; } }, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(GroupMember.prototype, "Status", {
+        get: function () {
+            return this.status;
+        },
+        set: function (value) {
+            var _this = this;
+            this.SetFieldValue({ getValue: function () { return _this.status; }, setValue: function (updateValue) { _this.status = updateValue; } }, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
     // AddressInformationChanged(complexProperty: ComplexProperty): any { throw new Error("GroupMember.ts - AddressInformationChanged : Not implemented."); }
     // InternalToJson(service: ExchangeService): any { throw new Error("GroupMember.ts - InternalToJson : Not implemented."); }
     /**
@@ -40,12 +72,12 @@ var GroupMember = /** @class */ (function (_super) {
         for (var key in jsObject) {
             switch (key) {
                 case XmlAttributeNames_1.XmlAttributeNames.Key:
-                    this.Key = jsObject[key];
+                    this.key = jsObject[key];
                 case XmlElementNames_1.XmlElementNames.Status:
-                    this.Status = MemberStatus_1.MemberStatus.Normal;
+                    this.status = MemberStatus_1.MemberStatus.Normal;
                     break;
                 case XmlElementNames_1.XmlElementNames.Mailbox:
-                    this.AddressInformation.LoadFromXmlJsObject(jsObject[key], service);
+                    this.addressInformation.LoadFromXmlJsObject(jsObject[key], service);
                     break;
                 default:
                     break;
