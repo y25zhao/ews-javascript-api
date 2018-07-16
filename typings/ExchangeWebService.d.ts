@@ -1638,140 +1638,6 @@ export interface AutodiscoverRedirectionUrlValidationCallback {
 } class WebClientUrlCollection {
     Urls: WebClientUrl[];
     static LoadFromJson(obj: any): WebClientUrlCollection;
-}/**
- * Represents retention policy tag object.
- *
- * @sealed
- */
- class RetentionPolicyTag {
-    /**
-     * Retention policy tag display name.
-     */
-    DisplayName: string;
-    /**
-     * Retention Id.
-     */
-    RetentionId: Guid;
-    /**
-     * Retention period in time span.
-     */
-    RetentionPeriod: number;
-    /**
-     * Retention type.
-     */
-    Type: ElcFolderType;
-    /**
-     * Retention action.
-     */
-    RetentionAction: RetentionActionType;
-    /**
-     * Retention policy tag description.
-     */
-    Description: string;
-    /**
-     * Is this a visible tag?
-     */
-    IsVisible: boolean;
-    /**
-     * Is this a opted into tag?
-     */
-    OptedInto: boolean;
-    /**
-     * Is this an archive tag?
-     */
-    IsArchive: boolean;
-    /**
-     * Constructor
-     */
-    constructor();
-    /**
-     * Constructor for retention policy tag.
-     *
-     * @param   {string}   displayName       Display name.
-     * @param   {Guid}   retentionId       Retention id.
-     * @param   {number}   retentionPeriod   Retention period.
-     * @param   {ElcFolderType}   type              Retention folder type.
-     * @param   {RetentionActionType}   retentionAction   Retention action.
-     * @param   {boolean}   isVisible         Is visible.
-     * @param   {boolean}   optedInto         Opted into.
-     * @param   {boolean}   isArchive         Is archive tag.
-     */
-    constructor(displayName: string, retentionId: Guid, retentionPeriod: number, type: ElcFolderType, retentionAction: RetentionActionType, isVisible: boolean, optedInto: boolean, isArchive: boolean);
-}
- class ClientCertificateCredentials extends ExchangeCredentials {
-    ClientCertificates: any;    PrepareWebRequest(request: any): any;
-}
- abstract class ExchangeCredentials {
-    static WsSecurityPathSuffix: string;
-    UserName: string;
-    /** Hiding password field from console.log */
-    getPassword: () => string;
-    setPassword: (value: string) => void;
-    Password: string;
-    constructor();
-    constructor(userName: string, password: string);
-    AdjustUrl(url: Uri): Uri;
-    EmitExtraSoapHeaderNamespaceAliases(writer: any): void;
-    static GetUriWithoutSuffix(url: Uri): string;
-    PrepareWebRequest(request: IXHROptions): void;
-    SerializeExtraSoapHeaders(writer: any, webMethodName: string): void;
-}
- class OAuthCredentials extends ExchangeCredentials {
-    constructor(token: string);
-    constructor(token: string, verbatim: boolean);
-    PrepareWebRequest(request: IXHROptions): void;
-}
- class PartnerTokenCredentials extends WSSecurityBasedCredentials {    NeedSignature: boolean;    AdjustUrl(url: Uri): Uri;
-    Sign(memoryStream: any): any;
-} class TokenCredentials extends WSSecurityBasedCredentials {
-}
- class WSSecurityBasedCredentials extends ExchangeCredentials {
-    static WsAddressingHeadersFormat: string;
-    static WsSecurityHeaderFormat: string;
-    static WsuTimeStampFormat: string;
-    SecurityToken: string;
-    EwsUrl: Uri;
-    static NamespaceManager: any;
-    AdjustUrl(url: Uri): Uri;
-    EmitExtraSoapHeaderNamespaceAliases(writer: any): any;
-    PreAuthenticate(): any;
-    SerializeExtraSoapHeaders(writer: any, webMethodName: string): any;
-    SerializeWSAddressingHeaders(xmlWriter: any, webMethodName: string): any;
-    SerializeWSSecurityHeaders(xmlWriter: any): any;
-}
- class WSSecurityUtilityIdSignedXml {
-    AddReference(xpath: string): any;
-    GetIdElement(document: any, idValue: string): any;
-    GetUniqueId(): string;
-} class WebCredentials extends ExchangeCredentials {
-} class WindowsLiveCredentials extends WSSecurityBasedCredentials {
-    static XmlEncNamespace: string;
-    static WindowsLiveSoapNamespacePrefix: string;
-    static RequestSecurityTokenResponseCollectionElementName: string;
-    static RequestSecurityTokenResponseElementName: string;
-    static EncryptedDataElementName: string;
-    static PpElementName: string;
-    static ReqstatusElementName: string;
-    static SuccessfulReqstatus: string;
-    static XmlSignatureReference: string;
-    TraceEnabled: boolean;
-    TraceListener: ITraceListener;
-    WindowsLiveUrl: Uri;
-    IsAuthenticated: boolean;
-    static DefaultWindowsLiveUrl: Uri;
-    EmitTokenRequest(uriForTokenEndpointReference: Uri): any;
-    MakeTokenRequestToWindowsLive(uriForTokenEndpointReference: Uri): any;
-    ProcessTokenResponse(response: any): any;
-    TraceResponse(response: any, memoryStream: any): any;
-    TraceWebException(e: any): any;
-}
- class X509CertificateCredentials extends WSSecurityBasedCredentials {    NeedSignature: boolean;
-    AdjustUrl(url: Uri): Uri;
-    Sign(memoryStream: any): any;
-    ToString(): string;
-}
- class DnsClient {
-    DnsQuer<T>(domain: string, dnsServerAddress: any): T[];
 } class EwsLogging {
     static DebugLogEnabled: boolean;
     static Assert(condition: boolean, caller: string, message: string, always?: boolean): void;
@@ -5036,6 +4902,226 @@ export interface InitializeLazyMember<T> {
     var EwsPositionElementName: string;
     var EwsErrorCodeElementName: string;
     var EwsExceptionTypeElementName: string;
+}
+ class DnsClient {
+    DnsQuer<T>(domain: string, dnsServerAddress: any): T[];
+}
+ class ClientCertificateCredentials extends ExchangeCredentials {
+    ClientCertificates: any;    PrepareWebRequest(request: any): any;
+}
+ abstract class ExchangeCredentials {
+    static WsSecurityPathSuffix: string;
+    UserName: string;
+    /** Hiding password field from console.log */
+    getPassword: () => string;
+    setPassword: (value: string) => void;
+    Password: string;
+    constructor();
+    constructor(userName: string, password: string);
+    AdjustUrl(url: Uri): Uri;
+    EmitExtraSoapHeaderNamespaceAliases(writer: any): void;
+    static GetUriWithoutSuffix(url: Uri): string;
+    PrepareWebRequest(request: IXHROptions): void;
+    SerializeExtraSoapHeaders(writer: any, webMethodName: string): void;
+}
+ class OAuthCredentials extends ExchangeCredentials {
+    constructor(token: string);
+    constructor(token: string, verbatim: boolean);
+    PrepareWebRequest(request: IXHROptions): void;
+}
+ class PartnerTokenCredentials extends WSSecurityBasedCredentials {    NeedSignature: boolean;    AdjustUrl(url: Uri): Uri;
+    Sign(memoryStream: any): any;
+} class TokenCredentials extends WSSecurityBasedCredentials {
+}
+ class WSSecurityBasedCredentials extends ExchangeCredentials {
+    static WsAddressingHeadersFormat: string;
+    static WsSecurityHeaderFormat: string;
+    static WsuTimeStampFormat: string;
+    SecurityToken: string;
+    EwsUrl: Uri;
+    static NamespaceManager: any;
+    AdjustUrl(url: Uri): Uri;
+    EmitExtraSoapHeaderNamespaceAliases(writer: any): any;
+    PreAuthenticate(): any;
+    SerializeExtraSoapHeaders(writer: any, webMethodName: string): any;
+    SerializeWSAddressingHeaders(xmlWriter: any, webMethodName: string): any;
+    SerializeWSSecurityHeaders(xmlWriter: any): any;
+}
+ class WSSecurityUtilityIdSignedXml {
+    AddReference(xpath: string): any;
+    GetIdElement(document: any, idValue: string): any;
+    GetUniqueId(): string;
+} class WebCredentials extends ExchangeCredentials {
+} class WindowsLiveCredentials extends WSSecurityBasedCredentials {
+    static XmlEncNamespace: string;
+    static WindowsLiveSoapNamespacePrefix: string;
+    static RequestSecurityTokenResponseCollectionElementName: string;
+    static RequestSecurityTokenResponseElementName: string;
+    static EncryptedDataElementName: string;
+    static PpElementName: string;
+    static ReqstatusElementName: string;
+    static SuccessfulReqstatus: string;
+    static XmlSignatureReference: string;
+    TraceEnabled: boolean;
+    TraceListener: ITraceListener;
+    WindowsLiveUrl: Uri;
+    IsAuthenticated: boolean;
+    static DefaultWindowsLiveUrl: Uri;
+    EmitTokenRequest(uriForTokenEndpointReference: Uri): any;
+    MakeTokenRequestToWindowsLive(uriForTokenEndpointReference: Uri): any;
+    ProcessTokenResponse(response: any): any;
+    TraceResponse(response: any, memoryStream: any): any;
+    TraceWebException(e: any): any;
+}
+ class X509CertificateCredentials extends WSSecurityBasedCredentials {    NeedSignature: boolean;
+    AdjustUrl(url: Uri): Uri;
+    Sign(memoryStream: any): any;
+    ToString(): string;
+}/**
+ * Represents retention policy tag object.
+ *
+ * @sealed
+ */
+ class RetentionPolicyTag {
+    /**
+     * Retention policy tag display name.
+     */
+    DisplayName: string;
+    /**
+     * Retention Id.
+     */
+    RetentionId: Guid;
+    /**
+     * Retention period in time span.
+     */
+    RetentionPeriod: number;
+    /**
+     * Retention type.
+     */
+    Type: ElcFolderType;
+    /**
+     * Retention action.
+     */
+    RetentionAction: RetentionActionType;
+    /**
+     * Retention policy tag description.
+     */
+    Description: string;
+    /**
+     * Is this a visible tag?
+     */
+    IsVisible: boolean;
+    /**
+     * Is this a opted into tag?
+     */
+    OptedInto: boolean;
+    /**
+     * Is this an archive tag?
+     */
+    IsArchive: boolean;
+    /**
+     * Constructor
+     */
+    constructor();
+    /**
+     * Constructor for retention policy tag.
+     *
+     * @param   {string}   displayName       Display name.
+     * @param   {Guid}   retentionId       Retention id.
+     * @param   {number}   retentionPeriod   Retention period.
+     * @param   {ElcFolderType}   type              Retention folder type.
+     * @param   {RetentionActionType}   retentionAction   Retention action.
+     * @param   {boolean}   isVisible         Is visible.
+     * @param   {boolean}   optedInto         Opted into.
+     * @param   {boolean}   isArchive         Is archive tag.
+     */
+    constructor(displayName: string, retentionId: Guid, retentionPeriod: number, type: ElcFolderType, retentionAction: RetentionActionType, isVisible: boolean, optedInto: boolean, isArchive: boolean);
+}
+export interface ICalendarActionProvider {
+    Accept(sendResponse: boolean): Promise<CalendarActionResults>;
+    AcceptTentatively(sendResponse: boolean): Promise<CalendarActionResults>;
+    CreateAcceptMessage(tentative: boolean): AcceptMeetingInvitationMessage;
+    CreateDeclineMessage(): DeclineMeetingInvitationMessage;
+    Decline(sendResponse: boolean): Promise<CalendarActionResults>;
+}
+export interface ICustomUpdateSerializer {
+}
+export interface IEnumerable<T> {
+    GetEnumerator(): Array<T>;
+}export interface IEwsHttpWebRequest {
+    Accept: string;
+    AllowAutoRedirect: boolean;
+    ClientCertificates: any;
+    ContentType: string;
+    CookieContainer: any;
+    Credentials: any;
+    Headers: any;
+    Method: string;
+    PreAuthenticate: boolean;
+    Proxy: any;
+    RequestUri: string;
+    Timeout: number;
+    UseDefaultCredentials: boolean;
+    UserAgent: string;
+    KeepAlive: boolean;
+    ConnectionGroupName: string;
+    Abort(): void;
+    BeginGetRequestStream(callback: any, state: any): any;
+    BeginGetResponse(callback: any, state: any): any;
+    EndGetRequestStream(asyncResult: any): any;
+    EndGetResponse(asyncResult: any): IEwsHttpWebResponse;
+    GetRequestStream(): any;
+    GetResponse(): IEwsHttpWebResponse;
+}
+export interface IEwsHttpWebRequestFactory {
+    CreateExceptionResponse(exception: any): IEwsHttpWebResponse;
+    CreateRequest(uri: string): IEwsHttpWebRequest;
+}
+export interface IEwsHttpWebResponse {
+    ContentEncoding: string;
+    ContentType: string;
+    Headers: any;
+    ResponseUri: string;
+    StatusCode: any;
+    StatusDescription: string;
+    ProtocolVersion: any;
+    Close(): void;
+    GetResponseStream(): any;
+}
+export interface IFileAttachmentContentHandler {
+    GetOutputStream(attachmentId: string): any;
+}export interface IJsonSerializable {
+    ToJson(service: ExchangeService): any;
+}export interface IJsonCollectionDeserializer {
+    CreateFromJsonCollection(jsonCollection: any[], service: ExchangeService): void;
+    UpdateFromJsonCollection(jsonCollection: any[], service: ExchangeService): void;
+}
+export interface IOutParam<T> {
+    outValue: T;
+    exception?: any;
+    success?: boolean;
+}export interface IOwnedProperty {
+    Owner: ServiceObject;
+}
+export interface IRefParam<T> {
+    getValue: () => T;
+    setValue?: (value: T) => void;
+}
+export interface ISearchStringProvider {
+    GetSearchString(): string;
+}
+export interface ISelfValidate {
+    Validate(): any;
+}
+export interface ITraceListener {
+    Trace(traceType: string, traceMessage: string): void;
+}
+export interface HasEwsEnumAttribute {
+    FromEwsEnumString(value: string): any;
+    ToEwsEnumString(value: any): string;
+}
+export interface HasRequiredServerVersionAttribute {
+    RequiredServerVersion(value: WellKnownFolderName): ExchangeVersion;
 }/**
  * Represents an error that occurs when the account that is being accessed is locked and requires user interaction to be unlocked.
  */
@@ -5348,92 +5434,6 @@ export interface InitializeLazyMember<T> {
      * Gets the rule operation error message.
      */
     readonly ErrorMessage: string;
-}
-export interface ICalendarActionProvider {
-    Accept(sendResponse: boolean): Promise<CalendarActionResults>;
-    AcceptTentatively(sendResponse: boolean): Promise<CalendarActionResults>;
-    CreateAcceptMessage(tentative: boolean): AcceptMeetingInvitationMessage;
-    CreateDeclineMessage(): DeclineMeetingInvitationMessage;
-    Decline(sendResponse: boolean): Promise<CalendarActionResults>;
-}
-export interface ICustomUpdateSerializer {
-}
-export interface IEnumerable<T> {
-    GetEnumerator(): Array<T>;
-}export interface IEwsHttpWebRequest {
-    Accept: string;
-    AllowAutoRedirect: boolean;
-    ClientCertificates: any;
-    ContentType: string;
-    CookieContainer: any;
-    Credentials: any;
-    Headers: any;
-    Method: string;
-    PreAuthenticate: boolean;
-    Proxy: any;
-    RequestUri: string;
-    Timeout: number;
-    UseDefaultCredentials: boolean;
-    UserAgent: string;
-    KeepAlive: boolean;
-    ConnectionGroupName: string;
-    Abort(): void;
-    BeginGetRequestStream(callback: any, state: any): any;
-    BeginGetResponse(callback: any, state: any): any;
-    EndGetRequestStream(asyncResult: any): any;
-    EndGetResponse(asyncResult: any): IEwsHttpWebResponse;
-    GetRequestStream(): any;
-    GetResponse(): IEwsHttpWebResponse;
-}
-export interface IEwsHttpWebRequestFactory {
-    CreateExceptionResponse(exception: any): IEwsHttpWebResponse;
-    CreateRequest(uri: string): IEwsHttpWebRequest;
-}
-export interface IEwsHttpWebResponse {
-    ContentEncoding: string;
-    ContentType: string;
-    Headers: any;
-    ResponseUri: string;
-    StatusCode: any;
-    StatusDescription: string;
-    ProtocolVersion: any;
-    Close(): void;
-    GetResponseStream(): any;
-}
-export interface IFileAttachmentContentHandler {
-    GetOutputStream(attachmentId: string): any;
-}export interface IJsonSerializable {
-    ToJson(service: ExchangeService): any;
-}export interface IJsonCollectionDeserializer {
-    CreateFromJsonCollection(jsonCollection: any[], service: ExchangeService): void;
-    UpdateFromJsonCollection(jsonCollection: any[], service: ExchangeService): void;
-}
-export interface IOutParam<T> {
-    outValue: T;
-    exception?: any;
-    success?: boolean;
-}export interface IOwnedProperty {
-    Owner: ServiceObject;
-}
-export interface IRefParam<T> {
-    getValue: () => T;
-    setValue?: (value: T) => void;
-}
-export interface ISearchStringProvider {
-    GetSearchString(): string;
-}
-export interface ISelfValidate {
-    Validate(): any;
-}
-export interface ITraceListener {
-    Trace(traceType: string, traceMessage: string): void;
-}
-export interface HasEwsEnumAttribute {
-    FromEwsEnumString(value: string): any;
-    ToEwsEnumString(value: any): string;
-}
-export interface HasRequiredServerVersionAttribute {
-    RequiredServerVersion(value: WellKnownFolderName): ExchangeVersion;
 }/**
  * Represents mailbox query object.
  *
@@ -9179,389 +9179,6 @@ export interface IDiscoveryVersionable {
      */
     readonly SendPrompt: SendPrompt;
 }
-/**
- * Represents an event that applies to a folder.
- */
- class FolderEvent extends NotificationEvent {
-    /**
-     * The new number of unread messages. This is is only meaningful when EventType is equal to EventType.Modified. For all other event types, it's null.
-     */    /**
-     * Gets the Id of the folder this event applies to.
-     */
-    readonly FolderId: FolderId;
-    /**
-     * Gets the Id of the folder that was moved or copied. OldFolderId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied. For all other event types, OldFolderId is null.
-     */
-    readonly OldFolderId: FolderId;
-    /**
-     * Gets the new number of unread messages. This is is only meaningful when EventType is equal to EventType.Modified. For all other event types, UnreadCount is null.
-     */
-    readonly UnreadCount: number;
-}/**
- * Represents a collection of notification events.
- */
- class GetEventsResults {
-    /**
-     * Map XML element name to notification event type.
-     *
-     * /remarks/ 	If you add a new notification event type, you'll need to add a new entry to the dictionary here.
-     */    /**
-     * Gets the XML element name to event type mapping.
-     *
-     * @value	The XML element name to event type mapping.
-     */
-    static readonly XmlElementNameToEventTypeMap: Dictionary<string, EventType>;
-    /**
-     * Watermark in event.
-     */    /**
-     * Subscription id.
-     */    /**
-     * Previous watermark.
-     */    /**
-     * True if more events available for this subscription.
-     */    /**
-     * Collection of notification events.
-     */    /**
-     * Gets the collection of folder events.
-     *
-     * @value	The folder events.
-     */
-    readonly FolderEvents: FolderEvent[];
-    /**
-     * Gets the collection of item events.
-     *
-     * @value	The item events.
-     */
-    readonly ItemEvents: ItemEvent[];
-    /**
-     * Gets the collection of all events.
-     *
-     * @value	The events.
-     */
-    readonly AllEvents: NotificationEvent[];
-    /**
-     * Loads the events from XML.
-     *
-     * @param   {any[]}               jsEventsArray         The json events array.
-     * @param   {string}     		  xmlElementName		Name of the element.
-     * @param   {ExchangeService}     service               The service.
-     */}/**
- * Represents an event that applies to an item.
- */
- class ItemEvent extends NotificationEvent {
-    /**
-     * Id of the item this event applies to.
-     */    /**
-     * Id of the item that moved or copied. This is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
-     * For all other event types, it's null.
-     */    /**
-     * Gets the Id of the item this event applies to.
-     */
-    readonly ItemId: ItemId;
-    /**
-     * Gets the Id of the item that was moved or copied. OldItemId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
-     * For all other event types, OldItemId is null.
-     */
-    readonly OldItemId: ItemId;
-}/**
- * Represents an event as exposed by push and pull notifications.
- */
- abstract class NotificationEvent {
-    /**
-     * Type of this event.
-     */    /**
-     * Date and time when the event occurred.
-     */    /**
-     * Id of parent folder of the item or folder this event applies to.
-     */    /**
-     * Id of the old prarent foldero of the item or folder this event applies to.
-     * This property is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
-     * For all other event types, oldParentFolderId will be null.
-     */    /**
-     * Gets the type of this event.
-     */
-    readonly EventType: EventType;
-    /**
-     * Gets the date and time when the event occurred.
-     */
-    readonly TimeStamp: DateTime;
-    /**
-     * Gets the Id of the parent folder of the item or folder this event applie to.
-     */
-    ParentFolderId: FolderId;
-    /**
-     * Gets the Id of the old parent folder of the item or folder this event applies to.
-     * OldParentFolderId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
-     * For all other event types, OldParentFolderId is null.
-     */
-    OldParentFolderId: FolderId;
-}
-/**
- * Provides data to a StreamingSubscriptionConnection's OnNotificationEvent event.
- */
- class NotificationEventArgs {
-    /**
-     * Gets the subscription for which notifications have been received.
-     *
-     * internal set
-     */
-    Subscription: StreamingSubscription;
-    /**
-     * Gets the events that were received.
-     *
-     * internal set
-     */
-    Events: NotificationEvent[];
-}
-/**
- * Represents a pull subscription.
- *
- * @sealed
- */
- class PullSubscription extends SubscriptionBase {    /**
-     * Gets a value indicating whether more events are available on the server.
-     * MoreEventsAvailable is undefined (null) until GetEvents is called.
-     */
-    readonly MoreEventsAvailable: boolean;
-    /**
-     * Obtains a collection of events that occurred on the subscribed folders since the point in time defined by the Watermark property. When GetEvents succeeds, Watermark is updated.
-     *
-     * @return  {Promise<GetEventsResults>}      Returns a collection of events that occurred since the last watermark	:Promise.
-     */
-    GetEvents(): Promise<GetEventsResults>;
-    /**
-     * Unsubscribes from the pull subscription.
-     */
-    Unsubscribe(): Promise<void>;
-}/**
- * Represents a push subscriptions.
- *
- * @sealed
- */
- class PushSubscription extends SubscriptionBase {
-}/**
- * Represents a streaming subscription.
- *
- * @sealed
- */
- class StreamingSubscription extends SubscriptionBase {
-    /**
-     * Gets the service used to create this subscription.
-     */
-    readonly Service: ExchangeService;
-    /**
-     * Gets a value indicating whether this subscription uses watermarks.
-     */
-    protected readonly UsesWatermark: boolean;
-    /**
-     * Unsubscribes from the streaming subscription.
-     */
-    Unsubscribe(): Promise<void>;
-}/**
- * Represents a connection to an ongoing stream of events.
- *
- * @sealed
- */
- class StreamingSubscriptionConnection {
-    /**
-     * Mapping of streaming id to subscriptions currently on the connection.
-     */    /**
-     * connection lifetime, in minutes
-     */    /**
-     * ExchangeService instance used to make the EWS call.
-     */    /**
-     * Value indicating whether the class is disposed.
-     */    /**
-     * Currently used instance of a GetStreamingEventsRequest connected to EWS.
-     */    /**
-     * Lock object
-     */    /**
-     * Occurs when notifications are received from the server.
-     */
-    OnNotificationEvent: NotificationEventDelegate[];
-    /**
-     * Occurs when a subscription encounters an error.
-     */
-    OnSubscriptionError: SubscriptionErrorDelegate[];
-    /**
-     * Occurs when a streaming subscription connection is disconnected from the server.
-     */
-    OnDisconnect: SubscriptionErrorDelegate[];
-    /**
-     * Occurs when a streaming subscription connection gets headers from the server.
-     */
-    OnResponseHeader: ResponseHeaderDelegate[];
-    /**
-     * Getting the current subscriptions in this connection.
-     */
-    readonly CurrentSubscriptions: StreamingSubscription[];
-    /**
-     * Gets a value indicating whether this connection is opened
-     */
-    readonly IsOpen: boolean;
-    /**
-     * Initializes a new instance of the **StreamingSubscriptionConnection** class.
-     *
-     * @param   {ExchangeService}   		service         The ExchangeService instance this connection uses to connect to the server.
-     * @param   {number}   					lifetime        The maximum time, in minutes, the connection will remain open. Lifetime must be between 1 and 30.
-     */
-    constructor(service: ExchangeService, lifetime: number);
-    /**
-     * Initializes a new instance of the **StreamingSubscriptionConnection** class.
-     *
-     * @param   {ExchangeService}   		service         The ExchangeService instance this connection uses to connect to the server.
-     * @param   {StreamingSubscription[]}   subscriptions   The streaming subscriptions this connection is receiving events for.
-     * @param   {number}   					lifetime        The maximum time, in minutes, the connection will remain open. Lifetime must be between 1 and 30.
-     */
-    constructor(service: ExchangeService, subscriptions: StreamingSubscription[], lifetime: number);
-    /**
-     * Adds a subscription to this connection.
-     *
-     * @param   {StreamingSubscription}   subscription   The subscription to add.
-     */
-    AddSubscription(subscription: StreamingSubscription): void;
-    /**
-     * Closes this connection so it stops receiving events from the server.
-     * This terminates a long-standing call to EWS.
-     *
-     * @exception	{InvalidOperationException}		Thrown when Close is called while not connected.
-     */
-    Close(): void;
-    /**
-     * Frees resources associated with this StreamingSubscriptionConnection.
-     */
-    Dispose(): void;
-    /**
-     * @private Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-     *
-     * @param   {boolean}   suppressFinalizer   Value indicating whether to suppress the garbage collector's finalizer..
-     */
-    Dispose(suppressFinalizer: boolean): void;
-    /**
-     * Handles the service response object.
-     *
-     * @param   {any}   response   The response.
-     */    /**
-     * Internal helper method called when the request disconnects.
-     *
-     * @param   {Exception}   ex   The exception that caused the disconnection. May be null.
-     */    /**
-     * Internal helper method called when the request receives headers.
-     *
-     * @param   {any}   headers   The headerf from server.
-     */    /**
-     * Issues the general failure.
-     *
-     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
-     */    /**
-     * Issues the notification events.
-     *
-     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
-     */    /**
-     * Issues the subscription failures.
-     *
-     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
-     */    /**
-     * Called when the request is disconnected.
-     *
-     * @param   {any}   								sender   The sender.
-     * @param   {HangingRequestDisconnectEventArgs}   	args     The  instance containing the event data.
-     */    /**
-     * Opens this connection so it starts receiving events from the server.
-     * This results in a long-standing call to EWS.
-     *
-     * @exception	{InvalidOperationException}		Thrown when Open is called while connected.
-     */
-    Open(): Promise<void>;
-    /**
-     * Removes the specified streaming subscription from the connection.
-     *
-     * @param   {StreamingSubscription}   subscription   The subscription to remove.
-     */
-    RemoveSubscription(subscription: StreamingSubscription): void;
-    /**
-     * Throws if disposed.
-     */
-    ThrowIfDisposed(): void;
-    /**
-     * Validates the state of the connection.
-     *
-     * @param   {boolean}   isConnectedExpected   Value indicating whether we expect to be currently connected.
-     * @param   {string}   	errorMessage          The error message.
-     */
-    ValidateConnectionState(isConnectedExpected: boolean, errorMessage: string): void;
-}
-/**
- * Represents a delegate that is invoked when notifications are received from the server
- *
- * @param   {any}   					sender   The StreamingSubscriptionConnection instance that received the events.
- * @param   {NotificationEventArgs}   	args     The event data.
- */
-export interface NotificationEventDelegate {
-    (sender: any, args: NotificationEventArgs): void;
-}
-/**
- * Represents a delegate that is invoked when an error occurs within a streaming subscription connection.
- *
- * @param   {any}   						sender   The StreamingSubscriptionConnection instance within which the error occurred.
- * @param   {SubscriptionErrorEventArgs}   	args     The event data.
- */
-export interface SubscriptionErrorDelegate {
-    (sender: any, args: SubscriptionErrorEventArgs): void;
-}
-/**
- * Represents a delegate that is invoked when an error occurs within a streaming subscription connection.
- *
- * @param   {any}   						sender   The StreamingSubscriptionConnection instance within which the error occurred.
- * @param   {SubscriptionErrorEventArgs}   	args     The event data.
- */
-export interface ResponseHeaderDelegate {
-    (header: any): void;
-}/**
- * Represents the base class for event subscriptions.
- */
- abstract class SubscriptionBase {
-    protected service: ExchangeService;
-    /**
-     * Gets the session.
-     *
-     * @value The session.
-     */
-    readonly Service: ExchangeService;
-    /**
-     * Gets the Id of the subscription.
-     *
-     * internal set
-     */
-    Id: string;
-    /**
-     * Gets the latest watermark of the subscription. Watermark is always null for streaming subscriptions.
-     *
-     * internal set
-     */
-    Watermark: string;
-    /**
-     * Gets whether or not this subscription uses watermarks.
-     */
-    protected readonly UsesWatermark: boolean;
-}
-/**
- * Provides data to a StreamingSubscriptionConnection's OnSubscriptionError and OnDisconnect events.
- */
- class SubscriptionErrorEventArgs {
-    /**
-     * Gets the subscription for which an error occurred. If Subscription is null, the error applies to the entire connection.
-     *
-     * internal set
-     */
-    Subscription: StreamingSubscription;
-    /**
-     * Gets the exception representing the error. If Exception is null, the connection was cleanly closed by the server.
-     *
-     * internal set
-     */
-    Exception: Exception;
-}
  class AbstractFolderIdWrapper {
     GetFolder(): Folder;
     Validate(version: ExchangeVersion): void;
@@ -9974,7 +9591,390 @@ export interface CreateServiceObjectWithAttachmentParam {
      * Writes the XmlData property to Xml.
      *
      * @param   {EwsServiceXmlWriter}   writer   The writer.
+     */}
+/**
+ * Represents an event that applies to a folder.
+ */
+ class FolderEvent extends NotificationEvent {
+    /**
+     * The new number of unread messages. This is is only meaningful when EventType is equal to EventType.Modified. For all other event types, it's null.
+     */    /**
+     * Gets the Id of the folder this event applies to.
+     */
+    readonly FolderId: FolderId;
+    /**
+     * Gets the Id of the folder that was moved or copied. OldFolderId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied. For all other event types, OldFolderId is null.
+     */
+    readonly OldFolderId: FolderId;
+    /**
+     * Gets the new number of unread messages. This is is only meaningful when EventType is equal to EventType.Modified. For all other event types, UnreadCount is null.
+     */
+    readonly UnreadCount: number;
+}/**
+ * Represents a collection of notification events.
+ */
+ class GetEventsResults {
+    /**
+     * Map XML element name to notification event type.
+     *
+     * /remarks/ 	If you add a new notification event type, you'll need to add a new entry to the dictionary here.
+     */    /**
+     * Gets the XML element name to event type mapping.
+     *
+     * @value	The XML element name to event type mapping.
+     */
+    static readonly XmlElementNameToEventTypeMap: Dictionary<string, EventType>;
+    /**
+     * Watermark in event.
+     */    /**
+     * Subscription id.
+     */    /**
+     * Previous watermark.
+     */    /**
+     * True if more events available for this subscription.
+     */    /**
+     * Collection of notification events.
+     */    /**
+     * Gets the collection of folder events.
+     *
+     * @value	The folder events.
+     */
+    readonly FolderEvents: FolderEvent[];
+    /**
+     * Gets the collection of item events.
+     *
+     * @value	The item events.
+     */
+    readonly ItemEvents: ItemEvent[];
+    /**
+     * Gets the collection of all events.
+     *
+     * @value	The events.
+     */
+    readonly AllEvents: NotificationEvent[];
+    /**
+     * Loads the events from XML.
+     *
+     * @param   {any[]}               jsEventsArray         The json events array.
+     * @param   {string}     		  xmlElementName		Name of the element.
+     * @param   {ExchangeService}     service               The service.
      */}/**
+ * Represents an event that applies to an item.
+ */
+ class ItemEvent extends NotificationEvent {
+    /**
+     * Id of the item this event applies to.
+     */    /**
+     * Id of the item that moved or copied. This is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
+     * For all other event types, it's null.
+     */    /**
+     * Gets the Id of the item this event applies to.
+     */
+    readonly ItemId: ItemId;
+    /**
+     * Gets the Id of the item that was moved or copied. OldItemId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
+     * For all other event types, OldItemId is null.
+     */
+    readonly OldItemId: ItemId;
+}/**
+ * Represents an event as exposed by push and pull notifications.
+ */
+ abstract class NotificationEvent {
+    /**
+     * Type of this event.
+     */    /**
+     * Date and time when the event occurred.
+     */    /**
+     * Id of parent folder of the item or folder this event applies to.
+     */    /**
+     * Id of the old prarent foldero of the item or folder this event applies to.
+     * This property is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
+     * For all other event types, oldParentFolderId will be null.
+     */    /**
+     * Gets the type of this event.
+     */
+    readonly EventType: EventType;
+    /**
+     * Gets the date and time when the event occurred.
+     */
+    readonly TimeStamp: DateTime;
+    /**
+     * Gets the Id of the parent folder of the item or folder this event applie to.
+     */
+    ParentFolderId: FolderId;
+    /**
+     * Gets the Id of the old parent folder of the item or folder this event applies to.
+     * OldParentFolderId is only meaningful when EventType is equal to either EventType.Moved or EventType.Copied.
+     * For all other event types, OldParentFolderId is null.
+     */
+    OldParentFolderId: FolderId;
+}
+/**
+ * Provides data to a StreamingSubscriptionConnection's OnNotificationEvent event.
+ */
+ class NotificationEventArgs {
+    /**
+     * Gets the subscription for which notifications have been received.
+     *
+     * internal set
+     */
+    Subscription: StreamingSubscription;
+    /**
+     * Gets the events that were received.
+     *
+     * internal set
+     */
+    Events: NotificationEvent[];
+}
+/**
+ * Represents a pull subscription.
+ *
+ * @sealed
+ */
+ class PullSubscription extends SubscriptionBase {    /**
+     * Gets a value indicating whether more events are available on the server.
+     * MoreEventsAvailable is undefined (null) until GetEvents is called.
+     */
+    readonly MoreEventsAvailable: boolean;
+    /**
+     * Obtains a collection of events that occurred on the subscribed folders since the point in time defined by the Watermark property. When GetEvents succeeds, Watermark is updated.
+     *
+     * @return  {Promise<GetEventsResults>}      Returns a collection of events that occurred since the last watermark	:Promise.
+     */
+    GetEvents(): Promise<GetEventsResults>;
+    /**
+     * Unsubscribes from the pull subscription.
+     */
+    Unsubscribe(): Promise<void>;
+}/**
+ * Represents a push subscriptions.
+ *
+ * @sealed
+ */
+ class PushSubscription extends SubscriptionBase {
+}/**
+ * Represents a streaming subscription.
+ *
+ * @sealed
+ */
+ class StreamingSubscription extends SubscriptionBase {
+    /**
+     * Gets the service used to create this subscription.
+     */
+    readonly Service: ExchangeService;
+    /**
+     * Gets a value indicating whether this subscription uses watermarks.
+     */
+    protected readonly UsesWatermark: boolean;
+    /**
+     * Unsubscribes from the streaming subscription.
+     */
+    Unsubscribe(): Promise<void>;
+}/**
+ * Represents a connection to an ongoing stream of events.
+ *
+ * @sealed
+ */
+ class StreamingSubscriptionConnection {
+    /**
+     * Mapping of streaming id to subscriptions currently on the connection.
+     */    /**
+     * connection lifetime, in minutes
+     */    /**
+     * ExchangeService instance used to make the EWS call.
+     */    /**
+     * Value indicating whether the class is disposed.
+     */    /**
+     * Currently used instance of a GetStreamingEventsRequest connected to EWS.
+     */    /**
+     * Lock object
+     */    /**
+     * Occurs when notifications are received from the server.
+     */
+    OnNotificationEvent: NotificationEventDelegate[];
+    /**
+     * Occurs when a subscription encounters an error.
+     */
+    OnSubscriptionError: SubscriptionErrorDelegate[];
+    /**
+     * Occurs when a streaming subscription connection is disconnected from the server.
+     */
+    OnDisconnect: SubscriptionErrorDelegate[];
+    /**
+     * Occurs when a streaming subscription connection gets headers from the server.
+     */
+    OnResponseHeader: ResponseHeaderDelegate[];
+    /**
+     * Getting the current subscriptions in this connection.
+     */
+    readonly CurrentSubscriptions: StreamingSubscription[];
+    /**
+     * Gets a value indicating whether this connection is opened
+     */
+    readonly IsOpen: boolean;
+    /**
+     * Initializes a new instance of the **StreamingSubscriptionConnection** class.
+     *
+     * @param   {ExchangeService}   		service         The ExchangeService instance this connection uses to connect to the server.
+     * @param   {number}   					lifetime        The maximum time, in minutes, the connection will remain open. Lifetime must be between 1 and 30.
+     */
+    constructor(service: ExchangeService, lifetime: number);
+    /**
+     * Initializes a new instance of the **StreamingSubscriptionConnection** class.
+     *
+     * @param   {ExchangeService}   		service         The ExchangeService instance this connection uses to connect to the server.
+     * @param   {StreamingSubscription[]}   subscriptions   The streaming subscriptions this connection is receiving events for.
+     * @param   {number}   					lifetime        The maximum time, in minutes, the connection will remain open. Lifetime must be between 1 and 30.
+     */
+    constructor(service: ExchangeService, subscriptions: StreamingSubscription[], lifetime: number);
+    /**
+     * Adds a subscription to this connection.
+     *
+     * @param   {StreamingSubscription}   subscription   The subscription to add.
+     */
+    AddSubscription(subscription: StreamingSubscription): void;
+    /**
+     * Closes this connection so it stops receiving events from the server.
+     * This terminates a long-standing call to EWS.
+     *
+     * @exception	{InvalidOperationException}		Thrown when Close is called while not connected.
+     */
+    Close(): void;
+    /**
+     * Frees resources associated with this StreamingSubscriptionConnection.
+     */
+    Dispose(): void;
+    /**
+     * @private Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+     *
+     * @param   {boolean}   suppressFinalizer   Value indicating whether to suppress the garbage collector's finalizer..
+     */
+    Dispose(suppressFinalizer: boolean): void;
+    /**
+     * Handles the service response object.
+     *
+     * @param   {any}   response   The response.
+     */    /**
+     * Internal helper method called when the request disconnects.
+     *
+     * @param   {Exception}   ex   The exception that caused the disconnection. May be null.
+     */    /**
+     * Internal helper method called when the request receives headers.
+     *
+     * @param   {any}   headers   The headerf from server.
+     */    /**
+     * Issues the general failure.
+     *
+     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
+     */    /**
+     * Issues the notification events.
+     *
+     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
+     */    /**
+     * Issues the subscription failures.
+     *
+     * @param   {GetStreamingEventsResponse}   gseResponse   The GetStreamingEvents response.
+     */    /**
+     * Called when the request is disconnected.
+     *
+     * @param   {any}   								sender   The sender.
+     * @param   {HangingRequestDisconnectEventArgs}   	args     The  instance containing the event data.
+     */    /**
+     * Opens this connection so it starts receiving events from the server.
+     * This results in a long-standing call to EWS.
+     *
+     * @exception	{InvalidOperationException}		Thrown when Open is called while connected.
+     */
+    Open(): Promise<void>;
+    /**
+     * Removes the specified streaming subscription from the connection.
+     *
+     * @param   {StreamingSubscription}   subscription   The subscription to remove.
+     */
+    RemoveSubscription(subscription: StreamingSubscription): void;
+    /**
+     * Throws if disposed.
+     */
+    ThrowIfDisposed(): void;
+    /**
+     * Validates the state of the connection.
+     *
+     * @param   {boolean}   isConnectedExpected   Value indicating whether we expect to be currently connected.
+     * @param   {string}   	errorMessage          The error message.
+     */
+    ValidateConnectionState(isConnectedExpected: boolean, errorMessage: string): void;
+}
+/**
+ * Represents a delegate that is invoked when notifications are received from the server
+ *
+ * @param   {any}   					sender   The StreamingSubscriptionConnection instance that received the events.
+ * @param   {NotificationEventArgs}   	args     The event data.
+ */
+export interface NotificationEventDelegate {
+    (sender: any, args: NotificationEventArgs): void;
+}
+/**
+ * Represents a delegate that is invoked when an error occurs within a streaming subscription connection.
+ *
+ * @param   {any}   						sender   The StreamingSubscriptionConnection instance within which the error occurred.
+ * @param   {SubscriptionErrorEventArgs}   	args     The event data.
+ */
+export interface SubscriptionErrorDelegate {
+    (sender: any, args: SubscriptionErrorEventArgs): void;
+}
+/**
+ * Represents a delegate that is invoked when an error occurs within a streaming subscription connection.
+ *
+ * @param   {any}   						sender   The StreamingSubscriptionConnection instance within which the error occurred.
+ * @param   {SubscriptionErrorEventArgs}   	args     The event data.
+ */
+export interface ResponseHeaderDelegate {
+    (header: any): void;
+}/**
+ * Represents the base class for event subscriptions.
+ */
+ abstract class SubscriptionBase {
+    protected service: ExchangeService;
+    /**
+     * Gets the session.
+     *
+     * @value The session.
+     */
+    readonly Service: ExchangeService;
+    /**
+     * Gets the Id of the subscription.
+     *
+     * internal set
+     */
+    Id: string;
+    /**
+     * Gets the latest watermark of the subscription. Watermark is always null for streaming subscriptions.
+     *
+     * internal set
+     */
+    Watermark: string;
+    /**
+     * Gets whether or not this subscription uses watermarks.
+     */
+    protected readonly UsesWatermark: boolean;
+}
+/**
+ * Provides data to a StreamingSubscriptionConnection's OnSubscriptionError and OnDisconnect events.
+ */
+ class SubscriptionErrorEventArgs {
+    /**
+     * Gets the subscription for which an error occurred. If Subscription is null, the error applies to the entire connection.
+     *
+     * internal set
+     */
+    Subscription: StreamingSubscription;
+    /**
+     * Gets the exception representing the error. If Exception is null, the connection was cleanly closed by the server.
+     *
+     * internal set
+     */
+    Exception: Exception;
+}/**
  * Represents a date range view of appointments in calendar folder search operations.
  */
  class CalendarView extends ViewBase {
@@ -10393,8 +10393,22 @@ export interface CreateServiceObjectWithAttachmentParam {
      * Gets or sets the property set. PropertySet determines which properties will be loaded on found items. If PropertySet is null, all first class properties are loaded on found items.
      */
     PropertySet: PropertySet;
-}
-/**
+} class SafeXmlFactory {    CreateSafeXmlTextReader(stream: any): any;
+    CreateXPathDocument(uri: string, space: any): any;
+} class SecurityTimestamp {
+    static DefaultTimestampValidityDurationString: string;
+    static DefaultFormat: string;
+    CreationTimeUtc: Date;
+    ExpiryTimeUtc: Date;
+    Id: string;
+    DigestAlgorithm: string;    static DefaultTimestampValidityDuration: any;
+    static DefaultTimeToLive: any;
+    GetCreationTimeChars(): any[];
+    GetDigest(): any;
+    GetExpiryTimeChars(): any[];
+    ToChars(utcTime: Date): any[];
+    ToString(): string;
+}/**
  * Represents the definition of an extended property.
  */
  class ExtendedPropertyDefinition extends PropertyDefinitionBase {    /**
@@ -10650,23 +10664,7 @@ export interface IIndexedPropertyDefinition {
      * Gets the Id of the item the change applies to.
      */
     readonly ItemId: ItemId;
-} class SafeXmlFactory {    CreateSafeXmlTextReader(stream: any): any;
-    CreateXPathDocument(uri: string, space: any): any;
-} class SecurityTimestamp {
-    static DefaultTimestampValidityDurationString: string;
-    static DefaultFormat: string;
-    CreationTimeUtc: Date;
-    ExpiryTimeUtc: Date;
-    Id: string;
-    DigestAlgorithm: string;    static DefaultTimestampValidityDuration: any;
-    static DefaultTimeToLive: any;
-    GetCreationTimeChars(): any[];
-    GetDigest(): any;
-    GetExpiryTimeChars(): any[];
-    ToChars(utcTime: Date): any[];
-    ToString(): string;
-}
- class PhoneCall extends ComplexProperty {
+} class PhoneCall extends ComplexProperty {
     State: PhoneCallState;
     ConnectionFailureCause: ConnectionFailureCause;
     SIPResponseText: string;
@@ -18550,6 +18548,361 @@ export interface ISearchFilterCollection {
      * @return  {Promise<TasksFolder>}         A TasksFolder instance representing the tasks folder with the specified name.
      */
     static Bind(service: ExchangeService, name: WellKnownFolderName): Promise<TasksFolder>;
+}/**
+ * Represents a meeting acceptance message.
+ *
+ */
+ class AcceptMeetingInvitationMessage extends CalendarResponseMessage<MeetingResponse> {    /**
+     * Gets a value indicating whether the associated meeting is tentatively accepted.
+     *
+     */
+    readonly Tentative: boolean;
+    /**
+     * Initializes a new instance of the **AcceptMeetingInvitationMessage** class.
+     *
+     * @param   {Item}            referenceItem   The reference item.
+     * @param   {boolean}         tentative       if set to true accept invitation tentatively.
+     */
+    constructor(referenceItem: Item, tentative: boolean);
+}
+/**
+ * Represents the base class for accept, tentatively accept and decline response messages.
+ *
+ * @typeparam   {TMessage}     The type of message that is created when this response message is saved.
+ */
+ abstract class CalendarResponseMessage<TMessage extends EmailMessage> extends CalendarResponseMessageBase<TMessage> {
+    /**
+     * Gets or sets the body of the response.
+     */
+    Body: MessageBody;
+    /**
+     * Gets a list of recipients the response will be sent to.
+     */
+    readonly ToRecipients: EmailAddressCollection;
+    /**
+     * Gets a list of recipients the response will be sent to as Cc.
+     */
+    readonly CcRecipients: EmailAddressCollection;
+    /**
+     * Gets a list of recipients this response will be sent to as Bcc.
+     */
+    readonly BccRecipients: EmailAddressCollection;
+    ItemClass: string;
+    /**
+     * Gets or sets the sensitivity of this response.
+     */
+    Sensitivity: Sensitivity;
+    /**
+     * Gets a list of attachments to this response.
+     */
+    readonly Attachments: AttachmentCollection;
+    readonly InternetMessageHeaders: InternetMessageHeaderCollection;
+    /**
+     * Gets or sets the sender of this response.
+     */
+    Sender: EmailAddress;
+}
+/**
+ * Represents the base class for all calendar-related response messages.
+ *
+ * @typeparam   {TMessage}     The type of message that is created when this response message is saved.
+ */
+ abstract class CalendarResponseMessageBase<TMessage extends EmailMessage> extends ResponseObject<TMessage> {
+    /**
+     * Saves the response in the Drafts folder. Calling this method results in a call to EWS.
+     *
+     * @return  {CalendarActionResults}      A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
+     */
+    Save(): Promise<CalendarActionResults | any>;
+    /**
+     * Saves the response in the specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {WellKnownFolderName}     destinationFolderName   The name of the folder in which to save the response.
+     * @return  {CalendarActionResults}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
+     */
+    Save(destinationFolderName: WellKnownFolderName): Promise<CalendarActionResults | any>;
+    /**
+     * Saves the response in the specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}                destinationFolderId   The Id of the folder in which to save the response.
+     * @return  {CalendarActionResults}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
+     */
+    Save(destinationFolderId: FolderId): Promise<CalendarActionResults | any>;
+    /**
+     * Sends this response without saving a copy. Calling this method results in a call to EWS.
+     *
+     * @return  {CalendarActionResults}      A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
+     */
+    Send(): Promise<CalendarActionResults | any>;
+    /**
+     * Sends this response ans saves a copy in the Sent Items folder. Calling this method results in a call to EWS.
+     *
+     * @return  {CalendarActionResults}      A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
+     */
+    SendAndSaveCopy(): Promise<CalendarActionResults | any>;
+    /**
+     * Sends this response and saves a copy in the specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {WellKnownFolderName}     destinationFolderName   The name of the folder in which to save the copy of the message.
+     * @return  {CalendarActionResults}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
+     */
+    SendAndSaveCopy(destinationFolderName: WellKnownFolderName): Promise<CalendarActionResults | any>;
+    /**
+     * Sends this response ans saves a copy in the specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}                destinationFolderId   The Id of the folder in which to save the copy of the message.
+     * @return  {CalendarActionResults}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
+     */
+    SendAndSaveCopy(destinationFolderId: FolderId): Promise<CalendarActionResults | any>;
+}
+/**
+ * Represents a meeting cancellation message.
+ *
+ */
+ class CancelMeetingMessage extends CalendarResponseMessageBase<MeetingCancellation> {
+    /**
+     * Gets or sets the body of the response.
+     *
+     */
+    Body: MessageBody;
+    /**
+     * Initializes a new instance of the **CancelMeetingMessage** class.
+     *
+     * @param   {Item}   referenceItem   The reference item.
+     */
+    constructor(referenceItem: Item);
+    /**
+     * Gets the minimum required server version.
+     *
+     * @return  {ExchangeVersion}      Earliest Exchange version in which this service object type is supported.
+     */
+    GetMinimumRequiredServerVersion(): ExchangeVersion;
+    /**
+     * Internal method to return the schema associated with this type of object.
+     *
+     * @return  {ServiceObjectSchema}      The schema associated with this type of object.
+     */
+    GetSchema(): ServiceObjectSchema;
+    /**
+     * Gets the element name of item in XML
+     *
+     * @return  {string} name of elelment
+     */
+    GetXmlElementName(): string;
+}/**
+ * Represents a meeting declination message.
+ */
+ class DeclineMeetingInvitationMessage extends CalendarResponseMessage<MeetingResponse> {
+    /**
+     * Initializes a new instance of the **DeclineMeetingInvitationMessage** class.
+     *
+     * @param   {Item}   referenceItem   The reference item.
+     */
+    constructor(referenceItem: Item);
+}
+/**
+ * Represents a reply to a post item.
+ *
+ * @sealed
+ */
+ class PostReply extends ServiceObject {    /**
+     * Gets or sets the subject of the post reply.
+     */
+    Subject: string;
+    /**
+     * Gets or sets the body of the post reply.
+     */
+    Body: MessageBody;
+    /**
+     * Gets or sets the body prefix that should be prepended to the original post item's body.
+     */
+    BodyPrefix: MessageBody;
+    /**
+     * Saves the post reply in the same folder as the original post item. Calling this method results in a call to EWS.
+     *
+     * @return  {Promise<PostItem>}    A PostItem representing the posted reply :Promise.
+     */
+    Save(): Promise<PostItem>;
+    /**
+     * Saves the post reply in the specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}   destinationFolderId   The Id of the folder in which to save the post reply.
+     * @return  {Promise<PostItem>}    A PostItem representing the posted reply :Promise.
+     */
+    Save(destinationFolderId: FolderId): Promise<PostItem>;
+    /**
+     * Saves the post reply in a specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to save the post reply.
+     * @return  {Promise<PostItem>}    A PostItem representing the posted reply :Promise.
+     */
+    Save(destinationFolderName: WellKnownFolderName): Promise<PostItem>;
+}/**
+ * Represents the base class for e-mail related responses (Reply, Reply all and Forward).
+ *
+ */
+ class ResponseMessage extends ResponseObject<EmailMessage> {    /**
+     * Gets a value indicating the type of response this object represents.
+     *
+     */
+    readonly ResponseType: ResponseMessageType;
+    /**
+     * Gets or sets the body of the response.
+     *
+     */
+    Body: MessageBody;
+    /**
+     * Gets a list of recipients the response will be sent to.
+     *
+     */
+    readonly ToRecipients: EmailAddressCollection;
+    /**
+     * Gets a list of recipients the response will be sent to as Cc.
+     *
+     */
+    readonly CcRecipients: EmailAddressCollection;
+    /**
+     * Gets a list of recipients this response will be sent to as Bcc.
+     *
+     */
+    readonly BccRecipients: EmailAddressCollection;
+    /**
+     * Gets or sets the subject of this response.
+     *
+     */
+    Subject: string;
+    /**
+     * Gets or sets the body prefix of this response. The body prefix will be prepended to the original
+    message's body when the response is created.
+     *
+     */
+    BodyPrefix: MessageBody;
+    /**
+     * Initializes a new instance of the **ResponseMessage** class.
+     *
+     * @param   {Item}                    referenceItem   The reference item.
+     * @param   {ResponseMessageType}     responseType    Type of the response.
+     */
+    constructor(referenceItem: Item, responseType: ResponseMessageType);
+    /**
+     * Gets the minimum required server version.
+     *
+     * @return  {type}      Earliest Exchange version in which this service object type is supported.
+     */
+    GetMinimumRequiredServerVersion(): ExchangeVersion;
+    /**
+     * Internal method to return the schema associated with this type of object.
+     *
+     * @return  {ServiceObjectSchema}      The schema associated with this type of object.
+     */
+    GetSchema(): ServiceObjectSchema;
+    /**
+     * Get XML Element Name - workaround for c# attributes
+     */
+    GetXmlElementName(): string;
+    /**
+     * This methods lets subclasses of ServiceObject override the default mechanism by which the XML element name associated with their type is retrieved.
+     *
+     * @return  {string}      The XML element name associated with this type. If this method returns null or empty, the XML element name associated with this type is determined by the EwsObjectDefinition attribute that decorates the type, if present.
+     */
+    GetXmlElementNameOverride(): string;
+}/**
+ * Represents the base class for all responses that can be sent.
+ *
+ * @typeparam   {TMessage}     Type of message.
+ */
+ abstract class ResponseObject<TMessage extends EmailMessage> extends ServiceObject {    /**
+     * Gets or sets a value indicating whether read receipts will be requested from recipients of this response.
+     */
+    IsReadReceiptRequested: boolean;
+    /**
+     * Gets or sets a value indicating whether delivery receipts should be sent to the sender.
+     */
+    IsDeliveryReceiptRequested: boolean;
+    /**
+     * Saves the response in the Drafts folder. Calling this method results in a call to EWS.
+     *
+     * @return  {Promise<TMessage>}      A TMessage that represents the response.
+     */
+    Save(): Promise<TMessage>;
+    /**
+     * Saves the response in the specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {WellKnownFolderName}     destinationFolderName   The name of the folder in which to save the response.
+     * @return  {Promise<TMessage>}      A TMessage that represents the response.
+     */
+    Save(destinationFolderName: WellKnownFolderName): Promise<TMessage>;
+    /**
+     * Saves the response in the specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}   destinationFolderId   The Id of the folder in which to save the response.
+     * @return  {Promise<TMessage>}                         A TMessage that represents the response.
+     */
+    Save(destinationFolderId: FolderId): Promise<TMessage>;
+    /**
+     * Sends this response without saving a copy. Calling this method results in a call to EWS.
+     */
+    Send(): Promise<void>;
+    /**
+     * Sends this response and saves a copy in the Sent Items folder. Calling this method results in a call to EWS.
+     */
+    SendAndSaveCopy(): Promise<void>;
+    /**
+     * Sends this response and saves a copy in the specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to save the copy of the message.
+     */
+    SendAndSaveCopy(destinationFolderName: WellKnownFolderName): Promise<void>;
+    /**
+     * Sends this response and saves a copy in the specified folder. Calling this method results in a call to EWS.
+     *
+     * @param   {FolderId}   destinationFolderId   The Id of the folder in which to save the copy of the message.
+     */
+    SendAndSaveCopy(destinationFolderId: FolderId): Promise<void>;
+}/**
+ * Represents a response object created to supress read receipts for an item.
+ *
+ */
+ class SuppressReadReceipt extends ServiceObject {    /**
+     * Initializes a new instance of the **SuppressReadReceipt** class.
+     *
+     * @param   {Item}   referenceItem   The reference item.
+     */
+    constructor(referenceItem: Item);
+    /**
+     * Gets the minimum required server version.
+     *
+     * @return  {ExchangeVersion}      Earliest Exchange version in which this service object type is supported.
+     */
+    GetMinimumRequiredServerVersion(): ExchangeVersion;
+    /**
+     * Internal method to return the schema associated with this type of object.
+     *
+     * @return  {ServiceObjectSchema}      The schema associated with this type of object.
+     */
+    GetSchema(): ServiceObjectSchema;
+    GetXmlElementName(): string;
+    /**
+     * Create the response object.
+     *
+     * @param   {FolderId}            parentFolderId       The parent folder id.
+     * @param   {MessageDisposition}  messageDisposition   The message disposition.
+     */
+    InternalCreate(parentFolderId: FolderId, messageDisposition: MessageDisposition): Promise<void>;
+    /**
+     * Deletes the object.
+     *
+     * @param   {DeleteMode}              deleteMode                The deletion mode.
+     * @param   {SendCancellationsMode}   sendCancellationsMode     Indicates whether meeting cancellation messages should be sent.
+     * @param   {AffectedTaskOccurrence}  affectedTaskOccurrences   Indicate which occurrence of a recurring task should be deleted.
+     */
+    InternalDelete(deleteMode: DeleteMode, sendCancellationsMode: SendCancellationsMode, affectedTaskOccurrences: AffectedTaskOccurrence): Promise<void>;
+    /**
+     * Loads the specified set of properties on the object.
+     *
+     * @param   {PropertySet}   propertySet   The properties to load.
+     */
+    InternalLoad(propertySet: PropertySet): Promise<void>;
 }
 /**
  * Represents an **appointment or a meeting**. Properties available on appointments are defined in the *AppointmentSchema* class.
@@ -23974,361 +24327,6 @@ export interface TaskSchema {
  * Represents the schema for task items.
  */
 export interface TaskSchemaStatic extends TaskSchema {
-}/**
- * Represents a meeting acceptance message.
- *
- */
- class AcceptMeetingInvitationMessage extends CalendarResponseMessage<MeetingResponse> {    /**
-     * Gets a value indicating whether the associated meeting is tentatively accepted.
-     *
-     */
-    readonly Tentative: boolean;
-    /**
-     * Initializes a new instance of the **AcceptMeetingInvitationMessage** class.
-     *
-     * @param   {Item}            referenceItem   The reference item.
-     * @param   {boolean}         tentative       if set to true accept invitation tentatively.
-     */
-    constructor(referenceItem: Item, tentative: boolean);
-}
-/**
- * Represents the base class for accept, tentatively accept and decline response messages.
- *
- * @typeparam   {TMessage}     The type of message that is created when this response message is saved.
- */
- abstract class CalendarResponseMessage<TMessage extends EmailMessage> extends CalendarResponseMessageBase<TMessage> {
-    /**
-     * Gets or sets the body of the response.
-     */
-    Body: MessageBody;
-    /**
-     * Gets a list of recipients the response will be sent to.
-     */
-    readonly ToRecipients: EmailAddressCollection;
-    /**
-     * Gets a list of recipients the response will be sent to as Cc.
-     */
-    readonly CcRecipients: EmailAddressCollection;
-    /**
-     * Gets a list of recipients this response will be sent to as Bcc.
-     */
-    readonly BccRecipients: EmailAddressCollection;
-    ItemClass: string;
-    /**
-     * Gets or sets the sensitivity of this response.
-     */
-    Sensitivity: Sensitivity;
-    /**
-     * Gets a list of attachments to this response.
-     */
-    readonly Attachments: AttachmentCollection;
-    readonly InternetMessageHeaders: InternetMessageHeaderCollection;
-    /**
-     * Gets or sets the sender of this response.
-     */
-    Sender: EmailAddress;
-}
-/**
- * Represents the base class for all calendar-related response messages.
- *
- * @typeparam   {TMessage}     The type of message that is created when this response message is saved.
- */
- abstract class CalendarResponseMessageBase<TMessage extends EmailMessage> extends ResponseObject<TMessage> {
-    /**
-     * Saves the response in the Drafts folder. Calling this method results in a call to EWS.
-     *
-     * @return  {CalendarActionResults}      A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
-     */
-    Save(): Promise<CalendarActionResults | any>;
-    /**
-     * Saves the response in the specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {WellKnownFolderName}     destinationFolderName   The name of the folder in which to save the response.
-     * @return  {CalendarActionResults}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
-     */
-    Save(destinationFolderName: WellKnownFolderName): Promise<CalendarActionResults | any>;
-    /**
-     * Saves the response in the specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}                destinationFolderId   The Id of the folder in which to save the response.
-     * @return  {CalendarActionResults}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
-     */
-    Save(destinationFolderId: FolderId): Promise<CalendarActionResults | any>;
-    /**
-     * Sends this response without saving a copy. Calling this method results in a call to EWS.
-     *
-     * @return  {CalendarActionResults}      A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
-     */
-    Send(): Promise<CalendarActionResults | any>;
-    /**
-     * Sends this response ans saves a copy in the Sent Items folder. Calling this method results in a call to EWS.
-     *
-     * @return  {CalendarActionResults}      A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
-     */
-    SendAndSaveCopy(): Promise<CalendarActionResults | any>;
-    /**
-     * Sends this response and saves a copy in the specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {WellKnownFolderName}     destinationFolderName   The name of the folder in which to save the copy of the message.
-     * @return  {CalendarActionResults}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
-     */
-    SendAndSaveCopy(destinationFolderName: WellKnownFolderName): Promise<CalendarActionResults | any>;
-    /**
-     * Sends this response ans saves a copy in the specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}                destinationFolderId   The Id of the folder in which to save the copy of the message.
-     * @return  {CalendarActionResults}   A CalendarActionResults object containing the various items that were created or modified as a results of this operation.
-     */
-    SendAndSaveCopy(destinationFolderId: FolderId): Promise<CalendarActionResults | any>;
-}
-/**
- * Represents a meeting cancellation message.
- *
- */
- class CancelMeetingMessage extends CalendarResponseMessageBase<MeetingCancellation> {
-    /**
-     * Gets or sets the body of the response.
-     *
-     */
-    Body: MessageBody;
-    /**
-     * Initializes a new instance of the **CancelMeetingMessage** class.
-     *
-     * @param   {Item}   referenceItem   The reference item.
-     */
-    constructor(referenceItem: Item);
-    /**
-     * Gets the minimum required server version.
-     *
-     * @return  {ExchangeVersion}      Earliest Exchange version in which this service object type is supported.
-     */
-    GetMinimumRequiredServerVersion(): ExchangeVersion;
-    /**
-     * Internal method to return the schema associated with this type of object.
-     *
-     * @return  {ServiceObjectSchema}      The schema associated with this type of object.
-     */
-    GetSchema(): ServiceObjectSchema;
-    /**
-     * Gets the element name of item in XML
-     *
-     * @return  {string} name of elelment
-     */
-    GetXmlElementName(): string;
-}/**
- * Represents a meeting declination message.
- */
- class DeclineMeetingInvitationMessage extends CalendarResponseMessage<MeetingResponse> {
-    /**
-     * Initializes a new instance of the **DeclineMeetingInvitationMessage** class.
-     *
-     * @param   {Item}   referenceItem   The reference item.
-     */
-    constructor(referenceItem: Item);
-}
-/**
- * Represents a reply to a post item.
- *
- * @sealed
- */
- class PostReply extends ServiceObject {    /**
-     * Gets or sets the subject of the post reply.
-     */
-    Subject: string;
-    /**
-     * Gets or sets the body of the post reply.
-     */
-    Body: MessageBody;
-    /**
-     * Gets or sets the body prefix that should be prepended to the original post item's body.
-     */
-    BodyPrefix: MessageBody;
-    /**
-     * Saves the post reply in the same folder as the original post item. Calling this method results in a call to EWS.
-     *
-     * @return  {Promise<PostItem>}    A PostItem representing the posted reply :Promise.
-     */
-    Save(): Promise<PostItem>;
-    /**
-     * Saves the post reply in the specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}   destinationFolderId   The Id of the folder in which to save the post reply.
-     * @return  {Promise<PostItem>}    A PostItem representing the posted reply :Promise.
-     */
-    Save(destinationFolderId: FolderId): Promise<PostItem>;
-    /**
-     * Saves the post reply in a specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to save the post reply.
-     * @return  {Promise<PostItem>}    A PostItem representing the posted reply :Promise.
-     */
-    Save(destinationFolderName: WellKnownFolderName): Promise<PostItem>;
-}/**
- * Represents the base class for e-mail related responses (Reply, Reply all and Forward).
- *
- */
- class ResponseMessage extends ResponseObject<EmailMessage> {    /**
-     * Gets a value indicating the type of response this object represents.
-     *
-     */
-    readonly ResponseType: ResponseMessageType;
-    /**
-     * Gets or sets the body of the response.
-     *
-     */
-    Body: MessageBody;
-    /**
-     * Gets a list of recipients the response will be sent to.
-     *
-     */
-    readonly ToRecipients: EmailAddressCollection;
-    /**
-     * Gets a list of recipients the response will be sent to as Cc.
-     *
-     */
-    readonly CcRecipients: EmailAddressCollection;
-    /**
-     * Gets a list of recipients this response will be sent to as Bcc.
-     *
-     */
-    readonly BccRecipients: EmailAddressCollection;
-    /**
-     * Gets or sets the subject of this response.
-     *
-     */
-    Subject: string;
-    /**
-     * Gets or sets the body prefix of this response. The body prefix will be prepended to the original
-    message's body when the response is created.
-     *
-     */
-    BodyPrefix: MessageBody;
-    /**
-     * Initializes a new instance of the **ResponseMessage** class.
-     *
-     * @param   {Item}                    referenceItem   The reference item.
-     * @param   {ResponseMessageType}     responseType    Type of the response.
-     */
-    constructor(referenceItem: Item, responseType: ResponseMessageType);
-    /**
-     * Gets the minimum required server version.
-     *
-     * @return  {type}      Earliest Exchange version in which this service object type is supported.
-     */
-    GetMinimumRequiredServerVersion(): ExchangeVersion;
-    /**
-     * Internal method to return the schema associated with this type of object.
-     *
-     * @return  {ServiceObjectSchema}      The schema associated with this type of object.
-     */
-    GetSchema(): ServiceObjectSchema;
-    /**
-     * Get XML Element Name - workaround for c# attributes
-     */
-    GetXmlElementName(): string;
-    /**
-     * This methods lets subclasses of ServiceObject override the default mechanism by which the XML element name associated with their type is retrieved.
-     *
-     * @return  {string}      The XML element name associated with this type. If this method returns null or empty, the XML element name associated with this type is determined by the EwsObjectDefinition attribute that decorates the type, if present.
-     */
-    GetXmlElementNameOverride(): string;
-}/**
- * Represents the base class for all responses that can be sent.
- *
- * @typeparam   {TMessage}     Type of message.
- */
- abstract class ResponseObject<TMessage extends EmailMessage> extends ServiceObject {    /**
-     * Gets or sets a value indicating whether read receipts will be requested from recipients of this response.
-     */
-    IsReadReceiptRequested: boolean;
-    /**
-     * Gets or sets a value indicating whether delivery receipts should be sent to the sender.
-     */
-    IsDeliveryReceiptRequested: boolean;
-    /**
-     * Saves the response in the Drafts folder. Calling this method results in a call to EWS.
-     *
-     * @return  {Promise<TMessage>}      A TMessage that represents the response.
-     */
-    Save(): Promise<TMessage>;
-    /**
-     * Saves the response in the specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {WellKnownFolderName}     destinationFolderName   The name of the folder in which to save the response.
-     * @return  {Promise<TMessage>}      A TMessage that represents the response.
-     */
-    Save(destinationFolderName: WellKnownFolderName): Promise<TMessage>;
-    /**
-     * Saves the response in the specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}   destinationFolderId   The Id of the folder in which to save the response.
-     * @return  {Promise<TMessage>}                         A TMessage that represents the response.
-     */
-    Save(destinationFolderId: FolderId): Promise<TMessage>;
-    /**
-     * Sends this response without saving a copy. Calling this method results in a call to EWS.
-     */
-    Send(): Promise<void>;
-    /**
-     * Sends this response and saves a copy in the Sent Items folder. Calling this method results in a call to EWS.
-     */
-    SendAndSaveCopy(): Promise<void>;
-    /**
-     * Sends this response and saves a copy in the specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {WellKnownFolderName}   destinationFolderName   The name of the folder in which to save the copy of the message.
-     */
-    SendAndSaveCopy(destinationFolderName: WellKnownFolderName): Promise<void>;
-    /**
-     * Sends this response and saves a copy in the specified folder. Calling this method results in a call to EWS.
-     *
-     * @param   {FolderId}   destinationFolderId   The Id of the folder in which to save the copy of the message.
-     */
-    SendAndSaveCopy(destinationFolderId: FolderId): Promise<void>;
-}/**
- * Represents a response object created to supress read receipts for an item.
- *
- */
- class SuppressReadReceipt extends ServiceObject {    /**
-     * Initializes a new instance of the **SuppressReadReceipt** class.
-     *
-     * @param   {Item}   referenceItem   The reference item.
-     */
-    constructor(referenceItem: Item);
-    /**
-     * Gets the minimum required server version.
-     *
-     * @return  {ExchangeVersion}      Earliest Exchange version in which this service object type is supported.
-     */
-    GetMinimumRequiredServerVersion(): ExchangeVersion;
-    /**
-     * Internal method to return the schema associated with this type of object.
-     *
-     * @return  {ServiceObjectSchema}      The schema associated with this type of object.
-     */
-    GetSchema(): ServiceObjectSchema;
-    GetXmlElementName(): string;
-    /**
-     * Create the response object.
-     *
-     * @param   {FolderId}            parentFolderId       The parent folder id.
-     * @param   {MessageDisposition}  messageDisposition   The message disposition.
-     */
-    InternalCreate(parentFolderId: FolderId, messageDisposition: MessageDisposition): Promise<void>;
-    /**
-     * Deletes the object.
-     *
-     * @param   {DeleteMode}              deleteMode                The deletion mode.
-     * @param   {SendCancellationsMode}   sendCancellationsMode     Indicates whether meeting cancellation messages should be sent.
-     * @param   {AffectedTaskOccurrence}  affectedTaskOccurrences   Indicate which occurrence of a recurring task should be deleted.
-     */
-    InternalDelete(deleteMode: DeleteMode, sendCancellationsMode: SendCancellationsMode, affectedTaskOccurrences: AffectedTaskOccurrence): Promise<void>;
-    /**
-     * Loads the specified set of properties on the object.
-     *
-     * @param   {PropertySet}   propertySet   The properties to load.
-     */
-    InternalLoad(propertySet: PropertySet): Promise<void>;
 }
 /**
  * Represents a recurrence pattern where each occurrence happens a specific number of days after the previous one.

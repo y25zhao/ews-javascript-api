@@ -45,7 +45,7 @@ var GroupMemberCollection = /** @class */ (function (_super) {
     };
     //Find(key: string): GroupMember { throw new Error("GroupMemberCollection.ts - Find : Not implemented."); }
     GroupMemberCollection.prototype.GetCollectionItemXmlElementName = function (member) {
-        return XmlElementNames_1.XmlElementNames.Members;
+        return XmlElementNames_1.XmlElementNames.Member;
     };
     return GroupMemberCollection;
 }(ComplexPropertyCollection_1.ComplexPropertyCollection));
