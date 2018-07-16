@@ -11,22 +11,47 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var ComplexProperty_1 = require("./ComplexProperty");
+var EmailAddress_1 = require("./EmailAddress");
+var MemberStatus_1 = require("../Enumerations/MemberStatus");
+var XmlAttributeNames_1 = require("../Core/XmlAttributeNames");
+var XmlElementNames_1 = require("../Core/XmlElementNames");
+var XmlNamespace_1 = require("../Enumerations/XmlNamespace");
 var GroupMember = /** @class */ (function (_super) {
     __extends(GroupMember, _super);
+    /**
+     * Initializes a new instance of the **EmailUserEntity** class.
+     */
     function GroupMember() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super.call(this) || this;
+        _this.AddressInformation = new EmailAddress_1.EmailAddress();
+        _this.addressInformation = new EmailAddress_1.EmailAddress();
+        _this.Namespace = XmlNamespace_1.XmlNamespace.Types;
+        return _this;
     }
-    GroupMember.prototype.AddressInformationChanged = function (complexProperty) { throw new Error("GroupMember.ts - AddressInformationChanged : Not implemented."); };
-    GroupMember.prototype.InternalToJson = function (service) { throw new Error("GroupMember.ts - InternalToJson : Not implemented."); };
-    GroupMember.prototype.LoadFromJson = function (jsonProperty, service) { throw new Error("GroupMember.ts - LoadFromJson : Not implemented."); };
-    /**@internal */
-    GroupMember.prototype.ReadAttributesFromXmlJsObject = function (reader) { throw new Error("GroupMember.ts - ReadAttributesFromXml : Not implemented."); };
-    /**@internal */
-    GroupMember.prototype.ReadElementsFromXmlJsObject = function (reader) { throw new Error("GroupMember.ts - TryReadElementFromXmlJsObject : Not implemented."); };
-    /**@internal */
-    GroupMember.prototype.WriteAttributesToXml = function (writer) { throw new Error("GroupMember.ts - WriteAttributesToXml : Not implemented."); };
-    /**@internal */
-    GroupMember.prototype.WriteElementsToXml = function (writer) { throw new Error("GroupMember.ts - WriteElementsToXml : Not implemented."); };
+    // AddressInformationChanged(complexProperty: ComplexProperty): any { throw new Error("GroupMember.ts - AddressInformationChanged : Not implemented."); }
+    // InternalToJson(service: ExchangeService): any { throw new Error("GroupMember.ts - InternalToJson : Not implemented."); }
+    /**
+     * @internal Loads service object from XML.
+     *
+     * @param   {any}				jsObject	Json Object converted from XML.
+     * @param   {ExchangeService}	service	The service.
+     */
+    GroupMember.prototype.LoadFromXmlJsObject = function (jsObject, service) {
+        for (var key in jsObject) {
+            switch (key) {
+                case XmlAttributeNames_1.XmlAttributeNames.Key:
+                    this.Key = jsObject[key];
+                case XmlElementNames_1.XmlElementNames.Status:
+                    this.Status = MemberStatus_1.MemberStatus.Normal;
+                    break;
+                case XmlElementNames_1.XmlElementNames.Mailbox:
+                    this.AddressInformation.LoadFromXmlJsObject(jsObject[key], service);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
     return GroupMember;
 }(ComplexProperty_1.ComplexProperty));
 exports.GroupMember = GroupMember;
