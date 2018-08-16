@@ -31,7 +31,9 @@ var DeleteAttachmentRequest = /** @class */ (function (_super) {
      * @param   {ServiceErrorHandling}  errorHandlingMode   Indicates how errors should be handled.
      */
     function DeleteAttachmentRequest(service, errorHandlingMode) {
-        return _super.call(this, service, errorHandlingMode) || this;
+        var _this = _super.call(this, service, errorHandlingMode) || this;
+        _this.attachments = [];
+        return _this;
     }
     Object.defineProperty(DeleteAttachmentRequest.prototype, "Attachments", {
         /**
