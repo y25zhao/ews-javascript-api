@@ -24,7 +24,7 @@ var FolderId = /** @class */ (function (_super) {
     //        this.mailbox = mailbox;
     //        this.folderName = folderName;
     //    }
-    function FolderId(uniqueId, folderName, mailbox) {
+    function FolderId(folderName, mailbox, uniqueId) {
         var _this = _super.call(this, uniqueId) || this;
         _this.mailbox = mailbox;
         _this.folderName = folderName;
