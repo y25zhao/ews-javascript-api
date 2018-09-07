@@ -19,7 +19,6 @@ var ServiceResult_1 = require("../../Enumerations/ServiceResult");
 var ServiceErrorHandling_1 = require("../../Enumerations/ServiceErrorHandling");
 var ServiceResponseCollection_1 = require("../Responses/ServiceResponseCollection");
 var ServiceResponseException_1 = require("../../Exceptions/ServiceResponseException");
-var ServiceXmlDeserializationException_1 = require("../../Exceptions/ServiceXmlDeserializationException");
 var RenderingMode_1 = require("../../Enumerations/RenderingMode");
 var ExtensionMethods_1 = require("../../ExtensionMethods");
 var Promise_1 = require("../../Promise");
@@ -98,10 +97,18 @@ var MultiResponseServiceRequest = /** @class */ (function (_super) {
         // is an unexpected server error.
         if (serviceResponses.Count < this.GetExpectedResponseMessageCount()) {
             if ((serviceResponses.Count >= 1) && (serviceResponses.__thisIndexer(0).Result == ServiceResult_1.ServiceResult.Error)) {
-                throw new ServiceResponseException_1.ServiceResponseException(serviceResponses.__thisIndexer(0));
+                // throw new ServiceResponseException(serviceResponses.__thisIndexer(0));
+                console.error('Parse error: unexpected server error: ' + serviceResponses.__thisIndexer(0));
             }
             else {
-                throw new ServiceXmlDeserializationException_1.ServiceXmlDeserializationException(ExtensionMethods_1.StringHelper.Format(Strings_1.Strings.TooFewServiceReponsesReturned, this.GetResponseMessageXmlElementName(), this.GetExpectedResponseMessageCount(), serviceResponses.Count));
+                /*
+                throw new ServiceXmlDeserializationException(
+                    StringHelper.Format(
+                        Strings.TooFewServiceReponsesReturned,
+                        this.GetResponseMessageXmlElementName(),
+                        this.GetExpectedResponseMessageCount(),
+                        serviceResponses.Count)); */
+                console.error('Parse error: unexpected server error: ' + ExtensionMethods_1.StringHelper.Format(Strings_1.Strings.TooFewServiceReponsesReturned, this.GetResponseMessageXmlElementName(), this.GetExpectedResponseMessageCount(), serviceResponses.Count));
             }
         }
         return serviceResponses;
