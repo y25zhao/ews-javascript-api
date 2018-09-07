@@ -84,10 +84,12 @@ var MultiResponseServiceRequest = /** @class */ (function (_super) {
             var response = this.CreateServiceResponse(this.Service, i);
             //ref: check need for responseMessageXmlElementName
             var jsResponseMessage = responseMessages[i];
-            response.LoadFromXmlJsObject(jsResponseMessage, this.Service); //, responseMessageXmlElementName, this.Service);
-            // Add the response to the list after it has been deserialized because the response
-            // list updates an overall result as individual responses are added to it.
-            serviceResponses.Add(response);
+            if (responseMessages[i]) {
+                response.LoadFromXmlJsObject(jsResponseMessage, this.Service); //, responseMessageXmlElementName, this.Service);
+                // Add the response to the list after it has been deserialized because the response
+                // list updates an overall result as individual responses are added to it.
+                serviceResponses.Add(response);
+            }
         }
         // If there's a general error in batch processing,
         // the server will return a single response message containing the error
