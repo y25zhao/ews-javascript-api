@@ -59,7 +59,7 @@ var ResponseMessage = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(Item.prototype, "MimeContent", {
+    Object.defineProperty(ResponseMessage.prototype, "MimeContent", {
         /**
          * Get or sets the MIME content of this item.
          *
