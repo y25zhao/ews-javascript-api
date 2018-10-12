@@ -59,6 +59,20 @@ var ResponseMessage = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Item.prototype, "MimeContent", {
+        /**
+         * Get or sets the MIME content of this item.
+         *
+         */
+        get: function () {
+            return this.PropertyBag._getItem(Schemas_1.Schemas.ItemSchema.MimeContent);
+        },
+        set: function (value) {
+            this.PropertyBag._setItem(Schemas_1.Schemas.ItemSchema.MimeContent, value);
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(ResponseMessage.prototype, "ToRecipients", {
         /**
          * Gets a list of recipients the response will be sent to.
