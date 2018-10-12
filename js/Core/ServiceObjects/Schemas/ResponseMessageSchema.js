@@ -29,6 +29,7 @@ var ResponseMessageSchema = /** @class */ (function (_super) {
         _super.prototype.RegisterProperties.call(this);
         this.RegisterProperty(ResponseMessageSchema, Schemas_1.Schemas.ItemSchema.Subject);
         this.RegisterProperty(ResponseMessageSchema, Schemas_1.Schemas.ItemSchema.Body);
+        this.RegisterProperty(ResponseMessageSchema, Schemas_1.Schemas.ItemSchema.MimeContent);
         this.RegisterProperty(ResponseMessageSchema, Schemas_1.Schemas.EmailMessageSchema.ToRecipients);
         this.RegisterProperty(ResponseMessageSchema, Schemas_1.Schemas.EmailMessageSchema.CcRecipients);
         this.RegisterProperty(ResponseMessageSchema, Schemas_1.Schemas.EmailMessageSchema.BccRecipients);
