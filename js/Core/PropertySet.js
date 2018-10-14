@@ -54,6 +54,10 @@ var PropertySet = /** @class */ (function () {
          */
         this.convertHtmlCodePageToUTF8 = null; //nullable
         /**
+         * Value indicating whether or not the server should return SMIME content.
+         */
+        this.includeMimeContent = null; //nullable
+        /**
          * Value of the URL template to use for the src attribute of inline IMG elements.
          */
         this.inlineImageUrlTemplate = null;
@@ -217,6 +221,22 @@ var PropertySet = /** @class */ (function () {
         set: function (value) {
             this.ThrowIfReadonly();
             this.convertHtmlCodePageToUTF8 = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PropertySet.prototype, "IncludeMimeContent", {
+        /**
+         * Gets or sets value indicating whether or not to Specifies whether the Multipurpose Internet Mail Extensions (MIME) content of an item is returned in the response. 
+         *
+         * @nullable
+         */
+        get: function () {
+            return this.includeMimeContent;
+        },
+        set: function (value) {
+            this.ThrowIfReadonly();
+            this.includeMimeContent = value;
         },
         enumerable: true,
         configurable: true
@@ -436,6 +456,11 @@ var PropertySet = /** @class */ (function () {
                 throw new ServiceVersionException_1.ServiceVersionException(ExtensionMethods_1.StringHelper.Format(Strings_1.Strings.PropertyIncompatibleWithRequestVersion, "ConvertHtmlCodePageToUTF8", ExchangeVersion_1.ExchangeVersion[ExchangeVersion_1.ExchangeVersion.Exchange2010_SP1]));
             }
         }
+        if (this.IncludeMimeContent /*.HasValue*/) {
+            if (request.Service.RequestedServerVersion < ExchangeVersion_1.ExchangeVersion.Exchange2010_SP1) {
+                throw new ServiceVersionException_1.ServiceVersionException(ExtensionMethods_1.StringHelper.Format(Strings_1.Strings.PropertyIncompatibleWithRequestVersion, "IncludeMimeContent", ExchangeVersion_1.ExchangeVersion[ExchangeVersion_1.ExchangeVersion.Exchange2010_SP1]));
+            }
+        }
         if (!ExtensionMethods_1.StringHelper.IsNullOrEmpty(this.InlineImageUrlTemplate)) {
             if (request.Service.RequestedServerVersion < ExchangeVersion_1.ExchangeVersion.Exchange2013) {
                 throw new ServiceVersionException_1.ServiceVersionException(ExtensionMethods_1.StringHelper.Format(Strings_1.Strings.PropertyIncompatibleWithRequestVersion, "InlineImageUrlTemplate", ExchangeVersion_1.ExchangeVersion[ExchangeVersion_1.ExchangeVersion.Exchange2013]));
@@ -497,6 +522,10 @@ var PropertySet = /** @class */ (function () {
             if (this.ConvertHtmlCodePageToUTF8 /*.HasValue*/ &&
                 writer.Service.RequestedServerVersion >= ExchangeVersion_1.ExchangeVersion.Exchange2010_SP1) {
                 writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.ConvertHtmlCodePageToUTF8, this.ConvertHtmlCodePageToUTF8 /*.Value*/);
+            }
+            if (this.IncludeMimeContent /*.HasValue*/ &&
+                writer.Service.RequestedServerVersion >= ExchangeVersion_1.ExchangeVersion.Exchange2010_SP1) {
+                writer.WriteElementValue(XmlNamespace_1.XmlNamespace.Types, XmlElementNames_1.XmlElementNames.IncludeMimeContent, this.IncludeMimeContent /*.Value*/);
             }
             if (!ExtensionMethods_1.StringHelper.IsNullOrEmpty(this.InlineImageUrlTemplate) &&
                 writer.Service.RequestedServerVersion >= ExchangeVersion_1.ExchangeVersion.Exchange2013) {

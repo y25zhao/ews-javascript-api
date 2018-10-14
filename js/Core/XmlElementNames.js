@@ -516,6 +516,7 @@ var XmlElementNames;
     XmlElementNames.BinaryData = "BinaryData";
     XmlElementNames.FilterHtmlContent = "FilterHtmlContent";
     XmlElementNames.ConvertHtmlCodePageToUTF8 = "ConvertHtmlCodePageToUTF8";
+    XmlElementNames.IncludeMimeContent = "IncludeMimeContent";
     XmlElementNames.UnknownEntries = "UnknownEntries";
     XmlElementNames.UnknownEntry = "UnknownEntry";
     XmlElementNames.PasswordExpirationDate = "PasswordExpirationDate";

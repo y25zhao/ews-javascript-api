@@ -3310,6 +3310,12 @@ export interface InitializeLazyMember<T> {
      */
     ConvertHtmlCodePageToUTF8: boolean;
     /**
+     * Gets or sets value indicating whether or not to Specifies whether the Multipurpose Internet Mail Extensions (MIME) content of an item is returned in the response. 
+     *
+     * @nullable
+     */
+    IncludeMimeContent: boolean;
+    /**
      * Gets or sets a value of the URL template to use for the src attribute of inline IMG elements.
      *
      * @nullable
@@ -4045,6 +4051,7 @@ export interface InitializeLazyMember<T> {
     var BinaryData: string;
     var FilterHtmlContent: string;
     var ConvertHtmlCodePageToUTF8: string;
+    var IncludeMimeContent: string;
     var UnknownEntries: string;
     var UnknownEntry: string;
     var PasswordExpirationDate: string;
