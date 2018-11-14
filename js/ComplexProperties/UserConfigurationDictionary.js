@@ -547,15 +547,17 @@ var UserConfigurationDictionary = /** @class */ (function (_super) {
             }
             //check for byte[] for base64 conversion to single element //todo: byte[] conversion to base64 using Buffer
             var dictionaryObjectAsByteArray = ExtensionMethods_1.ArrayHelper.OfType(dictionaryObject, function (item) { return typeof item === 'number'; });
-            if (dictionaryObjectAsByteArray.length > 0 && dictionaryObjectAsByteArray.length === dictionaryObject.length) {
-                // Convert byte array to base64 string
-                dictionaryObjectType = UserConfigurationDictionaryObjectType_1.UserConfigurationDictionaryObjectType.ByteArray;
-                valueAsString = ExtensionMethods_1.Convert.ToBase64String(dictionaryObjectAsByteArray);
-                this.WriteEntryTypeToXml(writer, dictionaryObjectType);
-                this.WriteEntryValueToXml(writer, valueAsString);
-            }
-            else {
-                throw new ServiceLocalException_1.ServiceLocalException(Strings_1.Strings.NullStringArrayElementInvalid);
+            if (dictionaryObjectAsByteArray.length > 0) {
+                if (dictionaryObjectAsByteArray.length === dictionaryObject.length) {
+                    // Convert byte array to base64 string
+                    dictionaryObjectType = UserConfigurationDictionaryObjectType_1.UserConfigurationDictionaryObjectType.ByteArray;
+                    valueAsString = ExtensionMethods_1.Convert.ToBase64String(dictionaryObjectAsByteArray);
+                    this.WriteEntryTypeToXml(writer, dictionaryObjectType);
+                    this.WriteEntryValueToXml(writer, valueAsString);
+                }
+                else {
+                    throw new ServiceLocalException_1.ServiceLocalException(Strings_1.Strings.NullStringArrayElementInvalid);
+                }
             }
         }
         else {
